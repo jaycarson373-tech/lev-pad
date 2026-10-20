@@ -11,7 +11,9 @@ use anchor_spl::token_interface::{
 
 pub mod engine;
 pub mod math;
+pub mod revenue;
 pub use engine::*;
+pub use revenue::*;
 
 // Fail closed if a transitive helper ever requests randomness on chain.
 #[cfg(target_os = "solana")]
@@ -29,6 +31,27 @@ pub const CURVE_DISC: [u8; 8] = [23, 183, 248, 55, 96, 216, 172, 96];
 #[program]
 pub mod levermeme {
     use super::*;
+
+    pub fn execute_buyback<'info>(
+        ctx: Context<'info, ExecuteBuyback<'info>>,
+        input_amount: u64,
+        minimum_output: u64,
+        swap_data: Vec<u8>,
+    ) -> Result<()> {
+        revenue::buyback(ctx, input_amount, minimum_output, swap_data)
+    }
+    pub fn collect_native_creator_fees(ctx: Context<CollectNativeCreatorFees>) -> Result<()> {
+        revenue::collect_native(ctx)
+    }
+    pub fn wrap_buyback_sol(ctx: Context<WrapBuybackSol>, amount: u64) -> Result<()> {
+        revenue::wrap_sol(ctx, amount)
+    }
+    pub fn collect_quote_creator_fees<'info>(
+        ctx: Context<'info, CollectQuoteCreatorFees<'info>>,
+        source_kind: u8,
+    ) -> Result<()> {
+        revenue::collect_quote(ctx, source_kind)
+    }
 
     pub fn approve_listing_permit(
         ctx: Context<ApproveListingPermit>,
@@ -138,7 +161,7 @@ pub mod levermeme {
             ErrorCode::SameMint
         );
         let protocol = &mut ctx.accounts.protocol;
-        protocol.version = 2;
+        protocol.version = 3;
         protocol.admin = ctx.accounts.admin.key();
         protocol.lever_mint = ctx.accounts.lever_mint.key();
         protocol.quote_mint = ctx.accounts.quote_mint.key();
@@ -150,6 +173,7 @@ pub mod levermeme {
         protocol.initial_supply = ctx.accounts.lever_mint.supply;
         protocol.platform_revenue = 0;
         protocol.token_creator_revenue = 0;
+        ctx.accounts.revenue.protocol = protocol.key();
         emit!(ProtocolCreated {
             protocol: protocol.key(),
             admin: protocol.admin
@@ -1001,6 +1025,8 @@ pub struct InitializeProtocol<'info> {
     pub admin: Signer<'info>,
     #[account(init, payer = admin, space = 8 + Protocol::INIT_SPACE, seeds = [b"protocol", admin.key().as_ref()], bump)]
     pub protocol: Box<Account<'info, Protocol>>,
+    #[account(init, payer=admin, space=8+RevenueLedger::INIT_SPACE, seeds=[b"revenue",protocol.key().as_ref()], bump)]
+    pub revenue: Box<Account<'info, RevenueLedger>>,
     pub lever_mint: Box<InterfaceAccount<'info, Mint>>,
     pub quote_mint: Box<InterfaceAccount<'info, Mint>>,
     /// CHECK: Canonical pump.fun origin for the admission token, verified in handler.
@@ -1236,6 +1262,12 @@ pub enum ErrorCode {
     Owner,
     #[msg("Position is not liquidatable or at its profit cap")]
     Healthy,
+    #[msg("Creator identity, origin or fee vault was rejected")]
+    CreatorIdentity,
+    #[msg("Unsupported or unsafe buyback route/accounts")]
+    BuybackRoute,
+    #[msg("Buyback input/output or authority balance bounds failed")]
+    BuybackBounds,
 }
 
 #[cfg(test)]

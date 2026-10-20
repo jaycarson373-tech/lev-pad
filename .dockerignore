@@ -1,0 +1,9 @@
+.git
+.vercel
+.env*
+.runtime
+node_modules
+onchain
+tests
+dist
+outputs

@@ -20,3 +20,12 @@ test('unsigned, substituted and under-quorum oracle API data cannot become a pri
 test('oracle provider failures never fabricate an update',async()=>{
  await assert.rejects(()=>managedQuoteInstructions({risk:{feedHash:new Uint8Array(32),twapHash:new Uint8Array(32),minOracles:3,queue:key(1)},payer:key(2),request:async()=>new Response('offline',{status:503})}),/unavailable/);
 });
+test('configured gateway uses the current SDK protocol and cached public jobs without trusting prices',async()=>{
+ const {fetchOracleQuote}=await import('../lib/oracle.mjs');
+ const previousGateway=process.env.SWITCHBOARD_GATEWAY_URL,previousJobs=process.env.SWITCHBOARD_FEED_PROTOS;
+ const feedHash=new Uint8Array(32).fill(1),twapHash=new Uint8Array(32).fill(2),risk={feedHash,twapHash,minOracles:3};
+ process.env.SWITCHBOARD_GATEWAY_URL='https://gateway.example.invalid';process.env.SWITCHBOARD_FEED_PROTOS=JSON.stringify({[Buffer.from(feedHash).toString('hex')]:'AA==',[Buffer.from(twapHash).toString('hex')]:'AA=='});
+ try{
+  let calls=0;await fetchOracleQuote({risk,request:async(url,options)=>{calls++;assert.equal(url.origin,'https://gateway.example.invalid');assert.equal(url.pathname,'/gateway/api/v1/fetch_signatures_consensus');const body=JSON.parse(options.body);assert.equal(body.signature_scheme,'Ed25519');assert.equal(body.use_ed25519,true);assert.equal(body.use_timestamp,false);assert.equal(body.num_oracles,3);assert.equal(body.feed_requests.length,2);return new Response(JSON.stringify({oracle_responses:[]}));}});assert.equal(calls,1);
+ }finally{if(previousGateway===undefined)delete process.env.SWITCHBOARD_GATEWAY_URL;else process.env.SWITCHBOARD_GATEWAY_URL=previousGateway;if(previousJobs===undefined)delete process.env.SWITCHBOARD_FEED_PROTOS;else process.env.SWITCHBOARD_FEED_PROTOS=previousJobs;}
+});

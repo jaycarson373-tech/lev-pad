@@ -1,4 +1,5 @@
 onchain/
+services/
 tests/
 idl/
 clients/generated/

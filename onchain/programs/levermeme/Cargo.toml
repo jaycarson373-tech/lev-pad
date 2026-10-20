@@ -2,7 +2,7 @@
 name = "levermeme"
 version = "0.1.0"
 edition = "2021"
-description = "LeverMeme listing burns and segregated collateral custody; trading not implemented"
+description = "LeverMeme guarded capped leverage, creator revenue and atomic buyback burns"
 
 [lib]
 crate-type = ["cdylib", "lib"]

@@ -1,0 +1,32 @@
+// Public configuration and deterministic source-identity preparation only.
+// Never opens key material, signs, deploys or enables funding.
+import { readFile,writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { resolve } from 'node:path';
+import { spawn } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { publicConfig } from '../lib/public-config.mjs';
+const root=fileURLToPath(new URL('../',import.meta.url));
+const index=process.argv.indexOf('--config'),path=index>=0?process.argv[index+1]:null;
+if(!path)throw new Error('Usage: npm run setup -- --config /path/to/levermeme-launch.json (public settings only)');
+const input=await readFile(resolve(path),'utf8');if(input.length>12000)throw new Error('Public setup file is too large');
+const config=publicConfig(JSON.parse(input),{draft:false,disableFunding:true});
+const existing=JSON.parse(await readFile(resolve(root,'config/launch.json'),'utf8'));
+if(existing.custodyEnabled||existing.tradingEnabled||existing.programAddress&&existing.programAddress!==config.programAddress)throw new Error('Setup is for a fresh release, not an automatic live-program migration. Preserve the existing deployment and prepare an explicit migration/release plan.');
+const sourcePath=resolve(root,'onchain/programs/levermeme/src/lib.rs'),anchorPath=resolve(root,'onchain/Anchor.toml');
+const source=await readFile(sourcePath,'utf8'),anchor=await readFile(anchorPath,'utf8');
+if(!/declare_id!\("[1-9A-HJ-NP-Za-km-z]+"\);/.test(source)||!/^levermeme = "[1-9A-HJ-NP-Za-km-z]+"$/m.test(anchor))throw new Error('Program identity markers changed; inspect them before preparing a release.');
+config.programSha256=null;config.programSize=null;
+await writeFile(resolve(root,'config/launch.json'),JSON.stringify(config,null,2)+'\n');
+await writeFile(sourcePath,source.replace(/declare_id!\("[1-9A-HJ-NP-Za-km-z]+"\);/,'declare_id!("'+config.programAddress+'");'));
+await writeFile(anchorPath,anchor.replace(/^levermeme = "[1-9A-HJ-NP-Za-km-z]+"$/m,'levermeme = "'+config.programAddress+'"'));
+const run=(command,args,cwd=root)=>new Promise((resolve,reject)=>{const child=spawn(command,args,{cwd,stdio:'inherit',env:{...process.env,NO_DNA:'1'}});child.once('error',reject);child.once('close',code=>code===0?resolve():reject(new Error(command+' failed; public funding is not enabled.')));});
+console.log('Preparing public program identity. No keys, deployment or transactions are used.');
+await run('npm',['run','build:onchain']);
+await run('anchor',['idl','build','--program-name','levermeme','--out','../idl/levermeme.json'],resolve(root,'onchain'));
+await run('npm',['run','codegen']);await run('npm',['test']);await run('npm',['run','test:onchain']);
+const artifact=await readFile(resolve(root,'onchain/target/sbf-solana-solana/release/levermeme.so'));
+config.programSha256=createHash('sha256').update(artifact).digest('hex');config.programSize=artifact.length;
+await writeFile(resolve(root,'config/launch.json'),JSON.stringify(config,null,2)+'\n');
+await run('npm',['run','build']);
+console.log('Prepared config/launch.json and tested SBF artifact. Review the new digest and use a secure deployment signer for the exact artifact. Funding/trading remain disabled.');

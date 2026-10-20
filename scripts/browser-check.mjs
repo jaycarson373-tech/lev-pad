@@ -6,6 +6,7 @@ import coin from '../api/coin.mjs';
 import wallet from '../api/wallet.mjs';
 import runtime from '../api/runtime.mjs';
 import transaction from '../api/transaction.mjs';
+import launch from '../api/launch.mjs';
 import { key } from '../tests/helpers/protocol-fixture.mjs';
 
 const root=new URL('../dist/',import.meta.url);
@@ -14,7 +15,7 @@ const server=createServer(async(req,res)=>{
   if(pathname.startsWith('/api/')){
     res.status=code=>{res.statusCode=code;return res;};res.json=body=>{res.setHeader('content-type','application/json');res.end(JSON.stringify(body));};
     if(req.method==='POST'){let body='';for await(const chunk of req){body+=chunk;if(body.length>12000){res.statusCode=413;res.end();return;}}try{req.body=JSON.parse(body);}catch{res.statusCode=400;res.end();return;}}
-    const handler={'/api/coin':coin,'/api/wallet':wallet,'/api/runtime':runtime,'/api/transaction':transaction}[pathname];
+    const handler={'/api/coin':coin,'/api/wallet':wallet,'/api/runtime':runtime,'/api/transaction':transaction,'/api/launch':launch}[pathname];
     if(!handler){res.statusCode=404;res.end();return;}return handler(req,res);
   }
   const path=pathname==='/'?'index.html':pathname.endsWith('/')?pathname.slice(1)+'index.html':pathname.slice(1);
@@ -55,6 +56,15 @@ try{
  assert.match(await page.locator('#main').textContent(),/Never enter a private key/);
  const runtimeResponse=await page.request.get(origin+'/api/runtime');assert.equal(runtimeResponse.status(),200);assert.equal((await runtimeResponse.json()).configured,false);
  assert.equal((await page.request.get(origin+'/api/transaction')).status(),405);
+ await page.getByRole('heading',{name:'Save now. Add your addresses last.'}).waitFor();
+ await page.locator('[data-setup-form] input[name="admin"]').fill(key(4));
+ await page.getByRole('button',{name:'Check public setup →',exact:true}).click();await page.locator('.setup-checks').waitFor();
+ assert.match(await page.locator('[data-setup-message]').textContent(),/final public addresses/);
+ const downloadPromise=page.waitForEvent('download');await page.getByRole('button',{name:'Download setup draft',exact:true}).click();const download=await downloadPromise;
+ const exported=JSON.parse(await readFile(await download.path(),'utf8'));assert.equal(exported.admin,key(4));assert.equal(exported.leverMint,null);assert.equal(exported.custodyEnabled,false);assert.equal(exported.tradingEnabled,false);
+ await page.locator('[data-setup-form] details').evaluate(element=>element.open=true);
+ await page.locator('[data-artifact-file]').setInputFiles({name:'wallet.json',mimeType:'application/json',buffer:Buffer.from('{}')});assert.match(await page.locator('[data-setup-message]').textContent(),/never a wallet/);
+ await page.screenshot({path:new URL('levermeme-setup.png',output).pathname,fullPage:true});
  await page.goto(origin);await page.locator('.desk').waitFor();await page.screenshot({path:new URL('levermeme-mobile.png',output).pathname,fullPage:true});
  await page.locator('.menu-toggle').click();assert.equal(await page.locator('.menu-toggle').getAttribute('aria-expanded'),'true');await page.locator('nav a[data-nav="launch"]').click();assert.equal(await page.locator('.menu-toggle').getAttribute('aria-expanded'),'false');
  // Explicit UI fixture, not an assertion of a live mainnet market.

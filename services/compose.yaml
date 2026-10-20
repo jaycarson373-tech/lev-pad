@@ -1,0 +1,44 @@
+name: levermeme-operations
+x-worker: &worker
+  build:
+    context: ..
+    dockerfile: services/keeper.Dockerfile
+  env_file: ../.env.keeper
+  restart: unless-stopped
+  init: true
+  stop_grace_period: 60s
+  read_only: true
+  tmpfs: [/tmp]
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  command: [node, scripts/keeper.mjs, '${KEEPER_MODE_FLAG:---dry-run}']
+  healthcheck:
+    test: [CMD, node, scripts/keeper-health.mjs]
+    interval: 20s
+    timeout: 5s
+    retries: 3
+    start_period: 30s
+services:
+  markets:
+    <<: *worker
+    environment:
+      KEEPER_TASKS: markets
+    volumes: [market-state:/app/.runtime]
+  creator-fees:
+    <<: *worker
+    profiles: [revenue]
+    environment:
+      KEEPER_TASKS: creator-fees
+      KEEPER_WALLET_ADDRESS: '${CREATOR_WALLET_ADDRESS:-}'
+    volumes: [creator-state:/app/.runtime]
+  buybacks:
+    <<: *worker
+    profiles: [revenue]
+    environment:
+      KEEPER_TASKS: buybacks
+      KEEPER_WALLET_ADDRESS: '${BUYBACK_WALLET_ADDRESS:-}'
+    volumes: [buyback-state:/app/.runtime]
+volumes:
+  market-state:
+  creator-state:
+  buyback-state:

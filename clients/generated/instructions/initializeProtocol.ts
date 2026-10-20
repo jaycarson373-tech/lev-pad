@@ -42,7 +42,7 @@ import {
   type ResolvedInstructionAccount,
   type ResolvedInstructionAccountMeta,
 } from "@solana/kit/program-client-core";
-import { findProtocolPda } from "../pdas";
+import { findProtocolPda, findRevenuePda } from "../pdas";
 import { LEVERMEME_PROGRAM_ADDRESS } from "../programs";
 import {
   getListingPolicyDecoder,
@@ -64,6 +64,7 @@ export type InitializeProtocolInstruction<
   TProgram extends string = typeof LEVERMEME_PROGRAM_ADDRESS,
   TAccountAdmin extends string | AccountMeta<string> = string,
   TAccountProtocol extends string | AccountMeta<string> = string,
+  TAccountRevenue extends string | AccountMeta<string> = string,
   TAccountLeverMint extends string | AccountMeta<string> = string,
   TAccountQuoteMint extends string | AccountMeta<string> = string,
   TAccountLeverCurve extends string | AccountMeta<string> = string,
@@ -82,6 +83,9 @@ export type InitializeProtocolInstruction<
       TAccountProtocol extends string
         ? WritableAccount<TAccountProtocol>
         : TAccountProtocol,
+      TAccountRevenue extends string
+        ? WritableAccount<TAccountRevenue>
+        : TAccountRevenue,
       TAccountLeverMint extends string
         ? ReadonlyAccount<TAccountLeverMint>
         : TAccountLeverMint,
@@ -140,6 +144,7 @@ export function getInitializeProtocolInstructionDataCodec(): FixedSizeCodec<
 export type InitializeProtocolAsyncInput<
   TAccountAdmin extends InstructionSignerInput = InstructionSignerInput,
   TAccountProtocol extends InstructionAccountInput = InstructionAccountInput,
+  TAccountRevenue extends InstructionAccountInput = InstructionAccountInput,
   TAccountLeverMint extends InstructionAccountInput = InstructionAccountInput,
   TAccountQuoteMint extends InstructionAccountInput = InstructionAccountInput,
   TAccountLeverCurve extends InstructionAccountInput = InstructionAccountInput,
@@ -149,6 +154,7 @@ export type InitializeProtocolAsyncInput<
 > = {
   admin: TAccountAdmin;
   protocol?: TAccountProtocol;
+  revenue?: TAccountRevenue;
   leverMint: TAccountLeverMint;
   quoteMint: TAccountQuoteMint;
   leverCurve?: TAccountLeverCurve;
@@ -160,6 +166,7 @@ export type InitializeProtocolAsyncInput<
 export async function getInitializeProtocolInstructionAsync<
   TAccountAdmin extends InstructionSignerInput,
   TAccountProtocol extends InstructionAccountInput,
+  TAccountRevenue extends InstructionAccountInput,
   TAccountLeverMint extends InstructionAccountInput,
   TAccountQuoteMint extends InstructionAccountInput,
   TAccountLeverCurve extends InstructionAccountInput,
@@ -170,6 +177,7 @@ export async function getInitializeProtocolInstructionAsync<
   input: InitializeProtocolAsyncInput<
     TAccountAdmin,
     TAccountProtocol,
+    TAccountRevenue,
     TAccountLeverMint,
     TAccountQuoteMint,
     TAccountLeverCurve,
@@ -189,6 +197,10 @@ export async function getInitializeProtocolInstructionAsync<
     ResolvedInstructionAccountMeta<
       TAccountProtocol,
       InstructionAccountInputAddress<TAccountProtocol>
+    >,
+    ResolvedInstructionAccountMeta<
+      TAccountRevenue,
+      InstructionAccountInputAddress<TAccountRevenue>
     >,
     ResolvedInstructionAccountMeta<
       TAccountLeverMint,
@@ -228,6 +240,11 @@ export async function getInitializeProtocolInstructionAsync<
     admin: { value: input.admin ?? null, isSigner: true, isWritable: true },
     protocol: {
       value: input.protocol ?? null,
+      isSigner: false,
+      isWritable: true,
+    },
+    revenue: {
+      value: input.revenue ?? null,
       isSigner: false,
       isWritable: true,
     },
@@ -272,6 +289,17 @@ export async function getInitializeProtocolInstructionAsync<
         admin: getAddressFromResolvedInstructionAccount(
           "admin",
           accounts.admin.value,
+        ),
+      },
+      { programAddress },
+    );
+  }
+  if (!accounts.revenue.value) {
+    accounts.revenue.value = await findRevenuePda(
+      {
+        protocol: getAddressFromResolvedInstructionAccount(
+          "protocol",
+          accounts.protocol.value,
         ),
       },
       { programAddress },
@@ -324,6 +352,7 @@ export async function getInitializeProtocolInstructionAsync<
     accounts: [
       getAccountMeta("admin", accounts.admin),
       getAccountMeta("protocol", accounts.protocol),
+      getAccountMeta("revenue", accounts.revenue),
       getAccountMeta("leverMint", accounts.leverMint),
       getAccountMeta("quoteMint", accounts.quoteMint),
       getAccountMeta("leverCurve", accounts.leverCurve),
@@ -343,6 +372,10 @@ export async function getInitializeProtocolInstructionAsync<
     ResolvedInstructionAccountMeta<
       TAccountProtocol,
       InstructionAccountInputAddress<TAccountProtocol>
+    >,
+    ResolvedInstructionAccountMeta<
+      TAccountRevenue,
+      InstructionAccountInputAddress<TAccountRevenue>
     >,
     ResolvedInstructionAccountMeta<
       TAccountLeverMint,
@@ -370,6 +403,7 @@ export async function getInitializeProtocolInstructionAsync<
 export type InitializeProtocolInput<
   TAccountAdmin extends InstructionSignerInput = InstructionSignerInput,
   TAccountProtocol extends InstructionAccountInput = InstructionAccountInput,
+  TAccountRevenue extends InstructionAccountInput = InstructionAccountInput,
   TAccountLeverMint extends InstructionAccountInput = InstructionAccountInput,
   TAccountQuoteMint extends InstructionAccountInput = InstructionAccountInput,
   TAccountLeverCurve extends InstructionAccountInput = InstructionAccountInput,
@@ -379,6 +413,7 @@ export type InitializeProtocolInput<
 > = {
   admin: TAccountAdmin;
   protocol: TAccountProtocol;
+  revenue: TAccountRevenue;
   leverMint: TAccountLeverMint;
   quoteMint: TAccountQuoteMint;
   leverCurve: TAccountLeverCurve;
@@ -390,6 +425,7 @@ export type InitializeProtocolInput<
 export function getInitializeProtocolInstruction<
   TAccountAdmin extends InstructionSignerInput,
   TAccountProtocol extends InstructionAccountInput,
+  TAccountRevenue extends InstructionAccountInput,
   TAccountLeverMint extends InstructionAccountInput,
   TAccountQuoteMint extends InstructionAccountInput,
   TAccountLeverCurve extends InstructionAccountInput,
@@ -400,6 +436,7 @@ export function getInitializeProtocolInstruction<
   input: InitializeProtocolInput<
     TAccountAdmin,
     TAccountProtocol,
+    TAccountRevenue,
     TAccountLeverMint,
     TAccountQuoteMint,
     TAccountLeverCurve,
@@ -418,6 +455,10 @@ export function getInitializeProtocolInstruction<
   ResolvedInstructionAccountMeta<
     TAccountProtocol,
     InstructionAccountInputAddress<TAccountProtocol>
+  >,
+  ResolvedInstructionAccountMeta<
+    TAccountRevenue,
+    InstructionAccountInputAddress<TAccountRevenue>
   >,
   ResolvedInstructionAccountMeta<
     TAccountLeverMint,
@@ -456,6 +497,11 @@ export function getInitializeProtocolInstruction<
     admin: { value: input.admin ?? null, isSigner: true, isWritable: true },
     protocol: {
       value: input.protocol ?? null,
+      isSigner: false,
+      isWritable: true,
+    },
+    revenue: {
+      value: input.revenue ?? null,
       isSigner: false,
       isWritable: true,
     },
@@ -503,6 +549,7 @@ export function getInitializeProtocolInstruction<
     accounts: [
       getAccountMeta("admin", accounts.admin),
       getAccountMeta("protocol", accounts.protocol),
+      getAccountMeta("revenue", accounts.revenue),
       getAccountMeta("leverMint", accounts.leverMint),
       getAccountMeta("quoteMint", accounts.quoteMint),
       getAccountMeta("leverCurve", accounts.leverCurve),
@@ -522,6 +569,10 @@ export function getInitializeProtocolInstruction<
     ResolvedInstructionAccountMeta<
       TAccountProtocol,
       InstructionAccountInputAddress<TAccountProtocol>
+    >,
+    ResolvedInstructionAccountMeta<
+      TAccountRevenue,
+      InstructionAccountInputAddress<TAccountRevenue>
     >,
     ResolvedInstructionAccountMeta<
       TAccountLeverMint,
@@ -554,11 +605,12 @@ export type ParsedInitializeProtocolInstruction<
   accounts: {
     admin: TAccountMetas[0];
     protocol: TAccountMetas[1];
-    leverMint: TAccountMetas[2];
-    quoteMint: TAccountMetas[3];
-    leverCurve: TAccountMetas[4];
-    quoteCurve: TAccountMetas[5];
-    systemProgram: TAccountMetas[6];
+    revenue: TAccountMetas[2];
+    leverMint: TAccountMetas[3];
+    quoteMint: TAccountMetas[4];
+    leverCurve: TAccountMetas[5];
+    quoteCurve: TAccountMetas[6];
+    systemProgram: TAccountMetas[7];
   };
   data: InitializeProtocolInstructionData;
 };
@@ -571,12 +623,12 @@ export function parseInitializeProtocolInstruction<
     InstructionWithAccounts<TAccountMetas> &
     InstructionWithData<ReadonlyUint8Array>,
 ): ParsedInitializeProtocolInstruction<TProgram, TAccountMetas> {
-  if (instruction.accounts.length < 7) {
+  if (instruction.accounts.length < 8) {
     throw new SolanaError(
       SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
       {
         actualAccountMetas: instruction.accounts.length,
-        expectedAccountMetas: 7,
+        expectedAccountMetas: 8,
       },
     );
   }
@@ -591,6 +643,7 @@ export function parseInitializeProtocolInstruction<
     accounts: {
       admin: getNextAccount(),
       protocol: getNextAccount(),
+      revenue: getNextAccount(),
       leverMint: getNextAccount(),
       quoteMint: getNextAccount(),
       leverCurve: getNextAccount(),

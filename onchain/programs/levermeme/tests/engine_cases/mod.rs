@@ -388,23 +388,51 @@ fn engine_stale_oracle_blocks_opens_and_exits_until_explicit_outage_resolution()
 fn engine_distributes_real_fees_without_touching_reserved_backing() {
     let mut t = Trading::new();
     let p = t.open(0, true);
-    let owners = t.env.data::<Protocol>(t.env.protocol).policy.fee_destinations;
-    for (account, owner) in [(key(80), owners[0]), (key(81), owners[1]), (key(82), t.env.user), (key(83), owners[2])] {
+    let owners = t
+        .env
+        .data::<Protocol>(t.env.protocol)
+        .policy
+        .fee_destinations;
+    for (account, owner) in [
+        (key(80), owners[0]),
+        (key(81), owners[1]),
+        (key(82), t.env.user),
+        (key(83), owners[2]),
+    ] {
         t.env.token(account, t.env.quote, owner, 0);
     }
     let before = t.env.data::<Market>(t.market);
     assert_eq!(before.accrued_fees, 300);
     let accounts = a::CollectMarketFees {
-        protocol: t.env.protocol, listing: t.listing, market: t.market,
-        quote_mint: t.env.quote, market_vault: t.vault,
-        treasury: key(80), campaign_fund: key(81), creator: key(82),
-        buyback_fund: key(83), quote_program: anchor_spl::token::ID,
+        protocol: t.env.protocol,
+        listing: t.listing,
+        market: t.market,
+        quote_mint: t.env.quote,
+        market_vault: t.vault,
+        treasury: key(80),
+        campaign_fund: key(81),
+        creator: key(82),
+        buyback_fund: key(83),
+        quote_program: anchor_spl::token::ID,
     };
     let mut wrong = accounts.clone();
     wrong.creator = key(81);
-    assert!(t.env.send(t.env.attacker, ix(wrong, ix::CollectMarketFees {})).is_err());
-    t.env.send(t.env.attacker, ix(accounts, ix::CollectMarketFees {})).unwrap();
-    assert_eq!([t.env.amount(key(80)),t.env.amount(key(81)),t.env.amount(key(82)),t.env.amount(key(83))], [225,30,15,30]);
+    assert!(t
+        .env
+        .send(t.env.attacker, ix(wrong, ix::CollectMarketFees {}))
+        .is_err());
+    t.env
+        .send(t.env.attacker, ix(accounts, ix::CollectMarketFees {}))
+        .unwrap();
+    assert_eq!(
+        [
+            t.env.amount(key(80)),
+            t.env.amount(key(81)),
+            t.env.amount(key(82)),
+            t.env.amount(key(83))
+        ],
+        [225, 30, 15, 30]
+    );
     let after = t.env.data::<Market>(t.market);
     assert_eq!(after.liquidity, before.liquidity);
     assert_eq!(after.reserved_profit, before.reserved_profit);

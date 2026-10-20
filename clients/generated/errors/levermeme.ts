@@ -75,13 +75,22 @@ export const LEVERMEME_ERROR__SLIPPAGE = 0x178b; // 6027
 export const LEVERMEME_ERROR__OWNER = 0x178c; // 6028
 /** Healthy: Position is not liquidatable or at its profit cap */
 export const LEVERMEME_ERROR__HEALTHY = 0x178d; // 6029
+/** CreatorIdentity: Creator identity, origin or fee vault was rejected */
+export const LEVERMEME_ERROR__CREATOR_IDENTITY = 0x178e; // 6030
+/** BuybackRoute: Unsupported or unsafe buyback route/accounts */
+export const LEVERMEME_ERROR__BUYBACK_ROUTE = 0x178f; // 6031
+/** BuybackBounds: Buyback input/output or authority balance bounds failed */
+export const LEVERMEME_ERROR__BUYBACK_BOUNDS = 0x1790; // 6032
 
 export type LevermemeError =
   | typeof LEVERMEME_ERROR__ADMISSION
   | typeof LEVERMEME_ERROR__ALREADY_CANCELLED
   | typeof LEVERMEME_ERROR__AMOUNT
+  | typeof LEVERMEME_ERROR__BUYBACK_BOUNDS
+  | typeof LEVERMEME_ERROR__BUYBACK_ROUTE
   | typeof LEVERMEME_ERROR__CAMPAIGN_CLOSED
   | typeof LEVERMEME_ERROR__CLOSED
+  | typeof LEVERMEME_ERROR__CREATOR_IDENTITY
   | typeof LEVERMEME_ERROR__DEVIATION
   | typeof LEVERMEME_ERROR__EXPOSURE
   | typeof LEVERMEME_ERROR__FUNDS
@@ -114,8 +123,11 @@ if (process.env["NODE_ENV"] !== "production") {
     [LEVERMEME_ERROR__ADMISSION]: `Listing admission or review missing`,
     [LEVERMEME_ERROR__ALREADY_CANCELLED]: `Listing was already cancelled`,
     [LEVERMEME_ERROR__AMOUNT]: `Invalid amount or leverage`,
+    [LEVERMEME_ERROR__BUYBACK_BOUNDS]: `Buyback input/output or authority balance bounds failed`,
+    [LEVERMEME_ERROR__BUYBACK_ROUTE]: `Unsupported or unsafe buyback route/accounts`,
     [LEVERMEME_ERROR__CAMPAIGN_CLOSED]: `Airdrop has not started, has expired, or was reclaimed`,
     [LEVERMEME_ERROR__CLOSED]: `Market or position is closed`,
+    [LEVERMEME_ERROR__CREATOR_IDENTITY]: `Creator identity, origin or fee vault was rejected`,
     [LEVERMEME_ERROR__DEVIATION]: `Oracle price deviates too far from reviewed TWAP`,
     [LEVERMEME_ERROR__EXPOSURE]: `Open interest limit exceeded`,
     [LEVERMEME_ERROR__FUNDS]: `Insufficient backing or vault invariant failed`,

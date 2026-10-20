@@ -11,9 +11,13 @@
     "test:browser": "node scripts/browser-check.mjs",
     "codegen": "node scripts/codegen.mjs",
     "keeper": "node scripts/keeper.mjs",
+    "setup": "node scripts/setup.mjs",
+    "signer": "node services/signer/index.mjs",
     "check:release": "node scripts/release-check.mjs"
   },
   "dependencies": {
+    "@solana-program/address-lookup-table": "0.16.0",
+    "@solana-program/system": "0.16.0",
     "@solana-program/token": "0.18.0",
     "@solana/kit": "8.5.0",
     "@solana/kit-plugin-wallet": "0.22.0"

@@ -1,4 +1,4 @@
-# LeverMeme v2 — undeployed
+# LeverMeme v3 — undeployed
 
 Anchor implementation of admission, segregated custody and fully-reserved capped leverage. The committed identity is a public template for local tests only. It must be replaced and the IDL/client/artifact rebuilt under the secure deployment's real program identity.
 
@@ -13,7 +13,8 @@ Anchor implementation of admission, segregated custody and fully-reserved capped
 - Close by owner, permissionless unhealthy liquidation, permissionless profit-cap settlement, or permissionless last-verified-mark settlement after an immutable 1–24h oracle-outage delay. The last-mark outage rule is an explicit economic risk, not a guarantee of fair current value.
 - Pinned Switchboard queue and separate spot/TWAP feed hashes, quote-program ownership, SDK quote verifier, fresh slot hashes, oracle quorum/unique indices, positive prices, bounded deviation and monotonic cached slot. HTTP prices alone are never trusted.
 - Reserved profit is unavailable for lister withdrawal. Vault balances must cover market capital, locked user collateral and accrued fees.
-- Actual platform trading fees route 75/10/5/10. Own creator revenue routes 50/50 only after external collection/conversion. Fixed owner recipients; creator is the recorded market lister. Received fund spending is NOT constrained by this program.
+- Actual platform trading fees route 75/10/5/10. Direct creator fee claims from native/token bonding vaults and canonical PumpSwap pools route only the newly collected amount 50/50 to fixed treasury/buyback owners. Creator may also own a recipient. Vaults aggregate all coins using that creator identity, not solely LeverMeme. A separate revenue ledger records collected assets and executed burns. General spending by recipient wallets is not constrained.
+- Buyback input is owned by the fixed buyback wallet and limited to xSOL/WSOL. Native SOL wrapping can precede the swap in the same transaction. Only the pinned Jupiter program is invoked; exact input, minimum acquired output, unchanged pre-burn mint supply, unchanged native authority balance during swap, and protected existing LeverMeme holdings are enforced. Newly acquired tokens are burned before success. Unrelated wallet assets, protocol-owned accounts and extra signers are rejected. Failure rolls back swap and burn together.
 - Exactly floor(initial supply checkpoint / 10) funded airdrop, domain-separated wallet/index/amount Merkle proofs, per-wallet replay protection, claim window and administrator reclaim of unclaimed funds after expiry.
 
 ## Build without keys
@@ -38,10 +39,12 @@ Codama generates clients/generated/ from the Anchor IDL, then clients/program.mj
 
 LiteSVM uses public fixture addresses and disabled cryptographic transaction-signature verification. Signer flags, account/CPI constraints and runtime checks still run. Engine tests inject explicitly local cached prices: they do NOT demonstrate acceptance of real signed mainnet oracle quotes. JavaScript oracle tests cover public cryptographic vectors and rejection paths, not provider integration success.
 
+The execution_fixture program is a deterministic TEST-ONLY CPI counterpart loaded under external program IDs inside LiteSVM. It is not Pump or Jupiter source and does not demonstrate their live acceptance. Never deploy execution_fixture.so. Its purpose is testing actual token transfers, balance/supply invariants and whole-transaction rollback at the consumer boundary.
+
 Passing tests/static checks are not independent audit, economic validation, production liquidity, live keeper operation or mainnet wallet acceptance.
 
 ## Unimplemented integrations / release blockers
 
-No pump.fun creator-fee collection, SOL/base-to-xSOL conversion, AMM, buyback swaps or acquired-token burn executor. Admission escrow is distinct from xSOL position capital. No deployed remote signer or durable keeper service; no production indexer beyond bounded account scans (2,000 accounts per query). No live provider acceptance: default public Crossbar hostname failed DNS during this release.
+Creator-fee collection and bounded swap/burn execution are implemented, but actual external-program/provider acceptance for the final assets is not complete. No SOL/base admission-escrow conversion, AMM or automatic treasury investment is implemented; listers provide separate real xSOL capital. Durable worker packaging and a concrete KMS signing service are included but not deployed/configured; no Docker engine or live AWS account acceptance was available. No production indexer beyond bounded scans (2,000 accounts per query). Default public Crossbar failed DNS; explicit gateway/cached public job support is implemented, with actual oracle acceptance still required.
 
 See ../RELEASE.md. No mainnet deployment/initialization/write has been sent. Do not send funds to the template.

@@ -43,6 +43,7 @@ import {
   getMarketCodec,
   getPositionCodec,
   getProtocolCodec,
+  getRevenueLedgerCodec,
   type AirdropCampaign,
   type AirdropCampaignArgs,
   type AirdropClaim,
@@ -59,15 +60,20 @@ import {
   type PositionArgs,
   type Protocol,
   type ProtocolArgs,
+  type RevenueLedger,
+  type RevenueLedgerArgs,
 } from "../accounts";
 import {
   getApproveListingPermitInstructionAsync,
   getCancelListingInstructionAsync,
   getClaimAirdropInstructionAsync,
   getCollectMarketFeesInstructionAsync,
+  getCollectNativeCreatorFeesInstructionAsync,
+  getCollectQuoteCreatorFeesInstructionAsync,
   getCreateAirdropInstructionAsync,
   getCreateMarketInstructionAsync,
   getDepositInstructionAsync,
+  getExecuteBuybackInstructionAsync,
   getFundMarketInstructionAsync,
   getInitializeProtocolInstructionAsync,
   getOpenMarginAccountInstructionAsync,
@@ -85,13 +91,17 @@ import {
   getSettlePositionInstructionAsync,
   getWithdrawInstructionAsync,
   getWithdrawMarketLiquidityInstructionAsync,
+  getWrapBuybackSolInstruction,
   parseApproveListingPermitInstruction,
   parseCancelListingInstruction,
   parseClaimAirdropInstruction,
   parseCollectMarketFeesInstruction,
+  parseCollectNativeCreatorFeesInstruction,
+  parseCollectQuoteCreatorFeesInstruction,
   parseCreateAirdropInstruction,
   parseCreateMarketInstruction,
   parseDepositInstruction,
+  parseExecuteBuybackInstruction,
   parseFundMarketInstruction,
   parseInitializeProtocolInstruction,
   parseOpenMarginAccountInstruction,
@@ -109,13 +119,17 @@ import {
   parseSettlePositionInstruction,
   parseWithdrawInstruction,
   parseWithdrawMarketLiquidityInstruction,
+  parseWrapBuybackSolInstruction,
   type ApproveListingPermitAsyncInput,
   type CancelListingAsyncInput,
   type ClaimAirdropAsyncInput,
   type CollectMarketFeesAsyncInput,
+  type CollectNativeCreatorFeesAsyncInput,
+  type CollectQuoteCreatorFeesAsyncInput,
   type CreateAirdropAsyncInput,
   type CreateMarketAsyncInput,
   type DepositAsyncInput,
+  type ExecuteBuybackAsyncInput,
   type FundMarketAsyncInput,
   type InitializeProtocolAsyncInput,
   type OpenMarginAccountAsyncInput,
@@ -124,9 +138,12 @@ import {
   type ParsedCancelListingInstruction,
   type ParsedClaimAirdropInstruction,
   type ParsedCollectMarketFeesInstruction,
+  type ParsedCollectNativeCreatorFeesInstruction,
+  type ParsedCollectQuoteCreatorFeesInstruction,
   type ParsedCreateAirdropInstruction,
   type ParsedCreateMarketInstruction,
   type ParsedDepositInstruction,
+  type ParsedExecuteBuybackInstruction,
   type ParsedFundMarketInstruction,
   type ParsedInitializeProtocolInstruction,
   type ParsedOpenMarginAccountInstruction,
@@ -144,6 +161,7 @@ import {
   type ParsedSettlePositionInstruction,
   type ParsedWithdrawInstruction,
   type ParsedWithdrawMarketLiquidityInstruction,
+  type ParsedWrapBuybackSolInstruction,
   type ReclaimAirdropAsyncInput,
   type RefreshMarketPriceInput,
   type RequestListingAsyncInput,
@@ -157,6 +175,7 @@ import {
   type SettlePositionAsyncInput,
   type WithdrawAsyncInput,
   type WithdrawMarketLiquidityAsyncInput,
+  type WrapBuybackSolInput,
 } from "../instructions";
 import {
   findAirdropVaultPda,
@@ -171,6 +190,7 @@ import {
   findPositionPda,
   findProtocolPda,
   findQuoteVaultPda,
+  findRevenuePda,
 } from "../pdas";
 
 export const LEVERMEME_PROGRAM_ADDRESS =
@@ -185,6 +205,7 @@ export enum LevermemeAccount {
   Market,
   Position,
   Protocol,
+  RevenueLedger,
 }
 
 export function identifyLevermemeAccount(
@@ -279,6 +300,17 @@ export function identifyLevermemeAccount(
   ) {
     return LevermemeAccount.Protocol;
   }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([28, 159, 94, 108, 184, 213, 62, 53]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeAccount.RevenueLedger;
+  }
   throw new SolanaError(
     SOLANA_ERROR__PROGRAM_CLIENTS__FAILED_TO_IDENTIFY_ACCOUNT,
     { accountData: data, programName: "levermeme" },
@@ -288,7 +320,9 @@ export function identifyLevermemeAccount(
 export enum LevermemeEvent {
   AirdropClaimed,
   AirdropCreated,
+  BuybackExecuted,
   CollateralChanged,
+  CreatorFeesCollected,
   ListingCancelled,
   ListingRequested,
   ListingReviewed,
@@ -330,12 +364,34 @@ export function identifyLevermemeEvent(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([150, 109, 157, 10, 124, 24, 38, 189]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeEvent.BuybackExecuted;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
         new Uint8Array([172, 114, 48, 57, 98, 83, 95, 157]),
       ),
       0,
     )
   ) {
     return LevermemeEvent.CollateralChanged;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([117, 190, 177, 156, 222, 94, 28, 227]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeEvent.CreatorFeesCollected;
   }
   if (
     containsBytes(
@@ -446,9 +502,12 @@ export enum LevermemeInstruction {
   CancelListing,
   ClaimAirdrop,
   CollectMarketFees,
+  CollectNativeCreatorFees,
+  CollectQuoteCreatorFees,
   CreateAirdrop,
   CreateMarket,
   Deposit,
+  ExecuteBuyback,
   FundMarket,
   InitializeProtocol,
   OpenMarginAccount,
@@ -466,6 +525,7 @@ export enum LevermemeInstruction {
   SettlePosition,
   Withdraw,
   WithdrawMarketLiquidity,
+  WrapBuybackSol,
 }
 
 export function identifyLevermemeInstruction(
@@ -520,6 +580,28 @@ export function identifyLevermemeInstruction(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([220, 242, 50, 172, 89, 68, 83, 38]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeInstruction.CollectNativeCreatorFees;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([103, 255, 90, 194, 192, 129, 92, 158]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeInstruction.CollectQuoteCreatorFees;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
         new Uint8Array([227, 135, 208, 66, 137, 177, 80, 94]),
       ),
       0,
@@ -548,6 +630,17 @@ export function identifyLevermemeInstruction(
     )
   ) {
     return LevermemeInstruction.Deposit;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([47, 32, 19, 100, 184, 96, 144, 49]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeInstruction.ExecuteBuyback;
   }
   if (
     containsBytes(
@@ -736,6 +829,17 @@ export function identifyLevermemeInstruction(
   ) {
     return LevermemeInstruction.WithdrawMarketLiquidity;
   }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([230, 81, 102, 81, 194, 180, 24, 22]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeInstruction.WrapBuybackSol;
+  }
   throw new SolanaError(
     SOLANA_ERROR__PROGRAM_CLIENTS__FAILED_TO_IDENTIFY_INSTRUCTION,
     { instructionData: data, programName: "levermeme" },
@@ -758,6 +862,12 @@ export type ParsedLevermemeInstruction<
       instructionType: LevermemeInstruction.CollectMarketFees;
     } & ParsedCollectMarketFeesInstruction<TProgram>)
   | ({
+      instructionType: LevermemeInstruction.CollectNativeCreatorFees;
+    } & ParsedCollectNativeCreatorFeesInstruction<TProgram>)
+  | ({
+      instructionType: LevermemeInstruction.CollectQuoteCreatorFees;
+    } & ParsedCollectQuoteCreatorFeesInstruction<TProgram>)
+  | ({
       instructionType: LevermemeInstruction.CreateAirdrop;
     } & ParsedCreateAirdropInstruction<TProgram>)
   | ({
@@ -766,6 +876,9 @@ export type ParsedLevermemeInstruction<
   | ({
       instructionType: LevermemeInstruction.Deposit;
     } & ParsedDepositInstruction<TProgram>)
+  | ({
+      instructionType: LevermemeInstruction.ExecuteBuyback;
+    } & ParsedExecuteBuybackInstruction<TProgram>)
   | ({
       instructionType: LevermemeInstruction.FundMarket;
     } & ParsedFundMarketInstruction<TProgram>)
@@ -816,7 +929,10 @@ export type ParsedLevermemeInstruction<
     } & ParsedWithdrawInstruction<TProgram>)
   | ({
       instructionType: LevermemeInstruction.WithdrawMarketLiquidity;
-    } & ParsedWithdrawMarketLiquidityInstruction<TProgram>);
+    } & ParsedWithdrawMarketLiquidityInstruction<TProgram>)
+  | ({
+      instructionType: LevermemeInstruction.WrapBuybackSol;
+    } & ParsedWrapBuybackSolInstruction<TProgram>);
 
 export function parseLevermemeInstruction<TProgram extends string>(
   instruction: Instruction<TProgram> & InstructionWithData<ReadonlyUint8Array>,
@@ -851,6 +967,20 @@ export function parseLevermemeInstruction<TProgram extends string>(
         ...parseCollectMarketFeesInstruction(instruction),
       };
     }
+    case LevermemeInstruction.CollectNativeCreatorFees: {
+      assertIsInstructionWithAccounts(instruction);
+      return {
+        instructionType: LevermemeInstruction.CollectNativeCreatorFees,
+        ...parseCollectNativeCreatorFeesInstruction(instruction),
+      };
+    }
+    case LevermemeInstruction.CollectQuoteCreatorFees: {
+      assertIsInstructionWithAccounts(instruction);
+      return {
+        instructionType: LevermemeInstruction.CollectQuoteCreatorFees,
+        ...parseCollectQuoteCreatorFeesInstruction(instruction),
+      };
+    }
     case LevermemeInstruction.CreateAirdrop: {
       assertIsInstructionWithAccounts(instruction);
       return {
@@ -870,6 +1000,13 @@ export function parseLevermemeInstruction<TProgram extends string>(
       return {
         instructionType: LevermemeInstruction.Deposit,
         ...parseDepositInstruction(instruction),
+      };
+    }
+    case LevermemeInstruction.ExecuteBuyback: {
+      assertIsInstructionWithAccounts(instruction);
+      return {
+        instructionType: LevermemeInstruction.ExecuteBuyback,
+        ...parseExecuteBuybackInstruction(instruction),
       };
     }
     case LevermemeInstruction.FundMarket: {
@@ -991,6 +1128,13 @@ export function parseLevermemeInstruction<TProgram extends string>(
         ...parseWithdrawMarketLiquidityInstruction(instruction),
       };
     }
+    case LevermemeInstruction.WrapBuybackSol: {
+      assertIsInstructionWithAccounts(instruction);
+      return {
+        instructionType: LevermemeInstruction.WrapBuybackSol,
+        ...parseWrapBuybackSolInstruction(instruction),
+      };
+    }
     default:
       throw new SolanaError(
         SOLANA_ERROR__PROGRAM_CLIENTS__UNRECOGNIZED_INSTRUCTION_TYPE,
@@ -1028,6 +1172,8 @@ export type LevermemePluginAccounts = {
     SelfFetchFunctions<PositionArgs, Position>;
   protocol: ReturnType<typeof getProtocolCodec> &
     SelfFetchFunctions<ProtocolArgs, Protocol>;
+  revenueLedger: ReturnType<typeof getRevenueLedgerCodec> &
+    SelfFetchFunctions<RevenueLedgerArgs, RevenueLedger>;
 };
 
 export type LevermemePluginInstructions = {
@@ -1051,6 +1197,16 @@ export type LevermemePluginInstructions = {
     config?: { programAddress?: Address | HasAddress },
   ) => ReturnType<typeof getCollectMarketFeesInstructionAsync> &
     SelfPlanAndSendFunctions;
+  collectNativeCreatorFees: (
+    input: CollectNativeCreatorFeesAsyncInput,
+    config?: { programAddress?: Address | HasAddress },
+  ) => ReturnType<typeof getCollectNativeCreatorFeesInstructionAsync> &
+    SelfPlanAndSendFunctions;
+  collectQuoteCreatorFees: (
+    input: CollectQuoteCreatorFeesAsyncInput,
+    config?: { programAddress?: Address | HasAddress },
+  ) => ReturnType<typeof getCollectQuoteCreatorFeesInstructionAsync> &
+    SelfPlanAndSendFunctions;
   createAirdrop: (
     input: CreateAirdropAsyncInput,
     config?: { programAddress?: Address | HasAddress },
@@ -1065,6 +1221,11 @@ export type LevermemePluginInstructions = {
     input: DepositAsyncInput,
     config?: { programAddress?: Address | HasAddress },
   ) => ReturnType<typeof getDepositInstructionAsync> & SelfPlanAndSendFunctions;
+  executeBuyback: (
+    input: ExecuteBuybackAsyncInput,
+    config?: { programAddress?: Address | HasAddress },
+  ) => ReturnType<typeof getExecuteBuybackInstructionAsync> &
+    SelfPlanAndSendFunctions;
   fundMarket: (
     input: FundMarketAsyncInput,
     config?: { programAddress?: Address | HasAddress },
@@ -1149,6 +1310,11 @@ export type LevermemePluginInstructions = {
     config?: { programAddress?: Address | HasAddress },
   ) => ReturnType<typeof getWithdrawMarketLiquidityInstructionAsync> &
     SelfPlanAndSendFunctions;
+  wrapBuybackSol: (
+    input: WrapBuybackSolInput,
+    config?: { programAddress?: Address | HasAddress },
+  ) => ReturnType<typeof getWrapBuybackSolInstruction> &
+    SelfPlanAndSendFunctions;
 };
 
 export type LevermemePluginPdas = {
@@ -1161,6 +1327,7 @@ export type LevermemePluginPdas = {
   airdropVault: typeof findAirdropVaultPda;
   market: typeof findMarketPda;
   marketVault: typeof findMarketVaultPda;
+  revenue: typeof findRevenuePda;
   margin: typeof findMarginPda;
   quoteVault: typeof findQuoteVaultPda;
   position: typeof findPositionPda;
@@ -1192,6 +1359,7 @@ export function levermemeProgram(
           market: addSelfFetchFunctions(client, getMarketCodec()),
           position: addSelfFetchFunctions(client, getPositionCodec()),
           protocol: addSelfFetchFunctions(client, getProtocolCodec()),
+          revenueLedger: addSelfFetchFunctions(client, getRevenueLedgerCodec()),
         },
         instructions: {
           approveListingPermit: (input, instructionConfig) =>
@@ -1226,6 +1394,22 @@ export function levermemeProgram(
                   instructionConfig?.programAddress ?? config.programAddress,
               }),
             ),
+          collectNativeCreatorFees: (input, instructionConfig) =>
+            addSelfPlanAndSendFunctions(
+              client,
+              getCollectNativeCreatorFeesInstructionAsync(input, {
+                programAddress:
+                  instructionConfig?.programAddress ?? config.programAddress,
+              }),
+            ),
+          collectQuoteCreatorFees: (input, instructionConfig) =>
+            addSelfPlanAndSendFunctions(
+              client,
+              getCollectQuoteCreatorFeesInstructionAsync(input, {
+                programAddress:
+                  instructionConfig?.programAddress ?? config.programAddress,
+              }),
+            ),
           createAirdrop: (input, instructionConfig) =>
             addSelfPlanAndSendFunctions(
               client,
@@ -1246,6 +1430,14 @@ export function levermemeProgram(
             addSelfPlanAndSendFunctions(
               client,
               getDepositInstructionAsync(input, {
+                programAddress:
+                  instructionConfig?.programAddress ?? config.programAddress,
+              }),
+            ),
+          executeBuyback: (input, instructionConfig) =>
+            addSelfPlanAndSendFunctions(
+              client,
+              getExecuteBuybackInstructionAsync(input, {
                 programAddress:
                   instructionConfig?.programAddress ?? config.programAddress,
               }),
@@ -1386,6 +1578,14 @@ export function levermemeProgram(
                   instructionConfig?.programAddress ?? config.programAddress,
               }),
             ),
+          wrapBuybackSol: (input, instructionConfig) =>
+            addSelfPlanAndSendFunctions(
+              client,
+              getWrapBuybackSolInstruction(input, {
+                programAddress:
+                  instructionConfig?.programAddress ?? config.programAddress,
+              }),
+            ),
         },
         pdas: {
           protocol: (seeds, pdaConfig) =>
@@ -1430,6 +1630,11 @@ export function levermemeProgram(
             }),
           marketVault: (seeds, pdaConfig) =>
             findMarketVaultPda(seeds, {
+              programAddress:
+                pdaConfig?.programAddress ?? config.programAddress,
+            }),
+          revenue: (seeds, pdaConfig) =>
+            findRevenuePda(seeds, {
               programAddress:
                 pdaConfig?.programAddress ?? config.programAddress,
             }),

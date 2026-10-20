@@ -18,3 +18,4 @@ export * from "./permit";
 export * from "./position";
 export * from "./protocol";
 export * from "./quoteVault";
+export * from "./revenue";

@@ -17,6 +17,8 @@ use solana_transaction::Transaction;
 
 #[path = "engine_cases/mod.rs"]
 mod engine_cases;
+#[path = "revenue_cases/mod.rs"]
+mod revenue_cases;
 
 fn key(byte: u8) -> Pubkey {
     Pubkey::new_from_array([byte; 32])
@@ -122,6 +124,11 @@ impl Env {
                 a::InitializeProtocol {
                     admin,
                     protocol,
+                    revenue: Pubkey::find_program_address(
+                        &[b"revenue", protocol.as_ref()],
+                        &levermeme::ID,
+                    )
+                    .0,
                     lever_mint: lever,
                     quote_mint: quote,
                     lever_curve: curve_for(lever),

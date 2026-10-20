@@ -1,0 +1,7 @@
+{
+  "name": "levermeme-kms-signer",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "dependencies": { "@aws-sdk/client-kms": "3.1154.0" }
+}

@@ -989,6 +989,111 @@ function getProtocolSize() {
   return 269;
 }
 
+// clients/generated/accounts/revenueLedger.ts
+import {
+  assertAccountExists as assertAccountExists9,
+  assertAccountsExist as assertAccountsExist9,
+  combineCodec as combineCodec11,
+  decodeAccount as decodeAccount9,
+  fetchEncodedAccount as fetchEncodedAccount9,
+  fetchEncodedAccounts as fetchEncodedAccounts9,
+  fixDecoderSize as fixDecoderSize10,
+  fixEncoderSize as fixEncoderSize10,
+  getAddressDecoder as getAddressDecoder11,
+  getAddressEncoder as getAddressEncoder11,
+  getBytesDecoder as getBytesDecoder10,
+  getBytesEncoder as getBytesEncoder10,
+  getStructDecoder as getStructDecoder11,
+  getStructEncoder as getStructEncoder11,
+  getU64Decoder as getU64Decoder10,
+  getU64Encoder as getU64Encoder10,
+  transformEncoder as transformEncoder9
+} from "@solana/kit";
+var REVENUE_LEDGER_DISCRIMINATOR = new Uint8Array([
+  28,
+  159,
+  94,
+  108,
+  184,
+  213,
+  62,
+  53
+]);
+function getRevenueLedgerDiscriminatorBytes() {
+  return fixEncoderSize10(getBytesEncoder10(), 8).encode(
+    REVENUE_LEDGER_DISCRIMINATOR
+  );
+}
+function getRevenueLedgerEncoder() {
+  return transformEncoder9(
+    getStructEncoder11([
+      ["discriminator", fixEncoderSize10(getBytesEncoder10(), 8)],
+      ["protocol", getAddressEncoder11()],
+      ["nativeCreatorCollected", getU64Encoder10()],
+      ["wsolCreatorCollected", getU64Encoder10()],
+      ["quoteCreatorCollected", getU64Encoder10()],
+      ["quoteBuybackSpent", getU64Encoder10()],
+      ["wsolBuybackSpent", getU64Encoder10()],
+      ["buybackBurned", getU64Encoder10()]
+    ]),
+    (value) => ({ ...value, discriminator: REVENUE_LEDGER_DISCRIMINATOR })
+  );
+}
+function getRevenueLedgerDecoder() {
+  return getStructDecoder11([
+    ["discriminator", fixDecoderSize10(getBytesDecoder10(), 8)],
+    ["protocol", getAddressDecoder11()],
+    ["nativeCreatorCollected", getU64Decoder10()],
+    ["wsolCreatorCollected", getU64Decoder10()],
+    ["quoteCreatorCollected", getU64Decoder10()],
+    ["quoteBuybackSpent", getU64Decoder10()],
+    ["wsolBuybackSpent", getU64Decoder10()],
+    ["buybackBurned", getU64Decoder10()]
+  ]);
+}
+function getRevenueLedgerCodec() {
+  return combineCodec11(getRevenueLedgerEncoder(), getRevenueLedgerDecoder());
+}
+function decodeRevenueLedger(encodedAccount) {
+  return decodeAccount9(
+    encodedAccount,
+    getRevenueLedgerDecoder()
+  );
+}
+async function fetchRevenueLedger(rpc, address, config) {
+  const maybeAccount = await fetchMaybeRevenueLedger(rpc, address, config);
+  assertAccountExists9(maybeAccount);
+  return maybeAccount;
+}
+async function fetchMaybeRevenueLedger(rpc, address, config) {
+  const maybeAccount = await fetchEncodedAccount9(
+    "rpc" in rpc ? rpc.rpc : rpc,
+    typeof address === "string" ? address : address.address,
+    config
+  );
+  return decodeRevenueLedger(maybeAccount);
+}
+async function fetchAllRevenueLedger(rpc, addresses, config) {
+  const maybeAccounts = await fetchAllMaybeRevenueLedger(
+    rpc,
+    addresses,
+    config
+  );
+  assertAccountsExist9(maybeAccounts);
+  return maybeAccounts;
+}
+async function fetchAllMaybeRevenueLedger(rpc, addresses, config) {
+  const maybeAccounts = await fetchEncodedAccounts9(
+    "rpc" in rpc ? rpc.rpc : rpc,
+    addresses.map((a) => typeof a === "string" ? a : a.address),
+    config
+  );
+  return maybeAccounts.map((maybeAccount) => decodeRevenueLedger(maybeAccount));
+}
+function getRevenueLedgerSize() {
+  return 88;
+}
+
 // clients/generated/errors/levermeme.ts
 import {
   isProgramError
@@ -999,12 +1104,12 @@ import {
   assertIsInstructionWithAccounts,
   containsBytes,
   extendClient,
-  fixEncoderSize as fixEncoderSize34,
-  getBytesEncoder as getBytesEncoder46,
+  fixEncoderSize as fixEncoderSize39,
+  getBytesEncoder as getBytesEncoder52,
   SOLANA_ERROR__PROGRAM_CLIENTS__FAILED_TO_IDENTIFY_ACCOUNT,
   SOLANA_ERROR__PROGRAM_CLIENTS__FAILED_TO_IDENTIFY_INSTRUCTION,
   SOLANA_ERROR__PROGRAM_CLIENTS__UNRECOGNIZED_INSTRUCTION_TYPE,
-  SolanaError as SolanaError25
+  SolanaError as SolanaError29
 } from "@solana/kit";
 import {
   addSelfFetchFunctions,
@@ -1013,18 +1118,18 @@ import {
 
 // clients/generated/instructions/approveListingPermit.ts
 import {
-  combineCodec as combineCodec11,
-  fixDecoderSize as fixDecoderSize10,
-  fixEncoderSize as fixEncoderSize10,
-  getBytesDecoder as getBytesDecoder10,
-  getBytesEncoder as getBytesEncoder22,
+  combineCodec as combineCodec12,
+  fixDecoderSize as fixDecoderSize11,
+  fixEncoderSize as fixEncoderSize11,
+  getBytesDecoder as getBytesDecoder11,
+  getBytesEncoder as getBytesEncoder24,
   getI64Decoder as getI64Decoder6,
   getI64Encoder as getI64Encoder6,
-  getStructDecoder as getStructDecoder11,
-  getStructEncoder as getStructEncoder11,
+  getStructDecoder as getStructDecoder12,
+  getStructEncoder as getStructEncoder12,
   SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
   SolanaError,
-  transformEncoder as transformEncoder9
+  transformEncoder as transformEncoder10
 } from "@solana/kit";
 import {
   getAccountMetaFactory,
@@ -1033,8 +1138,8 @@ import {
 
 // clients/generated/pdas/airdropVault.ts
 import {
-  getAddressEncoder as getAddressEncoder11,
-  getBytesEncoder as getBytesEncoder10,
+  getAddressEncoder as getAddressEncoder12,
+  getBytesEncoder as getBytesEncoder11,
   getProgramDerivedAddress
 } from "@solana/kit";
 async function findAirdropVaultPda(seeds, config = {}) {
@@ -1045,7 +1150,7 @@ async function findAirdropVaultPda(seeds, config = {}) {
   return await getProgramDerivedAddress({
     programAddress,
     seeds: [
-      getBytesEncoder10().encode(
+      getBytesEncoder11().encode(
         new Uint8Array([
           97,
           105,
@@ -1062,15 +1167,15 @@ async function findAirdropVaultPda(seeds, config = {}) {
           116
         ])
       ),
-      getAddressEncoder11().encode(seeds.campaign)
+      getAddressEncoder12().encode(seeds.campaign)
     ]
   });
 }
 
 // clients/generated/pdas/baseVault.ts
 import {
-  getAddressEncoder as getAddressEncoder12,
-  getBytesEncoder as getBytesEncoder11,
+  getAddressEncoder as getAddressEncoder13,
+  getBytesEncoder as getBytesEncoder12,
   getProgramDerivedAddress as getProgramDerivedAddress2
 } from "@solana/kit";
 async function findBaseVaultPda(seeds, config = {}) {
@@ -1081,18 +1186,18 @@ async function findBaseVaultPda(seeds, config = {}) {
   return await getProgramDerivedAddress2({
     programAddress,
     seeds: [
-      getBytesEncoder11().encode(
+      getBytesEncoder12().encode(
         new Uint8Array([98, 97, 115, 101, 45, 118, 97, 117, 108, 116])
       ),
-      getAddressEncoder12().encode(seeds.listing)
+      getAddressEncoder13().encode(seeds.listing)
     ]
   });
 }
 
 // clients/generated/pdas/campaign.ts
 import {
-  getAddressEncoder as getAddressEncoder13,
-  getBytesEncoder as getBytesEncoder12,
+  getAddressEncoder as getAddressEncoder14,
+  getBytesEncoder as getBytesEncoder13,
   getProgramDerivedAddress as getProgramDerivedAddress3
 } from "@solana/kit";
 async function findCampaignPda(seeds, config = {}) {
@@ -1103,18 +1208,18 @@ async function findCampaignPda(seeds, config = {}) {
   return await getProgramDerivedAddress3({
     programAddress,
     seeds: [
-      getBytesEncoder12().encode(
+      getBytesEncoder13().encode(
         new Uint8Array([97, 105, 114, 100, 114, 111, 112])
       ),
-      getAddressEncoder13().encode(seeds.protocol)
+      getAddressEncoder14().encode(seeds.protocol)
     ]
   });
 }
 
 // clients/generated/pdas/claim.ts
 import {
-  getAddressEncoder as getAddressEncoder14,
-  getBytesEncoder as getBytesEncoder13,
+  getAddressEncoder as getAddressEncoder15,
+  getBytesEncoder as getBytesEncoder14,
   getProgramDerivedAddress as getProgramDerivedAddress4
 } from "@solana/kit";
 async function findClaimPda(seeds, config = {}) {
@@ -1125,17 +1230,17 @@ async function findClaimPda(seeds, config = {}) {
   return await getProgramDerivedAddress4({
     programAddress,
     seeds: [
-      getBytesEncoder13().encode(new Uint8Array([99, 108, 97, 105, 109])),
-      getAddressEncoder14().encode(seeds.campaign),
-      getAddressEncoder14().encode(seeds.owner)
+      getBytesEncoder14().encode(new Uint8Array([99, 108, 97, 105, 109])),
+      getAddressEncoder15().encode(seeds.campaign),
+      getAddressEncoder15().encode(seeds.owner)
     ]
   });
 }
 
 // clients/generated/pdas/listing.ts
 import {
-  getAddressEncoder as getAddressEncoder15,
-  getBytesEncoder as getBytesEncoder14,
+  getAddressEncoder as getAddressEncoder16,
+  getBytesEncoder as getBytesEncoder15,
   getProgramDerivedAddress as getProgramDerivedAddress5
 } from "@solana/kit";
 async function findListingPda(seeds, config = {}) {
@@ -1146,19 +1251,19 @@ async function findListingPda(seeds, config = {}) {
   return await getProgramDerivedAddress5({
     programAddress,
     seeds: [
-      getBytesEncoder14().encode(
+      getBytesEncoder15().encode(
         new Uint8Array([108, 105, 115, 116, 105, 110, 103])
       ),
-      getAddressEncoder15().encode(seeds.protocol),
-      getAddressEncoder15().encode(seeds.baseMint)
+      getAddressEncoder16().encode(seeds.protocol),
+      getAddressEncoder16().encode(seeds.baseMint)
     ]
   });
 }
 
 // clients/generated/pdas/margin.ts
 import {
-  getAddressEncoder as getAddressEncoder16,
-  getBytesEncoder as getBytesEncoder15,
+  getAddressEncoder as getAddressEncoder17,
+  getBytesEncoder as getBytesEncoder16,
   getProgramDerivedAddress as getProgramDerivedAddress6
 } from "@solana/kit";
 async function findMarginPda(seeds, config = {}) {
@@ -1169,17 +1274,17 @@ async function findMarginPda(seeds, config = {}) {
   return await getProgramDerivedAddress6({
     programAddress,
     seeds: [
-      getBytesEncoder15().encode(new Uint8Array([109, 97, 114, 103, 105, 110])),
-      getAddressEncoder16().encode(seeds.protocol),
-      getAddressEncoder16().encode(seeds.owner)
+      getBytesEncoder16().encode(new Uint8Array([109, 97, 114, 103, 105, 110])),
+      getAddressEncoder17().encode(seeds.protocol),
+      getAddressEncoder17().encode(seeds.owner)
     ]
   });
 }
 
 // clients/generated/pdas/market.ts
 import {
-  getAddressEncoder as getAddressEncoder17,
-  getBytesEncoder as getBytesEncoder16,
+  getAddressEncoder as getAddressEncoder18,
+  getBytesEncoder as getBytesEncoder17,
   getProgramDerivedAddress as getProgramDerivedAddress7
 } from "@solana/kit";
 async function findMarketPda(seeds, config = {}) {
@@ -1190,16 +1295,16 @@ async function findMarketPda(seeds, config = {}) {
   return await getProgramDerivedAddress7({
     programAddress,
     seeds: [
-      getBytesEncoder16().encode(new Uint8Array([109, 97, 114, 107, 101, 116])),
-      getAddressEncoder17().encode(seeds.listing)
+      getBytesEncoder17().encode(new Uint8Array([109, 97, 114, 107, 101, 116])),
+      getAddressEncoder18().encode(seeds.listing)
     ]
   });
 }
 
 // clients/generated/pdas/marketVault.ts
 import {
-  getAddressEncoder as getAddressEncoder18,
-  getBytesEncoder as getBytesEncoder17,
+  getAddressEncoder as getAddressEncoder19,
+  getBytesEncoder as getBytesEncoder18,
   getProgramDerivedAddress as getProgramDerivedAddress8
 } from "@solana/kit";
 async function findMarketVaultPda(seeds, config = {}) {
@@ -1210,7 +1315,7 @@ async function findMarketVaultPda(seeds, config = {}) {
   return await getProgramDerivedAddress8({
     programAddress,
     seeds: [
-      getBytesEncoder17().encode(
+      getBytesEncoder18().encode(
         new Uint8Array([
           109,
           97,
@@ -1226,15 +1331,15 @@ async function findMarketVaultPda(seeds, config = {}) {
           116
         ])
       ),
-      getAddressEncoder18().encode(seeds.market)
+      getAddressEncoder19().encode(seeds.market)
     ]
   });
 }
 
 // clients/generated/pdas/permit.ts
 import {
-  getAddressEncoder as getAddressEncoder19,
-  getBytesEncoder as getBytesEncoder18,
+  getAddressEncoder as getAddressEncoder20,
+  getBytesEncoder as getBytesEncoder19,
   getProgramDerivedAddress as getProgramDerivedAddress9
 } from "@solana/kit";
 async function findPermitPda(seeds, config = {}) {
@@ -1245,7 +1350,7 @@ async function findPermitPda(seeds, config = {}) {
   return await getProgramDerivedAddress9({
     programAddress,
     seeds: [
-      getBytesEncoder18().encode(
+      getBytesEncoder19().encode(
         new Uint8Array([
           108,
           105,
@@ -1263,19 +1368,19 @@ async function findPermitPda(seeds, config = {}) {
           116
         ])
       ),
-      getAddressEncoder19().encode(seeds.protocol),
-      getAddressEncoder19().encode(seeds.baseMint),
-      getAddressEncoder19().encode(seeds.lister)
+      getAddressEncoder20().encode(seeds.protocol),
+      getAddressEncoder20().encode(seeds.baseMint),
+      getAddressEncoder20().encode(seeds.lister)
     ]
   });
 }
 
 // clients/generated/pdas/position.ts
 import {
-  getAddressEncoder as getAddressEncoder20,
-  getBytesEncoder as getBytesEncoder19,
+  getAddressEncoder as getAddressEncoder21,
+  getBytesEncoder as getBytesEncoder20,
   getProgramDerivedAddress as getProgramDerivedAddress10,
-  getU64Encoder as getU64Encoder10
+  getU64Encoder as getU64Encoder11
 } from "@solana/kit";
 async function findPositionPda(seeds, config = {}) {
   const {
@@ -1285,19 +1390,19 @@ async function findPositionPda(seeds, config = {}) {
   return await getProgramDerivedAddress10({
     programAddress,
     seeds: [
-      getBytesEncoder19().encode(
+      getBytesEncoder20().encode(
         new Uint8Array([112, 111, 115, 105, 116, 105, 111, 110])
       ),
-      getAddressEncoder20().encode(seeds.margin),
-      getU64Encoder10().encode(seeds.id)
+      getAddressEncoder21().encode(seeds.margin),
+      getU64Encoder11().encode(seeds.id)
     ]
   });
 }
 
 // clients/generated/pdas/protocol.ts
 import {
-  getAddressEncoder as getAddressEncoder21,
-  getBytesEncoder as getBytesEncoder20,
+  getAddressEncoder as getAddressEncoder22,
+  getBytesEncoder as getBytesEncoder21,
   getProgramDerivedAddress as getProgramDerivedAddress11
 } from "@solana/kit";
 async function findProtocolPda(seeds, config = {}) {
@@ -1308,18 +1413,18 @@ async function findProtocolPda(seeds, config = {}) {
   return await getProgramDerivedAddress11({
     programAddress,
     seeds: [
-      getBytesEncoder20().encode(
+      getBytesEncoder21().encode(
         new Uint8Array([112, 114, 111, 116, 111, 99, 111, 108])
       ),
-      getAddressEncoder21().encode(seeds.admin)
+      getAddressEncoder22().encode(seeds.admin)
     ]
   });
 }
 
 // clients/generated/pdas/quoteVault.ts
 import {
-  getAddressEncoder as getAddressEncoder22,
-  getBytesEncoder as getBytesEncoder21,
+  getAddressEncoder as getAddressEncoder23,
+  getBytesEncoder as getBytesEncoder22,
   getProgramDerivedAddress as getProgramDerivedAddress12
 } from "@solana/kit";
 async function findQuoteVaultPda(seeds, config = {}) {
@@ -1330,10 +1435,32 @@ async function findQuoteVaultPda(seeds, config = {}) {
   return await getProgramDerivedAddress12({
     programAddress,
     seeds: [
-      getBytesEncoder21().encode(
+      getBytesEncoder22().encode(
         new Uint8Array([113, 117, 111, 116, 101, 45, 118, 97, 117, 108, 116])
       ),
-      getAddressEncoder22().encode(seeds.margin)
+      getAddressEncoder23().encode(seeds.margin)
+    ]
+  });
+}
+
+// clients/generated/pdas/revenue.ts
+import {
+  getAddressEncoder as getAddressEncoder24,
+  getBytesEncoder as getBytesEncoder23,
+  getProgramDerivedAddress as getProgramDerivedAddress13
+} from "@solana/kit";
+async function findRevenuePda(seeds, config = {}) {
+  const {
+    programAddress: programAddressInput = "Fg6PaFpoGXkYsidMpWxTWqkZ7FEfcYkgMQhgS1h5A9t"
+  } = config;
+  const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
+  return await getProgramDerivedAddress13({
+    programAddress,
+    seeds: [
+      getBytesEncoder23().encode(
+        new Uint8Array([114, 101, 118, 101, 110, 117, 101])
+      ),
+      getAddressEncoder24().encode(seeds.protocol)
     ]
   });
 }
@@ -1341,14 +1468,14 @@ async function findQuoteVaultPda(seeds, config = {}) {
 // clients/generated/instructions/approveListingPermit.ts
 var APPROVE_LISTING_PERMIT_DISCRIMINATOR = new Uint8Array([155, 67, 86, 117, 115, 161, 112, 127]);
 function getApproveListingPermitDiscriminatorBytes() {
-  return fixEncoderSize10(getBytesEncoder22(), 8).encode(
+  return fixEncoderSize11(getBytesEncoder24(), 8).encode(
     APPROVE_LISTING_PERMIT_DISCRIMINATOR
   );
 }
 function getApproveListingPermitInstructionDataEncoder() {
-  return transformEncoder9(
-    getStructEncoder11([
-      ["discriminator", fixEncoderSize10(getBytesEncoder22(), 8)],
+  return transformEncoder10(
+    getStructEncoder12([
+      ["discriminator", fixEncoderSize11(getBytesEncoder24(), 8)],
       ["expiresAt", getI64Encoder6()]
     ]),
     (value) => ({
@@ -1358,13 +1485,13 @@ function getApproveListingPermitInstructionDataEncoder() {
   );
 }
 function getApproveListingPermitInstructionDataDecoder() {
-  return getStructDecoder11([
-    ["discriminator", fixDecoderSize10(getBytesDecoder10(), 8)],
+  return getStructDecoder12([
+    ["discriminator", fixDecoderSize11(getBytesDecoder11(), 8)],
     ["expiresAt", getI64Decoder6()]
   ]);
 }
 function getApproveListingPermitInstructionDataCodec() {
-  return combineCodec11(
+  return combineCodec12(
     getApproveListingPermitInstructionDataEncoder(),
     getApproveListingPermitInstructionDataDecoder()
   );
@@ -1521,16 +1648,16 @@ function parseApproveListingPermitInstruction(instruction) {
 
 // clients/generated/instructions/cancelListing.ts
 import {
-  combineCodec as combineCodec12,
-  fixDecoderSize as fixDecoderSize11,
-  fixEncoderSize as fixEncoderSize11,
-  getBytesDecoder as getBytesDecoder11,
-  getBytesEncoder as getBytesEncoder23,
-  getStructDecoder as getStructDecoder12,
-  getStructEncoder as getStructEncoder12,
+  combineCodec as combineCodec13,
+  fixDecoderSize as fixDecoderSize12,
+  fixEncoderSize as fixEncoderSize12,
+  getBytesDecoder as getBytesDecoder12,
+  getBytesEncoder as getBytesEncoder25,
+  getStructDecoder as getStructDecoder13,
+  getStructEncoder as getStructEncoder13,
   SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS2,
   SolanaError as SolanaError2,
-  transformEncoder as transformEncoder10
+  transformEncoder as transformEncoder11
 } from "@solana/kit";
 import {
   getAccountMetaFactory as getAccountMetaFactory2,
@@ -1547,23 +1674,23 @@ var CANCEL_LISTING_DISCRIMINATOR = new Uint8Array([
   70
 ]);
 function getCancelListingDiscriminatorBytes() {
-  return fixEncoderSize11(getBytesEncoder23(), 8).encode(
+  return fixEncoderSize12(getBytesEncoder25(), 8).encode(
     CANCEL_LISTING_DISCRIMINATOR
   );
 }
 function getCancelListingInstructionDataEncoder() {
-  return transformEncoder10(
-    getStructEncoder12([["discriminator", fixEncoderSize11(getBytesEncoder23(), 8)]]),
+  return transformEncoder11(
+    getStructEncoder13([["discriminator", fixEncoderSize12(getBytesEncoder25(), 8)]]),
     (value) => ({ ...value, discriminator: CANCEL_LISTING_DISCRIMINATOR })
   );
 }
 function getCancelListingInstructionDataDecoder() {
-  return getStructDecoder12([
-    ["discriminator", fixDecoderSize11(getBytesDecoder11(), 8)]
+  return getStructDecoder13([
+    ["discriminator", fixDecoderSize12(getBytesDecoder12(), 8)]
   ]);
 }
 function getCancelListingInstructionDataCodec() {
-  return combineCodec12(
+  return combineCodec13(
     getCancelListingInstructionDataEncoder(),
     getCancelListingInstructionDataDecoder()
   );
@@ -1731,20 +1858,20 @@ function parseCancelListingInstruction(instruction) {
 
 // clients/generated/instructions/claimAirdrop.ts
 import {
-  combineCodec as combineCodec13,
-  fixDecoderSize as fixDecoderSize12,
-  fixEncoderSize as fixEncoderSize12,
+  combineCodec as combineCodec14,
+  fixDecoderSize as fixDecoderSize13,
+  fixEncoderSize as fixEncoderSize13,
   getArrayDecoder as getArrayDecoder2,
   getArrayEncoder as getArrayEncoder2,
-  getBytesDecoder as getBytesDecoder12,
-  getBytesEncoder as getBytesEncoder24,
-  getStructDecoder as getStructDecoder13,
-  getStructEncoder as getStructEncoder13,
-  getU64Decoder as getU64Decoder10,
-  getU64Encoder as getU64Encoder11,
+  getBytesDecoder as getBytesDecoder13,
+  getBytesEncoder as getBytesEncoder26,
+  getStructDecoder as getStructDecoder14,
+  getStructEncoder as getStructEncoder14,
+  getU64Decoder as getU64Decoder11,
+  getU64Encoder as getU64Encoder12,
   SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS3,
   SolanaError as SolanaError3,
-  transformEncoder as transformEncoder11
+  transformEncoder as transformEncoder12
 } from "@solana/kit";
 import {
   getAccountMetaFactory as getAccountMetaFactory3,
@@ -1761,31 +1888,31 @@ var CLAIM_AIRDROP_DISCRIMINATOR = new Uint8Array([
   20
 ]);
 function getClaimAirdropDiscriminatorBytes() {
-  return fixEncoderSize12(getBytesEncoder24(), 8).encode(
+  return fixEncoderSize13(getBytesEncoder26(), 8).encode(
     CLAIM_AIRDROP_DISCRIMINATOR
   );
 }
 function getClaimAirdropInstructionDataEncoder() {
-  return transformEncoder11(
-    getStructEncoder13([
-      ["discriminator", fixEncoderSize12(getBytesEncoder24(), 8)],
-      ["index", getU64Encoder11()],
-      ["amount", getU64Encoder11()],
-      ["proof", getArrayEncoder2(fixEncoderSize12(getBytesEncoder24(), 32))]
+  return transformEncoder12(
+    getStructEncoder14([
+      ["discriminator", fixEncoderSize13(getBytesEncoder26(), 8)],
+      ["index", getU64Encoder12()],
+      ["amount", getU64Encoder12()],
+      ["proof", getArrayEncoder2(fixEncoderSize13(getBytesEncoder26(), 32))]
     ]),
     (value) => ({ ...value, discriminator: CLAIM_AIRDROP_DISCRIMINATOR })
   );
 }
 function getClaimAirdropInstructionDataDecoder() {
-  return getStructDecoder13([
-    ["discriminator", fixDecoderSize12(getBytesDecoder12(), 8)],
-    ["index", getU64Decoder10()],
-    ["amount", getU64Decoder10()],
-    ["proof", getArrayDecoder2(fixDecoderSize12(getBytesDecoder12(), 32))]
+  return getStructDecoder14([
+    ["discriminator", fixDecoderSize13(getBytesDecoder13(), 8)],
+    ["index", getU64Decoder11()],
+    ["amount", getU64Decoder11()],
+    ["proof", getArrayDecoder2(fixDecoderSize13(getBytesDecoder13(), 32))]
   ]);
 }
 function getClaimAirdropInstructionDataCodec() {
-  return combineCodec13(
+  return combineCodec14(
     getClaimAirdropInstructionDataEncoder(),
     getClaimAirdropInstructionDataDecoder()
   );
@@ -1994,16 +2121,16 @@ function parseClaimAirdropInstruction(instruction) {
 
 // clients/generated/instructions/collectMarketFees.ts
 import {
-  combineCodec as combineCodec14,
-  fixDecoderSize as fixDecoderSize13,
-  fixEncoderSize as fixEncoderSize13,
-  getBytesDecoder as getBytesDecoder13,
-  getBytesEncoder as getBytesEncoder25,
-  getStructDecoder as getStructDecoder14,
-  getStructEncoder as getStructEncoder14,
+  combineCodec as combineCodec15,
+  fixDecoderSize as fixDecoderSize14,
+  fixEncoderSize as fixEncoderSize14,
+  getBytesDecoder as getBytesDecoder14,
+  getBytesEncoder as getBytesEncoder27,
+  getStructDecoder as getStructDecoder15,
+  getStructEncoder as getStructEncoder15,
   SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS4,
   SolanaError as SolanaError4,
-  transformEncoder as transformEncoder12
+  transformEncoder as transformEncoder13
 } from "@solana/kit";
 import {
   getAccountMetaFactory as getAccountMetaFactory4,
@@ -2011,23 +2138,23 @@ import {
 } from "@solana/kit/program-client-core";
 var COLLECT_MARKET_FEES_DISCRIMINATOR = new Uint8Array([91, 210, 175, 55, 51, 117, 137, 238]);
 function getCollectMarketFeesDiscriminatorBytes() {
-  return fixEncoderSize13(getBytesEncoder25(), 8).encode(
+  return fixEncoderSize14(getBytesEncoder27(), 8).encode(
     COLLECT_MARKET_FEES_DISCRIMINATOR
   );
 }
 function getCollectMarketFeesInstructionDataEncoder() {
-  return transformEncoder12(
-    getStructEncoder14([["discriminator", fixEncoderSize13(getBytesEncoder25(), 8)]]),
+  return transformEncoder13(
+    getStructEncoder15([["discriminator", fixEncoderSize14(getBytesEncoder27(), 8)]]),
     (value) => ({ ...value, discriminator: COLLECT_MARKET_FEES_DISCRIMINATOR })
   );
 }
 function getCollectMarketFeesInstructionDataDecoder() {
-  return getStructDecoder14([
-    ["discriminator", fixDecoderSize13(getBytesDecoder13(), 8)]
+  return getStructDecoder15([
+    ["discriminator", fixDecoderSize14(getBytesDecoder14(), 8)]
   ]);
 }
 function getCollectMarketFeesInstructionDataCodec() {
-  return combineCodec14(
+  return combineCodec15(
     getCollectMarketFeesInstructionDataEncoder(),
     getCollectMarketFeesInstructionDataDecoder()
   );
@@ -2228,24 +2355,596 @@ function parseCollectMarketFeesInstruction(instruction) {
   };
 }
 
-// clients/generated/instructions/createAirdrop.ts
+// clients/generated/instructions/collectNativeCreatorFees.ts
 import {
-  combineCodec as combineCodec15,
-  fixDecoderSize as fixDecoderSize14,
-  fixEncoderSize as fixEncoderSize14,
-  getBytesDecoder as getBytesDecoder14,
-  getBytesEncoder as getBytesEncoder26,
-  getI64Decoder as getI64Decoder7,
-  getI64Encoder as getI64Encoder7,
-  getStructDecoder as getStructDecoder15,
-  getStructEncoder as getStructEncoder15,
+  combineCodec as combineCodec16,
+  fixDecoderSize as fixDecoderSize15,
+  fixEncoderSize as fixEncoderSize15,
+  getBytesDecoder as getBytesDecoder15,
+  getBytesEncoder as getBytesEncoder28,
+  getStructDecoder as getStructDecoder16,
+  getStructEncoder as getStructEncoder16,
   SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS5,
   SolanaError as SolanaError5,
-  transformEncoder as transformEncoder13
+  transformEncoder as transformEncoder14
 } from "@solana/kit";
 import {
   getAccountMetaFactory as getAccountMetaFactory5,
   getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount5
+} from "@solana/kit/program-client-core";
+var COLLECT_NATIVE_CREATOR_FEES_DISCRIMINATOR = new Uint8Array([220, 242, 50, 172, 89, 68, 83, 38]);
+function getCollectNativeCreatorFeesDiscriminatorBytes() {
+  return fixEncoderSize15(getBytesEncoder28(), 8).encode(
+    COLLECT_NATIVE_CREATOR_FEES_DISCRIMINATOR
+  );
+}
+function getCollectNativeCreatorFeesInstructionDataEncoder() {
+  return transformEncoder14(
+    getStructEncoder16([["discriminator", fixEncoderSize15(getBytesEncoder28(), 8)]]),
+    (value) => ({
+      ...value,
+      discriminator: COLLECT_NATIVE_CREATOR_FEES_DISCRIMINATOR
+    })
+  );
+}
+function getCollectNativeCreatorFeesInstructionDataDecoder() {
+  return getStructDecoder16([
+    ["discriminator", fixDecoderSize15(getBytesDecoder15(), 8)]
+  ]);
+}
+function getCollectNativeCreatorFeesInstructionDataCodec() {
+  return combineCodec16(
+    getCollectNativeCreatorFeesInstructionDataEncoder(),
+    getCollectNativeCreatorFeesInstructionDataDecoder()
+  );
+}
+async function getCollectNativeCreatorFeesInstructionAsync(input, config) {
+  const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
+  const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
+  const getAccountMeta = getAccountMetaFactory5(programAddress, "programId");
+  const originalAccounts = {
+    creator: { value: input.creator ?? null, isSigner: true, isWritable: true },
+    protocol: {
+      value: input.protocol ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    revenue: {
+      value: input.revenue ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    origin: { value: input.origin ?? null, isSigner: false, isWritable: false },
+    creatorVault: {
+      value: input.creatorVault ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    treasury: {
+      value: input.treasury ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    buybackFund: {
+      value: input.buybackFund ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    eventAuthority: {
+      value: input.eventAuthority ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    pumpProgram: {
+      value: input.pumpProgram ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    systemProgram: {
+      value: input.systemProgram ?? null,
+      isSigner: false,
+      isWritable: false
+    }
+  };
+  const accounts = originalAccounts;
+  if (!accounts.revenue.value) {
+    accounts.revenue.value = await findRevenuePda(
+      {
+        protocol: getAddressFromResolvedInstructionAccount5(
+          "protocol",
+          accounts.protocol.value
+        )
+      },
+      { programAddress }
+    );
+  }
+  if (!accounts.pumpProgram.value) {
+    accounts.pumpProgram.value = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P";
+  }
+  if (!accounts.systemProgram.value) {
+    accounts.systemProgram.value = "11111111111111111111111111111111";
+  }
+  return Object.freeze({
+    accounts: [
+      getAccountMeta("creator", accounts.creator),
+      getAccountMeta("protocol", accounts.protocol),
+      getAccountMeta("revenue", accounts.revenue),
+      getAccountMeta("origin", accounts.origin),
+      getAccountMeta("creatorVault", accounts.creatorVault),
+      getAccountMeta("treasury", accounts.treasury),
+      getAccountMeta("buybackFund", accounts.buybackFund),
+      getAccountMeta("eventAuthority", accounts.eventAuthority),
+      getAccountMeta("pumpProgram", accounts.pumpProgram),
+      getAccountMeta("systemProgram", accounts.systemProgram)
+    ],
+    data: getCollectNativeCreatorFeesInstructionDataEncoder().encode({}),
+    programAddress
+  });
+}
+function getCollectNativeCreatorFeesInstruction(input, config) {
+  const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
+  const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
+  const getAccountMeta = getAccountMetaFactory5(programAddress, "programId");
+  const originalAccounts = {
+    creator: { value: input.creator ?? null, isSigner: true, isWritable: true },
+    protocol: {
+      value: input.protocol ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    revenue: {
+      value: input.revenue ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    origin: { value: input.origin ?? null, isSigner: false, isWritable: false },
+    creatorVault: {
+      value: input.creatorVault ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    treasury: {
+      value: input.treasury ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    buybackFund: {
+      value: input.buybackFund ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    eventAuthority: {
+      value: input.eventAuthority ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    pumpProgram: {
+      value: input.pumpProgram ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    systemProgram: {
+      value: input.systemProgram ?? null,
+      isSigner: false,
+      isWritable: false
+    }
+  };
+  const accounts = originalAccounts;
+  if (!accounts.pumpProgram.value) {
+    accounts.pumpProgram.value = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P";
+  }
+  if (!accounts.systemProgram.value) {
+    accounts.systemProgram.value = "11111111111111111111111111111111";
+  }
+  return Object.freeze({
+    accounts: [
+      getAccountMeta("creator", accounts.creator),
+      getAccountMeta("protocol", accounts.protocol),
+      getAccountMeta("revenue", accounts.revenue),
+      getAccountMeta("origin", accounts.origin),
+      getAccountMeta("creatorVault", accounts.creatorVault),
+      getAccountMeta("treasury", accounts.treasury),
+      getAccountMeta("buybackFund", accounts.buybackFund),
+      getAccountMeta("eventAuthority", accounts.eventAuthority),
+      getAccountMeta("pumpProgram", accounts.pumpProgram),
+      getAccountMeta("systemProgram", accounts.systemProgram)
+    ],
+    data: getCollectNativeCreatorFeesInstructionDataEncoder().encode({}),
+    programAddress
+  });
+}
+function parseCollectNativeCreatorFeesInstruction(instruction) {
+  if (instruction.accounts.length < 10) {
+    throw new SolanaError5(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS5,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 10
+      }
+    );
+  }
+  let accountIndex = 0;
+  const getNextAccount = () => {
+    const accountMeta = instruction.accounts[accountIndex];
+    accountIndex += 1;
+    return accountMeta;
+  };
+  return {
+    programAddress: instruction.programAddress,
+    accounts: {
+      creator: getNextAccount(),
+      protocol: getNextAccount(),
+      revenue: getNextAccount(),
+      origin: getNextAccount(),
+      creatorVault: getNextAccount(),
+      treasury: getNextAccount(),
+      buybackFund: getNextAccount(),
+      eventAuthority: getNextAccount(),
+      pumpProgram: getNextAccount(),
+      systemProgram: getNextAccount()
+    },
+    data: getCollectNativeCreatorFeesInstructionDataDecoder().decode(
+      instruction.data
+    )
+  };
+}
+
+// clients/generated/instructions/collectQuoteCreatorFees.ts
+import {
+  combineCodec as combineCodec17,
+  fixDecoderSize as fixDecoderSize16,
+  fixEncoderSize as fixEncoderSize16,
+  getAddressEncoder as getAddressEncoder25,
+  getBytesDecoder as getBytesDecoder16,
+  getBytesEncoder as getBytesEncoder29,
+  getProgramDerivedAddress as getProgramDerivedAddress14,
+  getStructDecoder as getStructDecoder17,
+  getStructEncoder as getStructEncoder17,
+  getU8Decoder as getU8Decoder9,
+  getU8Encoder as getU8Encoder9,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS6,
+  SolanaError as SolanaError6,
+  transformEncoder as transformEncoder15
+} from "@solana/kit";
+import {
+  getAccountMetaFactory as getAccountMetaFactory6,
+  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount6
+} from "@solana/kit/program-client-core";
+var COLLECT_QUOTE_CREATOR_FEES_DISCRIMINATOR = new Uint8Array([103, 255, 90, 194, 192, 129, 92, 158]);
+function getCollectQuoteCreatorFeesDiscriminatorBytes() {
+  return fixEncoderSize16(getBytesEncoder29(), 8).encode(
+    COLLECT_QUOTE_CREATOR_FEES_DISCRIMINATOR
+  );
+}
+function getCollectQuoteCreatorFeesInstructionDataEncoder() {
+  return transformEncoder15(
+    getStructEncoder17([
+      ["discriminator", fixEncoderSize16(getBytesEncoder29(), 8)],
+      ["sourceKind", getU8Encoder9()]
+    ]),
+    (value) => ({
+      ...value,
+      discriminator: COLLECT_QUOTE_CREATOR_FEES_DISCRIMINATOR
+    })
+  );
+}
+function getCollectQuoteCreatorFeesInstructionDataDecoder() {
+  return getStructDecoder17([
+    ["discriminator", fixDecoderSize16(getBytesDecoder16(), 8)],
+    ["sourceKind", getU8Decoder9()]
+  ]);
+}
+function getCollectQuoteCreatorFeesInstructionDataCodec() {
+  return combineCodec17(
+    getCollectQuoteCreatorFeesInstructionDataEncoder(),
+    getCollectQuoteCreatorFeesInstructionDataDecoder()
+  );
+}
+async function getCollectQuoteCreatorFeesInstructionAsync(input, config) {
+  const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
+  const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
+  const getAccountMeta = getAccountMetaFactory6(programAddress, "programId");
+  const originalAccounts = {
+    creator: { value: input.creator ?? null, isSigner: true, isWritable: true },
+    protocol: {
+      value: input.protocol ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    revenue: {
+      value: input.revenue ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    origin: { value: input.origin ?? null, isSigner: false, isWritable: false },
+    inputMint: {
+      value: input.inputMint ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    creatorTokens: {
+      value: input.creatorTokens ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    vaultAuthority: {
+      value: input.vaultAuthority ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    feeVault: {
+      value: input.feeVault ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    treasury: {
+      value: input.treasury ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    buybackFund: {
+      value: input.buybackFund ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    feeProgram: {
+      value: input.feeProgram ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    eventAuthority: {
+      value: input.eventAuthority ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    inputProgram: {
+      value: input.inputProgram ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    associatedTokenProgram: {
+      value: input.associatedTokenProgram ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    systemProgram: {
+      value: input.systemProgram ?? null,
+      isSigner: false,
+      isWritable: false
+    }
+  };
+  const accounts = originalAccounts;
+  const args = { ...input };
+  if (!accounts.revenue.value) {
+    accounts.revenue.value = await findRevenuePda(
+      {
+        protocol: getAddressFromResolvedInstructionAccount6(
+          "protocol",
+          accounts.protocol.value
+        )
+      },
+      { programAddress }
+    );
+  }
+  if (!accounts.feeVault.value) {
+    accounts.feeVault.value = await getProgramDerivedAddress14({
+      programAddress: "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+      seeds: [
+        getAddressEncoder25().encode(
+          getAddressFromResolvedInstructionAccount6(
+            "vaultAuthority",
+            accounts.vaultAuthority.value
+          )
+        ),
+        getAddressEncoder25().encode(
+          getAddressFromResolvedInstructionAccount6(
+            "inputProgram",
+            accounts.inputProgram.value
+          )
+        ),
+        getAddressEncoder25().encode(
+          getAddressFromResolvedInstructionAccount6(
+            "inputMint",
+            accounts.inputMint.value
+          )
+        )
+      ]
+    });
+  }
+  if (!accounts.associatedTokenProgram.value) {
+    accounts.associatedTokenProgram.value = "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL";
+  }
+  if (!accounts.systemProgram.value) {
+    accounts.systemProgram.value = "11111111111111111111111111111111";
+  }
+  return Object.freeze({
+    accounts: [
+      getAccountMeta("creator", accounts.creator),
+      getAccountMeta("protocol", accounts.protocol),
+      getAccountMeta("revenue", accounts.revenue),
+      getAccountMeta("origin", accounts.origin),
+      getAccountMeta("inputMint", accounts.inputMint),
+      getAccountMeta("creatorTokens", accounts.creatorTokens),
+      getAccountMeta("vaultAuthority", accounts.vaultAuthority),
+      getAccountMeta("feeVault", accounts.feeVault),
+      getAccountMeta("treasury", accounts.treasury),
+      getAccountMeta("buybackFund", accounts.buybackFund),
+      getAccountMeta("feeProgram", accounts.feeProgram),
+      getAccountMeta("eventAuthority", accounts.eventAuthority),
+      getAccountMeta("inputProgram", accounts.inputProgram),
+      getAccountMeta("associatedTokenProgram", accounts.associatedTokenProgram),
+      getAccountMeta("systemProgram", accounts.systemProgram)
+    ],
+    data: getCollectQuoteCreatorFeesInstructionDataEncoder().encode(
+      args
+    ),
+    programAddress
+  });
+}
+function getCollectQuoteCreatorFeesInstruction(input, config) {
+  const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
+  const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
+  const getAccountMeta = getAccountMetaFactory6(programAddress, "programId");
+  const originalAccounts = {
+    creator: { value: input.creator ?? null, isSigner: true, isWritable: true },
+    protocol: {
+      value: input.protocol ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    revenue: {
+      value: input.revenue ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    origin: { value: input.origin ?? null, isSigner: false, isWritable: false },
+    inputMint: {
+      value: input.inputMint ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    creatorTokens: {
+      value: input.creatorTokens ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    vaultAuthority: {
+      value: input.vaultAuthority ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    feeVault: {
+      value: input.feeVault ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    treasury: {
+      value: input.treasury ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    buybackFund: {
+      value: input.buybackFund ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    feeProgram: {
+      value: input.feeProgram ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    eventAuthority: {
+      value: input.eventAuthority ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    inputProgram: {
+      value: input.inputProgram ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    associatedTokenProgram: {
+      value: input.associatedTokenProgram ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    systemProgram: {
+      value: input.systemProgram ?? null,
+      isSigner: false,
+      isWritable: false
+    }
+  };
+  const accounts = originalAccounts;
+  const args = { ...input };
+  if (!accounts.associatedTokenProgram.value) {
+    accounts.associatedTokenProgram.value = "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL";
+  }
+  if (!accounts.systemProgram.value) {
+    accounts.systemProgram.value = "11111111111111111111111111111111";
+  }
+  return Object.freeze({
+    accounts: [
+      getAccountMeta("creator", accounts.creator),
+      getAccountMeta("protocol", accounts.protocol),
+      getAccountMeta("revenue", accounts.revenue),
+      getAccountMeta("origin", accounts.origin),
+      getAccountMeta("inputMint", accounts.inputMint),
+      getAccountMeta("creatorTokens", accounts.creatorTokens),
+      getAccountMeta("vaultAuthority", accounts.vaultAuthority),
+      getAccountMeta("feeVault", accounts.feeVault),
+      getAccountMeta("treasury", accounts.treasury),
+      getAccountMeta("buybackFund", accounts.buybackFund),
+      getAccountMeta("feeProgram", accounts.feeProgram),
+      getAccountMeta("eventAuthority", accounts.eventAuthority),
+      getAccountMeta("inputProgram", accounts.inputProgram),
+      getAccountMeta("associatedTokenProgram", accounts.associatedTokenProgram),
+      getAccountMeta("systemProgram", accounts.systemProgram)
+    ],
+    data: getCollectQuoteCreatorFeesInstructionDataEncoder().encode(
+      args
+    ),
+    programAddress
+  });
+}
+function parseCollectQuoteCreatorFeesInstruction(instruction) {
+  if (instruction.accounts.length < 15) {
+    throw new SolanaError6(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS6,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 15
+      }
+    );
+  }
+  let accountIndex = 0;
+  const getNextAccount = () => {
+    const accountMeta = instruction.accounts[accountIndex];
+    accountIndex += 1;
+    return accountMeta;
+  };
+  return {
+    programAddress: instruction.programAddress,
+    accounts: {
+      creator: getNextAccount(),
+      protocol: getNextAccount(),
+      revenue: getNextAccount(),
+      origin: getNextAccount(),
+      inputMint: getNextAccount(),
+      creatorTokens: getNextAccount(),
+      vaultAuthority: getNextAccount(),
+      feeVault: getNextAccount(),
+      treasury: getNextAccount(),
+      buybackFund: getNextAccount(),
+      feeProgram: getNextAccount(),
+      eventAuthority: getNextAccount(),
+      inputProgram: getNextAccount(),
+      associatedTokenProgram: getNextAccount(),
+      systemProgram: getNextAccount()
+    },
+    data: getCollectQuoteCreatorFeesInstructionDataDecoder().decode(
+      instruction.data
+    )
+  };
+}
+
+// clients/generated/instructions/createAirdrop.ts
+import {
+  combineCodec as combineCodec18,
+  fixDecoderSize as fixDecoderSize17,
+  fixEncoderSize as fixEncoderSize17,
+  getBytesDecoder as getBytesDecoder17,
+  getBytesEncoder as getBytesEncoder30,
+  getI64Decoder as getI64Decoder7,
+  getI64Encoder as getI64Encoder7,
+  getStructDecoder as getStructDecoder18,
+  getStructEncoder as getStructEncoder18,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS7,
+  SolanaError as SolanaError7,
+  transformEncoder as transformEncoder16
+} from "@solana/kit";
+import {
+  getAccountMetaFactory as getAccountMetaFactory7,
+  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount7
 } from "@solana/kit/program-client-core";
 var CREATE_AIRDROP_DISCRIMINATOR = new Uint8Array([
   227,
@@ -2258,15 +2957,15 @@ var CREATE_AIRDROP_DISCRIMINATOR = new Uint8Array([
   94
 ]);
 function getCreateAirdropDiscriminatorBytes() {
-  return fixEncoderSize14(getBytesEncoder26(), 8).encode(
+  return fixEncoderSize17(getBytesEncoder30(), 8).encode(
     CREATE_AIRDROP_DISCRIMINATOR
   );
 }
 function getCreateAirdropInstructionDataEncoder() {
-  return transformEncoder13(
-    getStructEncoder15([
-      ["discriminator", fixEncoderSize14(getBytesEncoder26(), 8)],
-      ["root", fixEncoderSize14(getBytesEncoder26(), 32)],
+  return transformEncoder16(
+    getStructEncoder18([
+      ["discriminator", fixEncoderSize17(getBytesEncoder30(), 8)],
+      ["root", fixEncoderSize17(getBytesEncoder30(), 32)],
       ["startsAt", getI64Encoder7()],
       ["endsAt", getI64Encoder7()]
     ]),
@@ -2274,15 +2973,15 @@ function getCreateAirdropInstructionDataEncoder() {
   );
 }
 function getCreateAirdropInstructionDataDecoder() {
-  return getStructDecoder15([
-    ["discriminator", fixDecoderSize14(getBytesDecoder14(), 8)],
-    ["root", fixDecoderSize14(getBytesDecoder14(), 32)],
+  return getStructDecoder18([
+    ["discriminator", fixDecoderSize17(getBytesDecoder17(), 8)],
+    ["root", fixDecoderSize17(getBytesDecoder17(), 32)],
     ["startsAt", getI64Decoder7()],
     ["endsAt", getI64Decoder7()]
   ]);
 }
 function getCreateAirdropInstructionDataCodec() {
-  return combineCodec15(
+  return combineCodec18(
     getCreateAirdropInstructionDataEncoder(),
     getCreateAirdropInstructionDataDecoder()
   );
@@ -2290,7 +2989,7 @@ function getCreateAirdropInstructionDataCodec() {
 async function getCreateAirdropInstructionAsync(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory5(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory7(programAddress, "programId");
   const originalAccounts = {
     admin: { value: input.admin ?? null, isSigner: true, isWritable: true },
     protocol: {
@@ -2330,7 +3029,7 @@ async function getCreateAirdropInstructionAsync(input, config) {
   if (!accounts.campaign.value) {
     accounts.campaign.value = await findCampaignPda(
       {
-        protocol: getAddressFromResolvedInstructionAccount5(
+        protocol: getAddressFromResolvedInstructionAccount7(
           "protocol",
           accounts.protocol.value
         )
@@ -2341,7 +3040,7 @@ async function getCreateAirdropInstructionAsync(input, config) {
   if (!accounts.airdropVault.value) {
     accounts.airdropVault.value = await findAirdropVaultPda(
       {
-        campaign: getAddressFromResolvedInstructionAccount5(
+        campaign: getAddressFromResolvedInstructionAccount7(
           "campaign",
           accounts.campaign.value
         )
@@ -2372,7 +3071,7 @@ async function getCreateAirdropInstructionAsync(input, config) {
 function getCreateAirdropInstruction(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory5(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory7(programAddress, "programId");
   const originalAccounts = {
     admin: { value: input.admin ?? null, isSigner: true, isWritable: true },
     protocol: {
@@ -2431,8 +3130,8 @@ function getCreateAirdropInstruction(input, config) {
 }
 function parseCreateAirdropInstruction(instruction) {
   if (instruction.accounts.length < 8) {
-    throw new SolanaError5(
-      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS5,
+    throw new SolanaError7(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS7,
       {
         actualAccountMetas: instruction.accounts.length,
         expectedAccountMetas: 8
@@ -2463,20 +3162,20 @@ function parseCreateAirdropInstruction(instruction) {
 
 // clients/generated/instructions/createMarket.ts
 import {
-  combineCodec as combineCodec16,
-  fixDecoderSize as fixDecoderSize15,
-  fixEncoderSize as fixEncoderSize15,
-  getBytesDecoder as getBytesDecoder15,
-  getBytesEncoder as getBytesEncoder27,
-  getStructDecoder as getStructDecoder16,
-  getStructEncoder as getStructEncoder16,
-  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS6,
-  SolanaError as SolanaError6,
-  transformEncoder as transformEncoder14
+  combineCodec as combineCodec19,
+  fixDecoderSize as fixDecoderSize18,
+  fixEncoderSize as fixEncoderSize18,
+  getBytesDecoder as getBytesDecoder18,
+  getBytesEncoder as getBytesEncoder31,
+  getStructDecoder as getStructDecoder19,
+  getStructEncoder as getStructEncoder19,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS8,
+  SolanaError as SolanaError8,
+  transformEncoder as transformEncoder17
 } from "@solana/kit";
 import {
-  getAccountMetaFactory as getAccountMetaFactory6,
-  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount6
+  getAccountMetaFactory as getAccountMetaFactory8,
+  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount8
 } from "@solana/kit/program-client-core";
 var CREATE_MARKET_DISCRIMINATOR = new Uint8Array([
   103,
@@ -2489,27 +3188,27 @@ var CREATE_MARKET_DISCRIMINATOR = new Uint8Array([
   254
 ]);
 function getCreateMarketDiscriminatorBytes() {
-  return fixEncoderSize15(getBytesEncoder27(), 8).encode(
+  return fixEncoderSize18(getBytesEncoder31(), 8).encode(
     CREATE_MARKET_DISCRIMINATOR
   );
 }
 function getCreateMarketInstructionDataEncoder() {
-  return transformEncoder14(
-    getStructEncoder16([
-      ["discriminator", fixEncoderSize15(getBytesEncoder27(), 8)],
+  return transformEncoder17(
+    getStructEncoder19([
+      ["discriminator", fixEncoderSize18(getBytesEncoder31(), 8)],
       ["risk", getMarketRiskEncoder()]
     ]),
     (value) => ({ ...value, discriminator: CREATE_MARKET_DISCRIMINATOR })
   );
 }
 function getCreateMarketInstructionDataDecoder() {
-  return getStructDecoder16([
-    ["discriminator", fixDecoderSize15(getBytesDecoder15(), 8)],
+  return getStructDecoder19([
+    ["discriminator", fixDecoderSize18(getBytesDecoder18(), 8)],
     ["risk", getMarketRiskDecoder()]
   ]);
 }
 function getCreateMarketInstructionDataCodec() {
-  return combineCodec16(
+  return combineCodec19(
     getCreateMarketInstructionDataEncoder(),
     getCreateMarketInstructionDataDecoder()
   );
@@ -2517,7 +3216,7 @@ function getCreateMarketInstructionDataCodec() {
 async function getCreateMarketInstructionAsync(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory6(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory8(programAddress, "programId");
   const originalAccounts = {
     admin: { value: input.admin ?? null, isSigner: true, isWritable: true },
     protocol: {
@@ -2557,7 +3256,7 @@ async function getCreateMarketInstructionAsync(input, config) {
   if (!accounts.protocol.value) {
     accounts.protocol.value = await findProtocolPda(
       {
-        admin: getAddressFromResolvedInstructionAccount6(
+        admin: getAddressFromResolvedInstructionAccount8(
           "admin",
           accounts.admin.value
         )
@@ -2568,7 +3267,7 @@ async function getCreateMarketInstructionAsync(input, config) {
   if (!accounts.market.value) {
     accounts.market.value = await findMarketPda(
       {
-        listing: getAddressFromResolvedInstructionAccount6(
+        listing: getAddressFromResolvedInstructionAccount8(
           "listing",
           accounts.listing.value
         )
@@ -2579,7 +3278,7 @@ async function getCreateMarketInstructionAsync(input, config) {
   if (!accounts.marketVault.value) {
     accounts.marketVault.value = await findMarketVaultPda(
       {
-        market: getAddressFromResolvedInstructionAccount6(
+        market: getAddressFromResolvedInstructionAccount8(
           "market",
           accounts.market.value
         )
@@ -2610,7 +3309,7 @@ async function getCreateMarketInstructionAsync(input, config) {
 function getCreateMarketInstruction(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory6(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory8(programAddress, "programId");
   const originalAccounts = {
     admin: { value: input.admin ?? null, isSigner: true, isWritable: true },
     protocol: {
@@ -2669,8 +3368,8 @@ function getCreateMarketInstruction(input, config) {
 }
 function parseCreateMarketInstruction(instruction) {
   if (instruction.accounts.length < 8) {
-    throw new SolanaError6(
-      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS6,
+    throw new SolanaError8(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS8,
       {
         actualAccountMetas: instruction.accounts.length,
         expectedAccountMetas: 8
@@ -2701,22 +3400,22 @@ function parseCreateMarketInstruction(instruction) {
 
 // clients/generated/instructions/deposit.ts
 import {
-  combineCodec as combineCodec17,
-  fixDecoderSize as fixDecoderSize16,
-  fixEncoderSize as fixEncoderSize16,
-  getBytesDecoder as getBytesDecoder16,
-  getBytesEncoder as getBytesEncoder28,
-  getStructDecoder as getStructDecoder17,
-  getStructEncoder as getStructEncoder17,
-  getU64Decoder as getU64Decoder11,
-  getU64Encoder as getU64Encoder12,
-  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS7,
-  SolanaError as SolanaError7,
-  transformEncoder as transformEncoder15
+  combineCodec as combineCodec20,
+  fixDecoderSize as fixDecoderSize19,
+  fixEncoderSize as fixEncoderSize19,
+  getBytesDecoder as getBytesDecoder19,
+  getBytesEncoder as getBytesEncoder32,
+  getStructDecoder as getStructDecoder20,
+  getStructEncoder as getStructEncoder20,
+  getU64Decoder as getU64Decoder12,
+  getU64Encoder as getU64Encoder13,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS9,
+  SolanaError as SolanaError9,
+  transformEncoder as transformEncoder18
 } from "@solana/kit";
 import {
-  getAccountMetaFactory as getAccountMetaFactory7,
-  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount7
+  getAccountMetaFactory as getAccountMetaFactory9,
+  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount9
 } from "@solana/kit/program-client-core";
 var DEPOSIT_DISCRIMINATOR = new Uint8Array([
   242,
@@ -2729,25 +3428,25 @@ var DEPOSIT_DISCRIMINATOR = new Uint8Array([
   182
 ]);
 function getDepositDiscriminatorBytes() {
-  return fixEncoderSize16(getBytesEncoder28(), 8).encode(DEPOSIT_DISCRIMINATOR);
+  return fixEncoderSize19(getBytesEncoder32(), 8).encode(DEPOSIT_DISCRIMINATOR);
 }
 function getDepositInstructionDataEncoder() {
-  return transformEncoder15(
-    getStructEncoder17([
-      ["discriminator", fixEncoderSize16(getBytesEncoder28(), 8)],
-      ["amount", getU64Encoder12()]
+  return transformEncoder18(
+    getStructEncoder20([
+      ["discriminator", fixEncoderSize19(getBytesEncoder32(), 8)],
+      ["amount", getU64Encoder13()]
     ]),
     (value) => ({ ...value, discriminator: DEPOSIT_DISCRIMINATOR })
   );
 }
 function getDepositInstructionDataDecoder() {
-  return getStructDecoder17([
-    ["discriminator", fixDecoderSize16(getBytesDecoder16(), 8)],
-    ["amount", getU64Decoder11()]
+  return getStructDecoder20([
+    ["discriminator", fixDecoderSize19(getBytesDecoder19(), 8)],
+    ["amount", getU64Decoder12()]
   ]);
 }
 function getDepositInstructionDataCodec() {
-  return combineCodec17(
+  return combineCodec20(
     getDepositInstructionDataEncoder(),
     getDepositInstructionDataDecoder()
   );
@@ -2755,7 +3454,7 @@ function getDepositInstructionDataCodec() {
 async function getDepositInstructionAsync(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory7(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory9(programAddress, "programId");
   const originalAccounts = {
     owner: { value: input.owner ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -2786,11 +3485,11 @@ async function getDepositInstructionAsync(input, config) {
   if (!accounts.margin.value) {
     accounts.margin.value = await findMarginPda(
       {
-        protocol: getAddressFromResolvedInstructionAccount7(
+        protocol: getAddressFromResolvedInstructionAccount9(
           "protocol",
           accounts.protocol.value
         ),
-        owner: getAddressFromResolvedInstructionAccount7(
+        owner: getAddressFromResolvedInstructionAccount9(
           "owner",
           accounts.owner.value
         )
@@ -2801,7 +3500,7 @@ async function getDepositInstructionAsync(input, config) {
   if (!accounts.quoteVault.value) {
     accounts.quoteVault.value = await findQuoteVaultPda(
       {
-        margin: getAddressFromResolvedInstructionAccount7(
+        margin: getAddressFromResolvedInstructionAccount9(
           "margin",
           accounts.margin.value
         )
@@ -2828,7 +3527,7 @@ async function getDepositInstructionAsync(input, config) {
 function getDepositInstruction(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory7(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory9(programAddress, "programId");
   const originalAccounts = {
     owner: { value: input.owner ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -2874,8 +3573,8 @@ function getDepositInstruction(input, config) {
 }
 function parseDepositInstruction(instruction) {
   if (instruction.accounts.length < 7) {
-    throw new SolanaError7(
-      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS7,
+    throw new SolanaError9(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS9,
       {
         actualAccountMetas: instruction.accounts.length,
         expectedAccountMetas: 7
@@ -2903,24 +3602,285 @@ function parseDepositInstruction(instruction) {
   };
 }
 
-// clients/generated/instructions/fundMarket.ts
+// clients/generated/instructions/executeBuyback.ts
 import {
-  combineCodec as combineCodec18,
-  fixDecoderSize as fixDecoderSize17,
-  fixEncoderSize as fixEncoderSize17,
-  getBytesDecoder as getBytesDecoder17,
-  getBytesEncoder as getBytesEncoder29,
-  getStructDecoder as getStructDecoder18,
-  getStructEncoder as getStructEncoder18,
-  getU64Decoder as getU64Decoder12,
-  getU64Encoder as getU64Encoder13,
-  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS8,
-  SolanaError as SolanaError8,
-  transformEncoder as transformEncoder16
+  addDecoderSizePrefix,
+  addEncoderSizePrefix,
+  combineCodec as combineCodec21,
+  fixDecoderSize as fixDecoderSize20,
+  fixEncoderSize as fixEncoderSize20,
+  getBytesDecoder as getBytesDecoder20,
+  getBytesEncoder as getBytesEncoder33,
+  getStructDecoder as getStructDecoder21,
+  getStructEncoder as getStructEncoder21,
+  getU32Decoder as getU32Decoder2,
+  getU32Encoder as getU32Encoder2,
+  getU64Decoder as getU64Decoder13,
+  getU64Encoder as getU64Encoder14,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS10,
+  SolanaError as SolanaError10,
+  transformEncoder as transformEncoder19
 } from "@solana/kit";
 import {
-  getAccountMetaFactory as getAccountMetaFactory8,
-  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount8
+  getAccountMetaFactory as getAccountMetaFactory10,
+  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount10
+} from "@solana/kit/program-client-core";
+var EXECUTE_BUYBACK_DISCRIMINATOR = new Uint8Array(
+  [47, 32, 19, 100, 184, 96, 144, 49]
+);
+function getExecuteBuybackDiscriminatorBytes() {
+  return fixEncoderSize20(getBytesEncoder33(), 8).encode(
+    EXECUTE_BUYBACK_DISCRIMINATOR
+  );
+}
+function getExecuteBuybackInstructionDataEncoder() {
+  return transformEncoder19(
+    getStructEncoder21([
+      ["discriminator", fixEncoderSize20(getBytesEncoder33(), 8)],
+      ["inputAmount", getU64Encoder14()],
+      ["minimumOutput", getU64Encoder14()],
+      ["swapData", addEncoderSizePrefix(getBytesEncoder33(), getU32Encoder2())]
+    ]),
+    (value) => ({ ...value, discriminator: EXECUTE_BUYBACK_DISCRIMINATOR })
+  );
+}
+function getExecuteBuybackInstructionDataDecoder() {
+  return getStructDecoder21([
+    ["discriminator", fixDecoderSize20(getBytesDecoder20(), 8)],
+    ["inputAmount", getU64Decoder13()],
+    ["minimumOutput", getU64Decoder13()],
+    ["swapData", addDecoderSizePrefix(getBytesDecoder20(), getU32Decoder2())]
+  ]);
+}
+function getExecuteBuybackInstructionDataCodec() {
+  return combineCodec21(
+    getExecuteBuybackInstructionDataEncoder(),
+    getExecuteBuybackInstructionDataDecoder()
+  );
+}
+async function getExecuteBuybackInstructionAsync(input, config) {
+  const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
+  const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
+  const getAccountMeta = getAccountMetaFactory10(programAddress, "programId");
+  const originalAccounts = {
+    authority: {
+      value: input.authority ?? null,
+      isSigner: true,
+      isWritable: false
+    },
+    protocol: {
+      value: input.protocol ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    revenue: {
+      value: input.revenue ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    inputMint: {
+      value: input.inputMint ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    inputTokens: {
+      value: input.inputTokens ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    leverMint: {
+      value: input.leverMint ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    leverTokens: {
+      value: input.leverTokens ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    inputProgram: {
+      value: input.inputProgram ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    leverProgram: {
+      value: input.leverProgram ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    jupiterProgram: {
+      value: input.jupiterProgram ?? null,
+      isSigner: false,
+      isWritable: false
+    }
+  };
+  const accounts = originalAccounts;
+  const args = { ...input };
+  if (!accounts.revenue.value) {
+    accounts.revenue.value = await findRevenuePda(
+      {
+        protocol: getAddressFromResolvedInstructionAccount10(
+          "protocol",
+          accounts.protocol.value
+        )
+      },
+      { programAddress }
+    );
+  }
+  if (!accounts.jupiterProgram.value) {
+    accounts.jupiterProgram.value = "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4";
+  }
+  return Object.freeze({
+    accounts: [
+      getAccountMeta("authority", accounts.authority),
+      getAccountMeta("protocol", accounts.protocol),
+      getAccountMeta("revenue", accounts.revenue),
+      getAccountMeta("inputMint", accounts.inputMint),
+      getAccountMeta("inputTokens", accounts.inputTokens),
+      getAccountMeta("leverMint", accounts.leverMint),
+      getAccountMeta("leverTokens", accounts.leverTokens),
+      getAccountMeta("inputProgram", accounts.inputProgram),
+      getAccountMeta("leverProgram", accounts.leverProgram),
+      getAccountMeta("jupiterProgram", accounts.jupiterProgram)
+    ],
+    data: getExecuteBuybackInstructionDataEncoder().encode(
+      args
+    ),
+    programAddress
+  });
+}
+function getExecuteBuybackInstruction(input, config) {
+  const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
+  const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
+  const getAccountMeta = getAccountMetaFactory10(programAddress, "programId");
+  const originalAccounts = {
+    authority: {
+      value: input.authority ?? null,
+      isSigner: true,
+      isWritable: false
+    },
+    protocol: {
+      value: input.protocol ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    revenue: {
+      value: input.revenue ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    inputMint: {
+      value: input.inputMint ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    inputTokens: {
+      value: input.inputTokens ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    leverMint: {
+      value: input.leverMint ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    leverTokens: {
+      value: input.leverTokens ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    inputProgram: {
+      value: input.inputProgram ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    leverProgram: {
+      value: input.leverProgram ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    jupiterProgram: {
+      value: input.jupiterProgram ?? null,
+      isSigner: false,
+      isWritable: false
+    }
+  };
+  const accounts = originalAccounts;
+  const args = { ...input };
+  if (!accounts.jupiterProgram.value) {
+    accounts.jupiterProgram.value = "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4";
+  }
+  return Object.freeze({
+    accounts: [
+      getAccountMeta("authority", accounts.authority),
+      getAccountMeta("protocol", accounts.protocol),
+      getAccountMeta("revenue", accounts.revenue),
+      getAccountMeta("inputMint", accounts.inputMint),
+      getAccountMeta("inputTokens", accounts.inputTokens),
+      getAccountMeta("leverMint", accounts.leverMint),
+      getAccountMeta("leverTokens", accounts.leverTokens),
+      getAccountMeta("inputProgram", accounts.inputProgram),
+      getAccountMeta("leverProgram", accounts.leverProgram),
+      getAccountMeta("jupiterProgram", accounts.jupiterProgram)
+    ],
+    data: getExecuteBuybackInstructionDataEncoder().encode(
+      args
+    ),
+    programAddress
+  });
+}
+function parseExecuteBuybackInstruction(instruction) {
+  if (instruction.accounts.length < 10) {
+    throw new SolanaError10(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS10,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 10
+      }
+    );
+  }
+  let accountIndex = 0;
+  const getNextAccount = () => {
+    const accountMeta = instruction.accounts[accountIndex];
+    accountIndex += 1;
+    return accountMeta;
+  };
+  return {
+    programAddress: instruction.programAddress,
+    accounts: {
+      authority: getNextAccount(),
+      protocol: getNextAccount(),
+      revenue: getNextAccount(),
+      inputMint: getNextAccount(),
+      inputTokens: getNextAccount(),
+      leverMint: getNextAccount(),
+      leverTokens: getNextAccount(),
+      inputProgram: getNextAccount(),
+      leverProgram: getNextAccount(),
+      jupiterProgram: getNextAccount()
+    },
+    data: getExecuteBuybackInstructionDataDecoder().decode(instruction.data)
+  };
+}
+
+// clients/generated/instructions/fundMarket.ts
+import {
+  combineCodec as combineCodec22,
+  fixDecoderSize as fixDecoderSize21,
+  fixEncoderSize as fixEncoderSize21,
+  getBytesDecoder as getBytesDecoder21,
+  getBytesEncoder as getBytesEncoder34,
+  getStructDecoder as getStructDecoder22,
+  getStructEncoder as getStructEncoder22,
+  getU64Decoder as getU64Decoder14,
+  getU64Encoder as getU64Encoder15,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS11,
+  SolanaError as SolanaError11,
+  transformEncoder as transformEncoder20
+} from "@solana/kit";
+import {
+  getAccountMetaFactory as getAccountMetaFactory11,
+  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount11
 } from "@solana/kit/program-client-core";
 var FUND_MARKET_DISCRIMINATOR = new Uint8Array([
   173,
@@ -2933,25 +3893,25 @@ var FUND_MARKET_DISCRIMINATOR = new Uint8Array([
   160
 ]);
 function getFundMarketDiscriminatorBytes() {
-  return fixEncoderSize17(getBytesEncoder29(), 8).encode(FUND_MARKET_DISCRIMINATOR);
+  return fixEncoderSize21(getBytesEncoder34(), 8).encode(FUND_MARKET_DISCRIMINATOR);
 }
 function getFundMarketInstructionDataEncoder() {
-  return transformEncoder16(
-    getStructEncoder18([
-      ["discriminator", fixEncoderSize17(getBytesEncoder29(), 8)],
-      ["amount", getU64Encoder13()]
+  return transformEncoder20(
+    getStructEncoder22([
+      ["discriminator", fixEncoderSize21(getBytesEncoder34(), 8)],
+      ["amount", getU64Encoder15()]
     ]),
     (value) => ({ ...value, discriminator: FUND_MARKET_DISCRIMINATOR })
   );
 }
 function getFundMarketInstructionDataDecoder() {
-  return getStructDecoder18([
-    ["discriminator", fixDecoderSize17(getBytesDecoder17(), 8)],
-    ["amount", getU64Decoder12()]
+  return getStructDecoder22([
+    ["discriminator", fixDecoderSize21(getBytesDecoder21(), 8)],
+    ["amount", getU64Decoder14()]
   ]);
 }
 function getFundMarketInstructionDataCodec() {
-  return combineCodec18(
+  return combineCodec22(
     getFundMarketInstructionDataEncoder(),
     getFundMarketInstructionDataDecoder()
   );
@@ -2959,7 +3919,7 @@ function getFundMarketInstructionDataCodec() {
 async function getFundMarketInstructionAsync(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory8(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory11(programAddress, "programId");
   const originalAccounts = {
     lister: { value: input.lister ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -2994,7 +3954,7 @@ async function getFundMarketInstructionAsync(input, config) {
   if (!accounts.marketVault.value) {
     accounts.marketVault.value = await findMarketVaultPda(
       {
-        market: getAddressFromResolvedInstructionAccount8(
+        market: getAddressFromResolvedInstructionAccount11(
           "market",
           accounts.market.value
         )
@@ -3021,7 +3981,7 @@ async function getFundMarketInstructionAsync(input, config) {
 function getFundMarketInstruction(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory8(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory11(programAddress, "programId");
   const originalAccounts = {
     lister: { value: input.lister ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -3071,8 +4031,8 @@ function getFundMarketInstruction(input, config) {
 }
 function parseFundMarketInstruction(instruction) {
   if (instruction.accounts.length < 7) {
-    throw new SolanaError8(
-      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS8,
+    throw new SolanaError11(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS11,
       {
         actualAccountMetas: instruction.accounts.length,
         expectedAccountMetas: 7
@@ -3102,46 +4062,46 @@ function parseFundMarketInstruction(instruction) {
 
 // clients/generated/instructions/initializeProtocol.ts
 import {
-  combineCodec as combineCodec19,
-  fixDecoderSize as fixDecoderSize18,
-  fixEncoderSize as fixEncoderSize18,
-  getAddressEncoder as getAddressEncoder23,
-  getBytesDecoder as getBytesDecoder18,
-  getBytesEncoder as getBytesEncoder30,
-  getProgramDerivedAddress as getProgramDerivedAddress13,
-  getStructDecoder as getStructDecoder19,
-  getStructEncoder as getStructEncoder19,
-  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS9,
-  SolanaError as SolanaError9,
-  transformEncoder as transformEncoder17
+  combineCodec as combineCodec23,
+  fixDecoderSize as fixDecoderSize22,
+  fixEncoderSize as fixEncoderSize22,
+  getAddressEncoder as getAddressEncoder26,
+  getBytesDecoder as getBytesDecoder22,
+  getBytesEncoder as getBytesEncoder35,
+  getProgramDerivedAddress as getProgramDerivedAddress15,
+  getStructDecoder as getStructDecoder23,
+  getStructEncoder as getStructEncoder23,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS12,
+  SolanaError as SolanaError12,
+  transformEncoder as transformEncoder21
 } from "@solana/kit";
 import {
-  getAccountMetaFactory as getAccountMetaFactory9,
-  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount9
+  getAccountMetaFactory as getAccountMetaFactory12,
+  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount12
 } from "@solana/kit/program-client-core";
 var INITIALIZE_PROTOCOL_DISCRIMINATOR = new Uint8Array([188, 233, 252, 106, 134, 146, 202, 91]);
 function getInitializeProtocolDiscriminatorBytes() {
-  return fixEncoderSize18(getBytesEncoder30(), 8).encode(
+  return fixEncoderSize22(getBytesEncoder35(), 8).encode(
     INITIALIZE_PROTOCOL_DISCRIMINATOR
   );
 }
 function getInitializeProtocolInstructionDataEncoder() {
-  return transformEncoder17(
-    getStructEncoder19([
-      ["discriminator", fixEncoderSize18(getBytesEncoder30(), 8)],
+  return transformEncoder21(
+    getStructEncoder23([
+      ["discriminator", fixEncoderSize22(getBytesEncoder35(), 8)],
       ["policy", getListingPolicyEncoder()]
     ]),
     (value) => ({ ...value, discriminator: INITIALIZE_PROTOCOL_DISCRIMINATOR })
   );
 }
 function getInitializeProtocolInstructionDataDecoder() {
-  return getStructDecoder19([
-    ["discriminator", fixDecoderSize18(getBytesDecoder18(), 8)],
+  return getStructDecoder23([
+    ["discriminator", fixDecoderSize22(getBytesDecoder22(), 8)],
     ["policy", getListingPolicyDecoder()]
   ]);
 }
 function getInitializeProtocolInstructionDataCodec() {
-  return combineCodec19(
+  return combineCodec23(
     getInitializeProtocolInstructionDataEncoder(),
     getInitializeProtocolInstructionDataDecoder()
   );
@@ -3149,11 +4109,16 @@ function getInitializeProtocolInstructionDataCodec() {
 async function getInitializeProtocolInstructionAsync(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory9(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory12(programAddress, "programId");
   const originalAccounts = {
     admin: { value: input.admin ?? null, isSigner: true, isWritable: true },
     protocol: {
       value: input.protocol ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    revenue: {
+      value: input.revenue ?? null,
       isSigner: false,
       isWritable: true
     },
@@ -3188,7 +4153,7 @@ async function getInitializeProtocolInstructionAsync(input, config) {
   if (!accounts.protocol.value) {
     accounts.protocol.value = await findProtocolPda(
       {
-        admin: getAddressFromResolvedInstructionAccount9(
+        admin: getAddressFromResolvedInstructionAccount12(
           "admin",
           accounts.admin.value
         )
@@ -3196,11 +4161,22 @@ async function getInitializeProtocolInstructionAsync(input, config) {
       { programAddress }
     );
   }
+  if (!accounts.revenue.value) {
+    accounts.revenue.value = await findRevenuePda(
+      {
+        protocol: getAddressFromResolvedInstructionAccount12(
+          "protocol",
+          accounts.protocol.value
+        )
+      },
+      { programAddress }
+    );
+  }
   if (!accounts.leverCurve.value) {
-    accounts.leverCurve.value = await getProgramDerivedAddress13({
+    accounts.leverCurve.value = await getProgramDerivedAddress15({
       programAddress: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
       seeds: [
-        getBytesEncoder30().encode(
+        getBytesEncoder35().encode(
           new Uint8Array([
             98,
             111,
@@ -3217,8 +4193,8 @@ async function getInitializeProtocolInstructionAsync(input, config) {
             101
           ])
         ),
-        getAddressEncoder23().encode(
-          getAddressFromResolvedInstructionAccount9(
+        getAddressEncoder26().encode(
+          getAddressFromResolvedInstructionAccount12(
             "leverMint",
             accounts.leverMint.value
           )
@@ -3227,10 +4203,10 @@ async function getInitializeProtocolInstructionAsync(input, config) {
     });
   }
   if (!accounts.quoteCurve.value) {
-    accounts.quoteCurve.value = await getProgramDerivedAddress13({
+    accounts.quoteCurve.value = await getProgramDerivedAddress15({
       programAddress: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
       seeds: [
-        getBytesEncoder30().encode(
+        getBytesEncoder35().encode(
           new Uint8Array([
             98,
             111,
@@ -3247,8 +4223,8 @@ async function getInitializeProtocolInstructionAsync(input, config) {
             101
           ])
         ),
-        getAddressEncoder23().encode(
-          getAddressFromResolvedInstructionAccount9(
+        getAddressEncoder26().encode(
+          getAddressFromResolvedInstructionAccount12(
             "quoteMint",
             accounts.quoteMint.value
           )
@@ -3263,6 +4239,7 @@ async function getInitializeProtocolInstructionAsync(input, config) {
     accounts: [
       getAccountMeta("admin", accounts.admin),
       getAccountMeta("protocol", accounts.protocol),
+      getAccountMeta("revenue", accounts.revenue),
       getAccountMeta("leverMint", accounts.leverMint),
       getAccountMeta("quoteMint", accounts.quoteMint),
       getAccountMeta("leverCurve", accounts.leverCurve),
@@ -3278,11 +4255,16 @@ async function getInitializeProtocolInstructionAsync(input, config) {
 function getInitializeProtocolInstruction(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory9(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory12(programAddress, "programId");
   const originalAccounts = {
     admin: { value: input.admin ?? null, isSigner: true, isWritable: true },
     protocol: {
       value: input.protocol ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    revenue: {
+      value: input.revenue ?? null,
       isSigner: false,
       isWritable: true
     },
@@ -3321,6 +4303,7 @@ function getInitializeProtocolInstruction(input, config) {
     accounts: [
       getAccountMeta("admin", accounts.admin),
       getAccountMeta("protocol", accounts.protocol),
+      getAccountMeta("revenue", accounts.revenue),
       getAccountMeta("leverMint", accounts.leverMint),
       getAccountMeta("quoteMint", accounts.quoteMint),
       getAccountMeta("leverCurve", accounts.leverCurve),
@@ -3334,12 +4317,12 @@ function getInitializeProtocolInstruction(input, config) {
   });
 }
 function parseInitializeProtocolInstruction(instruction) {
-  if (instruction.accounts.length < 7) {
-    throw new SolanaError9(
-      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS9,
+  if (instruction.accounts.length < 8) {
+    throw new SolanaError12(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS12,
       {
         actualAccountMetas: instruction.accounts.length,
-        expectedAccountMetas: 7
+        expectedAccountMetas: 8
       }
     );
   }
@@ -3354,6 +4337,7 @@ function parseInitializeProtocolInstruction(instruction) {
     accounts: {
       admin: getNextAccount(),
       protocol: getNextAccount(),
+      revenue: getNextAccount(),
       leverMint: getNextAccount(),
       quoteMint: getNextAccount(),
       leverCurve: getNextAccount(),
@@ -3368,40 +4352,40 @@ function parseInitializeProtocolInstruction(instruction) {
 
 // clients/generated/instructions/openMarginAccount.ts
 import {
-  combineCodec as combineCodec20,
-  fixDecoderSize as fixDecoderSize19,
-  fixEncoderSize as fixEncoderSize19,
-  getBytesDecoder as getBytesDecoder19,
-  getBytesEncoder as getBytesEncoder31,
-  getStructDecoder as getStructDecoder20,
-  getStructEncoder as getStructEncoder20,
-  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS10,
-  SolanaError as SolanaError10,
-  transformEncoder as transformEncoder18
+  combineCodec as combineCodec24,
+  fixDecoderSize as fixDecoderSize23,
+  fixEncoderSize as fixEncoderSize23,
+  getBytesDecoder as getBytesDecoder23,
+  getBytesEncoder as getBytesEncoder36,
+  getStructDecoder as getStructDecoder24,
+  getStructEncoder as getStructEncoder24,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS13,
+  SolanaError as SolanaError13,
+  transformEncoder as transformEncoder22
 } from "@solana/kit";
 import {
-  getAccountMetaFactory as getAccountMetaFactory10,
-  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount10
+  getAccountMetaFactory as getAccountMetaFactory13,
+  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount13
 } from "@solana/kit/program-client-core";
 var OPEN_MARGIN_ACCOUNT_DISCRIMINATOR = new Uint8Array([251, 54, 54, 233, 180, 125, 203, 107]);
 function getOpenMarginAccountDiscriminatorBytes() {
-  return fixEncoderSize19(getBytesEncoder31(), 8).encode(
+  return fixEncoderSize23(getBytesEncoder36(), 8).encode(
     OPEN_MARGIN_ACCOUNT_DISCRIMINATOR
   );
 }
 function getOpenMarginAccountInstructionDataEncoder() {
-  return transformEncoder18(
-    getStructEncoder20([["discriminator", fixEncoderSize19(getBytesEncoder31(), 8)]]),
+  return transformEncoder22(
+    getStructEncoder24([["discriminator", fixEncoderSize23(getBytesEncoder36(), 8)]]),
     (value) => ({ ...value, discriminator: OPEN_MARGIN_ACCOUNT_DISCRIMINATOR })
   );
 }
 function getOpenMarginAccountInstructionDataDecoder() {
-  return getStructDecoder20([
-    ["discriminator", fixDecoderSize19(getBytesDecoder19(), 8)]
+  return getStructDecoder24([
+    ["discriminator", fixDecoderSize23(getBytesDecoder23(), 8)]
   ]);
 }
 function getOpenMarginAccountInstructionDataCodec() {
-  return combineCodec20(
+  return combineCodec24(
     getOpenMarginAccountInstructionDataEncoder(),
     getOpenMarginAccountInstructionDataDecoder()
   );
@@ -3409,7 +4393,7 @@ function getOpenMarginAccountInstructionDataCodec() {
 async function getOpenMarginAccountInstructionAsync(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory10(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory13(programAddress, "programId");
   const originalAccounts = {
     owner: { value: input.owner ?? null, isSigner: true, isWritable: true },
     protocol: {
@@ -3443,11 +4427,11 @@ async function getOpenMarginAccountInstructionAsync(input, config) {
   if (!accounts.margin.value) {
     accounts.margin.value = await findMarginPda(
       {
-        protocol: getAddressFromResolvedInstructionAccount10(
+        protocol: getAddressFromResolvedInstructionAccount13(
           "protocol",
           accounts.protocol.value
         ),
-        owner: getAddressFromResolvedInstructionAccount10(
+        owner: getAddressFromResolvedInstructionAccount13(
           "owner",
           accounts.owner.value
         )
@@ -3458,7 +4442,7 @@ async function getOpenMarginAccountInstructionAsync(input, config) {
   if (!accounts.quoteVault.value) {
     accounts.quoteVault.value = await findQuoteVaultPda(
       {
-        margin: getAddressFromResolvedInstructionAccount10(
+        margin: getAddressFromResolvedInstructionAccount13(
           "margin",
           accounts.margin.value
         )
@@ -3486,7 +4470,7 @@ async function getOpenMarginAccountInstructionAsync(input, config) {
 function getOpenMarginAccountInstruction(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory10(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory13(programAddress, "programId");
   const originalAccounts = {
     owner: { value: input.owner ?? null, isSigner: true, isWritable: true },
     protocol: {
@@ -3536,8 +4520,8 @@ function getOpenMarginAccountInstruction(input, config) {
 }
 function parseOpenMarginAccountInstruction(instruction) {
   if (instruction.accounts.length < 7) {
-    throw new SolanaError10(
-      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS10,
+    throw new SolanaError13(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS13,
       {
         actualAccountMetas: instruction.accounts.length,
         expectedAccountMetas: 7
@@ -3567,28 +4551,28 @@ function parseOpenMarginAccountInstruction(instruction) {
 
 // clients/generated/instructions/openPosition.ts
 import {
-  combineCodec as combineCodec21,
-  fixDecoderSize as fixDecoderSize20,
-  fixEncoderSize as fixEncoderSize20,
+  combineCodec as combineCodec25,
+  fixDecoderSize as fixDecoderSize24,
+  fixEncoderSize as fixEncoderSize24,
   getBooleanDecoder as getBooleanDecoder7,
   getBooleanEncoder as getBooleanEncoder7,
-  getBytesDecoder as getBytesDecoder20,
-  getBytesEncoder as getBytesEncoder32,
-  getStructDecoder as getStructDecoder21,
-  getStructEncoder as getStructEncoder21,
+  getBytesDecoder as getBytesDecoder24,
+  getBytesEncoder as getBytesEncoder37,
+  getStructDecoder as getStructDecoder25,
+  getStructEncoder as getStructEncoder25,
   getU16Decoder as getU16Decoder3,
   getU16Encoder as getU16Encoder3,
-  getU64Decoder as getU64Decoder13,
-  getU64Encoder as getU64Encoder14,
-  getU8Decoder as getU8Decoder9,
-  getU8Encoder as getU8Encoder9,
-  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS11,
-  SolanaError as SolanaError11,
-  transformEncoder as transformEncoder19
+  getU64Decoder as getU64Decoder15,
+  getU64Encoder as getU64Encoder16,
+  getU8Decoder as getU8Decoder10,
+  getU8Encoder as getU8Encoder10,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS14,
+  SolanaError as SolanaError14,
+  transformEncoder as transformEncoder23
 } from "@solana/kit";
 import {
-  getAccountMetaFactory as getAccountMetaFactory11,
-  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount11,
+  getAccountMetaFactory as getAccountMetaFactory14,
+  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount14,
   getNonNullResolvedInstructionInput
 } from "@solana/kit/program-client-core";
 var OPEN_POSITION_DISCRIMINATOR = new Uint8Array([
@@ -3602,37 +4586,37 @@ var OPEN_POSITION_DISCRIMINATOR = new Uint8Array([
   49
 ]);
 function getOpenPositionDiscriminatorBytes() {
-  return fixEncoderSize20(getBytesEncoder32(), 8).encode(
+  return fixEncoderSize24(getBytesEncoder37(), 8).encode(
     OPEN_POSITION_DISCRIMINATOR
   );
 }
 function getOpenPositionInstructionDataEncoder() {
-  return transformEncoder19(
-    getStructEncoder21([
-      ["discriminator", fixEncoderSize20(getBytesEncoder32(), 8)],
-      ["id", getU64Encoder14()],
-      ["collateral", getU64Encoder14()],
-      ["leverage", getU8Encoder9()],
+  return transformEncoder23(
+    getStructEncoder25([
+      ["discriminator", fixEncoderSize24(getBytesEncoder37(), 8)],
+      ["id", getU64Encoder16()],
+      ["collateral", getU64Encoder16()],
+      ["leverage", getU8Encoder10()],
       ["long", getBooleanEncoder7()],
-      ["expectedPrice", getU64Encoder14()],
+      ["expectedPrice", getU64Encoder16()],
       ["slippageBps", getU16Encoder3()]
     ]),
     (value) => ({ ...value, discriminator: OPEN_POSITION_DISCRIMINATOR })
   );
 }
 function getOpenPositionInstructionDataDecoder() {
-  return getStructDecoder21([
-    ["discriminator", fixDecoderSize20(getBytesDecoder20(), 8)],
-    ["id", getU64Decoder13()],
-    ["collateral", getU64Decoder13()],
-    ["leverage", getU8Decoder9()],
+  return getStructDecoder25([
+    ["discriminator", fixDecoderSize24(getBytesDecoder24(), 8)],
+    ["id", getU64Decoder15()],
+    ["collateral", getU64Decoder15()],
+    ["leverage", getU8Decoder10()],
     ["long", getBooleanDecoder7()],
-    ["expectedPrice", getU64Decoder13()],
+    ["expectedPrice", getU64Decoder15()],
     ["slippageBps", getU16Decoder3()]
   ]);
 }
 function getOpenPositionInstructionDataCodec() {
-  return combineCodec21(
+  return combineCodec25(
     getOpenPositionInstructionDataEncoder(),
     getOpenPositionInstructionDataDecoder()
   );
@@ -3640,7 +4624,7 @@ function getOpenPositionInstructionDataCodec() {
 async function getOpenPositionInstructionAsync(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory11(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory14(programAddress, "programId");
   const originalAccounts = {
     owner: { value: input.owner ?? null, isSigner: true, isWritable: true },
     protocol: {
@@ -3691,7 +4675,7 @@ async function getOpenPositionInstructionAsync(input, config) {
   if (!accounts.market.value) {
     accounts.market.value = await findMarketPda(
       {
-        listing: getAddressFromResolvedInstructionAccount11(
+        listing: getAddressFromResolvedInstructionAccount14(
           "listing",
           accounts.listing.value
         )
@@ -3702,11 +4686,11 @@ async function getOpenPositionInstructionAsync(input, config) {
   if (!accounts.margin.value) {
     accounts.margin.value = await findMarginPda(
       {
-        protocol: getAddressFromResolvedInstructionAccount11(
+        protocol: getAddressFromResolvedInstructionAccount14(
           "protocol",
           accounts.protocol.value
         ),
-        owner: getAddressFromResolvedInstructionAccount11(
+        owner: getAddressFromResolvedInstructionAccount14(
           "owner",
           accounts.owner.value
         )
@@ -3717,7 +4701,7 @@ async function getOpenPositionInstructionAsync(input, config) {
   if (!accounts.position.value) {
     accounts.position.value = await findPositionPda(
       {
-        margin: getAddressFromResolvedInstructionAccount11(
+        margin: getAddressFromResolvedInstructionAccount14(
           "margin",
           accounts.margin.value
         ),
@@ -3729,7 +4713,7 @@ async function getOpenPositionInstructionAsync(input, config) {
   if (!accounts.userVault.value) {
     accounts.userVault.value = await findQuoteVaultPda(
       {
-        margin: getAddressFromResolvedInstructionAccount11(
+        margin: getAddressFromResolvedInstructionAccount14(
           "margin",
           accounts.margin.value
         )
@@ -3740,7 +4724,7 @@ async function getOpenPositionInstructionAsync(input, config) {
   if (!accounts.marketVault.value) {
     accounts.marketVault.value = await findMarketVaultPda(
       {
-        market: getAddressFromResolvedInstructionAccount11(
+        market: getAddressFromResolvedInstructionAccount14(
           "market",
           accounts.market.value
         )
@@ -3774,7 +4758,7 @@ async function getOpenPositionInstructionAsync(input, config) {
 function getOpenPositionInstruction(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory11(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory14(programAddress, "programId");
   const originalAccounts = {
     owner: { value: input.owner ?? null, isSigner: true, isWritable: true },
     protocol: {
@@ -3847,8 +4831,8 @@ function getOpenPositionInstruction(input, config) {
 }
 function parseOpenPositionInstruction(instruction) {
   if (instruction.accounts.length < 11) {
-    throw new SolanaError11(
-      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS11,
+    throw new SolanaError14(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS14,
       {
         actualAccountMetas: instruction.accounts.length,
         expectedAccountMetas: 11
@@ -3882,42 +4866,42 @@ function parseOpenPositionInstruction(instruction) {
 
 // clients/generated/instructions/reclaimAirdrop.ts
 import {
-  combineCodec as combineCodec22,
-  fixDecoderSize as fixDecoderSize21,
-  fixEncoderSize as fixEncoderSize21,
-  getBytesDecoder as getBytesDecoder21,
-  getBytesEncoder as getBytesEncoder33,
-  getStructDecoder as getStructDecoder22,
-  getStructEncoder as getStructEncoder22,
-  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS12,
-  SolanaError as SolanaError12,
-  transformEncoder as transformEncoder20
+  combineCodec as combineCodec26,
+  fixDecoderSize as fixDecoderSize25,
+  fixEncoderSize as fixEncoderSize25,
+  getBytesDecoder as getBytesDecoder25,
+  getBytesEncoder as getBytesEncoder38,
+  getStructDecoder as getStructDecoder26,
+  getStructEncoder as getStructEncoder26,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS15,
+  SolanaError as SolanaError15,
+  transformEncoder as transformEncoder24
 } from "@solana/kit";
 import {
-  getAccountMetaFactory as getAccountMetaFactory12,
-  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount12
+  getAccountMetaFactory as getAccountMetaFactory15,
+  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount15
 } from "@solana/kit/program-client-core";
 var RECLAIM_AIRDROP_DISCRIMINATOR = new Uint8Array(
   [91, 136, 224, 68, 150, 221, 18, 207]
 );
 function getReclaimAirdropDiscriminatorBytes() {
-  return fixEncoderSize21(getBytesEncoder33(), 8).encode(
+  return fixEncoderSize25(getBytesEncoder38(), 8).encode(
     RECLAIM_AIRDROP_DISCRIMINATOR
   );
 }
 function getReclaimAirdropInstructionDataEncoder() {
-  return transformEncoder20(
-    getStructEncoder22([["discriminator", fixEncoderSize21(getBytesEncoder33(), 8)]]),
+  return transformEncoder24(
+    getStructEncoder26([["discriminator", fixEncoderSize25(getBytesEncoder38(), 8)]]),
     (value) => ({ ...value, discriminator: RECLAIM_AIRDROP_DISCRIMINATOR })
   );
 }
 function getReclaimAirdropInstructionDataDecoder() {
-  return getStructDecoder22([
-    ["discriminator", fixDecoderSize21(getBytesDecoder21(), 8)]
+  return getStructDecoder26([
+    ["discriminator", fixDecoderSize25(getBytesDecoder25(), 8)]
   ]);
 }
 function getReclaimAirdropInstructionDataCodec() {
-  return combineCodec22(
+  return combineCodec26(
     getReclaimAirdropInstructionDataEncoder(),
     getReclaimAirdropInstructionDataDecoder()
   );
@@ -3925,7 +4909,7 @@ function getReclaimAirdropInstructionDataCodec() {
 async function getReclaimAirdropInstructionAsync(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory12(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory15(programAddress, "programId");
   const originalAccounts = {
     admin: { value: input.admin ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -3963,7 +4947,7 @@ async function getReclaimAirdropInstructionAsync(input, config) {
   if (!accounts.campaign.value) {
     accounts.campaign.value = await findCampaignPda(
       {
-        protocol: getAddressFromResolvedInstructionAccount12(
+        protocol: getAddressFromResolvedInstructionAccount15(
           "protocol",
           accounts.protocol.value
         )
@@ -3974,7 +4958,7 @@ async function getReclaimAirdropInstructionAsync(input, config) {
   if (!accounts.airdropVault.value) {
     accounts.airdropVault.value = await findAirdropVaultPda(
       {
-        campaign: getAddressFromResolvedInstructionAccount12(
+        campaign: getAddressFromResolvedInstructionAccount15(
           "campaign",
           accounts.campaign.value
         )
@@ -3999,7 +4983,7 @@ async function getReclaimAirdropInstructionAsync(input, config) {
 function getReclaimAirdropInstruction(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory12(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory15(programAddress, "programId");
   const originalAccounts = {
     admin: { value: input.admin ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -4050,8 +5034,8 @@ function getReclaimAirdropInstruction(input, config) {
 }
 function parseReclaimAirdropInstruction(instruction) {
   if (instruction.accounts.length < 7) {
-    throw new SolanaError12(
-      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS12,
+    throw new SolanaError15(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS15,
       {
         actualAccountMetas: instruction.accounts.length,
         expectedAccountMetas: 7
@@ -4081,29 +5065,29 @@ function parseReclaimAirdropInstruction(instruction) {
 
 // clients/generated/instructions/refreshMarketPrice.ts
 import {
-  combineCodec as combineCodec23,
-  fixDecoderSize as fixDecoderSize22,
-  fixEncoderSize as fixEncoderSize22,
-  getBytesDecoder as getBytesDecoder22,
-  getBytesEncoder as getBytesEncoder34,
-  getStructDecoder as getStructDecoder23,
-  getStructEncoder as getStructEncoder23,
-  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS13,
-  SolanaError as SolanaError13,
-  transformEncoder as transformEncoder21
+  combineCodec as combineCodec27,
+  fixDecoderSize as fixDecoderSize26,
+  fixEncoderSize as fixEncoderSize26,
+  getBytesDecoder as getBytesDecoder26,
+  getBytesEncoder as getBytesEncoder39,
+  getStructDecoder as getStructDecoder27,
+  getStructEncoder as getStructEncoder27,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS16,
+  SolanaError as SolanaError16,
+  transformEncoder as transformEncoder25
 } from "@solana/kit";
 import {
-  getAccountMetaFactory as getAccountMetaFactory13
+  getAccountMetaFactory as getAccountMetaFactory16
 } from "@solana/kit/program-client-core";
 var REFRESH_MARKET_PRICE_DISCRIMINATOR = new Uint8Array([66, 92, 186, 127, 188, 0, 23, 207]);
 function getRefreshMarketPriceDiscriminatorBytes() {
-  return fixEncoderSize22(getBytesEncoder34(), 8).encode(
+  return fixEncoderSize26(getBytesEncoder39(), 8).encode(
     REFRESH_MARKET_PRICE_DISCRIMINATOR
   );
 }
 function getRefreshMarketPriceInstructionDataEncoder() {
-  return transformEncoder21(
-    getStructEncoder23([["discriminator", fixEncoderSize22(getBytesEncoder34(), 8)]]),
+  return transformEncoder25(
+    getStructEncoder27([["discriminator", fixEncoderSize26(getBytesEncoder39(), 8)]]),
     (value) => ({
       ...value,
       discriminator: REFRESH_MARKET_PRICE_DISCRIMINATOR
@@ -4111,12 +5095,12 @@ function getRefreshMarketPriceInstructionDataEncoder() {
   );
 }
 function getRefreshMarketPriceInstructionDataDecoder() {
-  return getStructDecoder23([
-    ["discriminator", fixDecoderSize22(getBytesDecoder22(), 8)]
+  return getStructDecoder27([
+    ["discriminator", fixDecoderSize26(getBytesDecoder26(), 8)]
   ]);
 }
 function getRefreshMarketPriceInstructionDataCodec() {
-  return combineCodec23(
+  return combineCodec27(
     getRefreshMarketPriceInstructionDataEncoder(),
     getRefreshMarketPriceInstructionDataDecoder()
   );
@@ -4124,7 +5108,7 @@ function getRefreshMarketPriceInstructionDataCodec() {
 function getRefreshMarketPriceInstruction(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory13(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory16(programAddress, "programId");
   const originalAccounts = {
     protocol: {
       value: input.protocol ?? null,
@@ -4161,8 +5145,8 @@ function getRefreshMarketPriceInstruction(input, config) {
 }
 function parseRefreshMarketPriceInstruction(instruction) {
   if (instruction.accounts.length < 6) {
-    throw new SolanaError13(
-      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS13,
+    throw new SolanaError16(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS16,
       {
         actualAccountMetas: instruction.accounts.length,
         expectedAccountMetas: 6
@@ -4193,52 +5177,52 @@ function parseRefreshMarketPriceInstruction(instruction) {
 
 // clients/generated/instructions/requestListing.ts
 import {
-  combineCodec as combineCodec24,
-  fixDecoderSize as fixDecoderSize23,
-  fixEncoderSize as fixEncoderSize23,
-  getAddressEncoder as getAddressEncoder24,
-  getBytesDecoder as getBytesDecoder23,
-  getBytesEncoder as getBytesEncoder35,
-  getProgramDerivedAddress as getProgramDerivedAddress14,
-  getStructDecoder as getStructDecoder24,
-  getStructEncoder as getStructEncoder24,
-  getU64Decoder as getU64Decoder14,
-  getU64Encoder as getU64Encoder15,
-  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS14,
-  SolanaError as SolanaError14,
-  transformEncoder as transformEncoder22
+  combineCodec as combineCodec28,
+  fixDecoderSize as fixDecoderSize27,
+  fixEncoderSize as fixEncoderSize27,
+  getAddressEncoder as getAddressEncoder27,
+  getBytesDecoder as getBytesDecoder27,
+  getBytesEncoder as getBytesEncoder40,
+  getProgramDerivedAddress as getProgramDerivedAddress16,
+  getStructDecoder as getStructDecoder28,
+  getStructEncoder as getStructEncoder28,
+  getU64Decoder as getU64Decoder16,
+  getU64Encoder as getU64Encoder17,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS17,
+  SolanaError as SolanaError17,
+  transformEncoder as transformEncoder26
 } from "@solana/kit";
 import {
-  getAccountMetaFactory as getAccountMetaFactory14,
-  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount13
+  getAccountMetaFactory as getAccountMetaFactory17,
+  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount16
 } from "@solana/kit/program-client-core";
 var REQUEST_LISTING_DISCRIMINATOR = new Uint8Array(
   [2, 167, 98, 66, 122, 255, 254, 216]
 );
 function getRequestListingDiscriminatorBytes() {
-  return fixEncoderSize23(getBytesEncoder35(), 8).encode(
+  return fixEncoderSize27(getBytesEncoder40(), 8).encode(
     REQUEST_LISTING_DISCRIMINATOR
   );
 }
 function getRequestListingInstructionDataEncoder() {
-  return transformEncoder22(
-    getStructEncoder24([
-      ["discriminator", fixEncoderSize23(getBytesEncoder35(), 8)],
-      ["solLamports", getU64Encoder15()],
-      ["tokenAmount", getU64Encoder15()]
+  return transformEncoder26(
+    getStructEncoder28([
+      ["discriminator", fixEncoderSize27(getBytesEncoder40(), 8)],
+      ["solLamports", getU64Encoder17()],
+      ["tokenAmount", getU64Encoder17()]
     ]),
     (value) => ({ ...value, discriminator: REQUEST_LISTING_DISCRIMINATOR })
   );
 }
 function getRequestListingInstructionDataDecoder() {
-  return getStructDecoder24([
-    ["discriminator", fixDecoderSize23(getBytesDecoder23(), 8)],
-    ["solLamports", getU64Decoder14()],
-    ["tokenAmount", getU64Decoder14()]
+  return getStructDecoder28([
+    ["discriminator", fixDecoderSize27(getBytesDecoder27(), 8)],
+    ["solLamports", getU64Decoder16()],
+    ["tokenAmount", getU64Decoder16()]
   ]);
 }
 function getRequestListingInstructionDataCodec() {
-  return combineCodec24(
+  return combineCodec28(
     getRequestListingInstructionDataEncoder(),
     getRequestListingInstructionDataDecoder()
   );
@@ -4246,7 +5230,7 @@ function getRequestListingInstructionDataCodec() {
 async function getRequestListingInstructionAsync(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory14(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory17(programAddress, "programId");
   const originalAccounts = {
     lister: { value: input.lister ?? null, isSigner: true, isWritable: true },
     protocol: {
@@ -4311,15 +5295,15 @@ async function getRequestListingInstructionAsync(input, config) {
   if (!accounts.permit.value) {
     accounts.permit.value = await findPermitPda(
       {
-        protocol: getAddressFromResolvedInstructionAccount13(
+        protocol: getAddressFromResolvedInstructionAccount16(
           "protocol",
           accounts.protocol.value
         ),
-        baseMint: getAddressFromResolvedInstructionAccount13(
+        baseMint: getAddressFromResolvedInstructionAccount16(
           "baseMint",
           accounts.baseMint.value
         ),
-        lister: getAddressFromResolvedInstructionAccount13(
+        lister: getAddressFromResolvedInstructionAccount16(
           "lister",
           accounts.lister.value
         )
@@ -4330,11 +5314,11 @@ async function getRequestListingInstructionAsync(input, config) {
   if (!accounts.listing.value) {
     accounts.listing.value = await findListingPda(
       {
-        protocol: getAddressFromResolvedInstructionAccount13(
+        protocol: getAddressFromResolvedInstructionAccount16(
           "protocol",
           accounts.protocol.value
         ),
-        baseMint: getAddressFromResolvedInstructionAccount13(
+        baseMint: getAddressFromResolvedInstructionAccount16(
           "baseMint",
           accounts.baseMint.value
         )
@@ -4343,10 +5327,10 @@ async function getRequestListingInstructionAsync(input, config) {
     );
   }
   if (!accounts.pumpCurve.value) {
-    accounts.pumpCurve.value = await getProgramDerivedAddress14({
+    accounts.pumpCurve.value = await getProgramDerivedAddress16({
       programAddress: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
       seeds: [
-        getBytesEncoder35().encode(
+        getBytesEncoder40().encode(
           new Uint8Array([
             98,
             111,
@@ -4363,8 +5347,8 @@ async function getRequestListingInstructionAsync(input, config) {
             101
           ])
         ),
-        getAddressEncoder24().encode(
-          getAddressFromResolvedInstructionAccount13(
+        getAddressEncoder27().encode(
+          getAddressFromResolvedInstructionAccount16(
             "baseMint",
             accounts.baseMint.value
           )
@@ -4375,7 +5359,7 @@ async function getRequestListingInstructionAsync(input, config) {
   if (!accounts.baseVault.value) {
     accounts.baseVault.value = await findBaseVaultPda(
       {
-        listing: getAddressFromResolvedInstructionAccount13(
+        listing: getAddressFromResolvedInstructionAccount16(
           "listing",
           accounts.listing.value
         )
@@ -4411,7 +5395,7 @@ async function getRequestListingInstructionAsync(input, config) {
 function getRequestListingInstruction(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory14(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory17(programAddress, "programId");
   const originalAccounts = {
     lister: { value: input.lister ?? null, isSigner: true, isWritable: true },
     protocol: {
@@ -4500,8 +5484,8 @@ function getRequestListingInstruction(input, config) {
 }
 function parseRequestListingInstruction(instruction) {
   if (instruction.accounts.length < 13) {
-    throw new SolanaError14(
-      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS14,
+    throw new SolanaError17(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS17,
       {
         actualAccountMetas: instruction.accounts.length,
         expectedAccountMetas: 13
@@ -4537,20 +5521,20 @@ function parseRequestListingInstruction(instruction) {
 
 // clients/generated/instructions/retireMarket.ts
 import {
-  combineCodec as combineCodec25,
-  fixDecoderSize as fixDecoderSize24,
-  fixEncoderSize as fixEncoderSize24,
-  getBytesDecoder as getBytesDecoder24,
-  getBytesEncoder as getBytesEncoder36,
-  getStructDecoder as getStructDecoder25,
-  getStructEncoder as getStructEncoder25,
-  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS15,
-  SolanaError as SolanaError15,
-  transformEncoder as transformEncoder23
+  combineCodec as combineCodec29,
+  fixDecoderSize as fixDecoderSize28,
+  fixEncoderSize as fixEncoderSize28,
+  getBytesDecoder as getBytesDecoder28,
+  getBytesEncoder as getBytesEncoder41,
+  getStructDecoder as getStructDecoder29,
+  getStructEncoder as getStructEncoder29,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS18,
+  SolanaError as SolanaError18,
+  transformEncoder as transformEncoder27
 } from "@solana/kit";
 import {
-  getAccountMetaFactory as getAccountMetaFactory15,
-  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount14
+  getAccountMetaFactory as getAccountMetaFactory18,
+  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount17
 } from "@solana/kit/program-client-core";
 var RETIRE_MARKET_DISCRIMINATOR = new Uint8Array([
   68,
@@ -4563,23 +5547,23 @@ var RETIRE_MARKET_DISCRIMINATOR = new Uint8Array([
   156
 ]);
 function getRetireMarketDiscriminatorBytes() {
-  return fixEncoderSize24(getBytesEncoder36(), 8).encode(
+  return fixEncoderSize28(getBytesEncoder41(), 8).encode(
     RETIRE_MARKET_DISCRIMINATOR
   );
 }
 function getRetireMarketInstructionDataEncoder() {
-  return transformEncoder23(
-    getStructEncoder25([["discriminator", fixEncoderSize24(getBytesEncoder36(), 8)]]),
+  return transformEncoder27(
+    getStructEncoder29([["discriminator", fixEncoderSize28(getBytesEncoder41(), 8)]]),
     (value) => ({ ...value, discriminator: RETIRE_MARKET_DISCRIMINATOR })
   );
 }
 function getRetireMarketInstructionDataDecoder() {
-  return getStructDecoder25([
-    ["discriminator", fixDecoderSize24(getBytesDecoder24(), 8)]
+  return getStructDecoder29([
+    ["discriminator", fixDecoderSize28(getBytesDecoder28(), 8)]
   ]);
 }
 function getRetireMarketInstructionDataCodec() {
-  return combineCodec25(
+  return combineCodec29(
     getRetireMarketInstructionDataEncoder(),
     getRetireMarketInstructionDataDecoder()
   );
@@ -4587,7 +5571,7 @@ function getRetireMarketInstructionDataCodec() {
 async function getRetireMarketInstructionAsync(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory15(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory18(programAddress, "programId");
   const originalAccounts = {
     admin: { value: input.admin ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -4606,7 +5590,7 @@ async function getRetireMarketInstructionAsync(input, config) {
   if (!accounts.protocol.value) {
     accounts.protocol.value = await findProtocolPda(
       {
-        admin: getAddressFromResolvedInstructionAccount14(
+        admin: getAddressFromResolvedInstructionAccount17(
           "admin",
           accounts.admin.value
         )
@@ -4617,7 +5601,7 @@ async function getRetireMarketInstructionAsync(input, config) {
   if (!accounts.market.value) {
     accounts.market.value = await findMarketPda(
       {
-        listing: getAddressFromResolvedInstructionAccount14(
+        listing: getAddressFromResolvedInstructionAccount17(
           "listing",
           accounts.listing.value
         )
@@ -4639,7 +5623,7 @@ async function getRetireMarketInstructionAsync(input, config) {
 function getRetireMarketInstruction(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory15(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory18(programAddress, "programId");
   const originalAccounts = {
     admin: { value: input.admin ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -4668,8 +5652,8 @@ function getRetireMarketInstruction(input, config) {
 }
 function parseRetireMarketInstruction(instruction) {
   if (instruction.accounts.length < 4) {
-    throw new SolanaError15(
-      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS15,
+    throw new SolanaError18(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS18,
       {
         actualAccountMetas: instruction.accounts.length,
         expectedAccountMetas: 4
@@ -4696,33 +5680,33 @@ function parseRetireMarketInstruction(instruction) {
 
 // clients/generated/instructions/routePlatformRevenue.ts
 import {
-  combineCodec as combineCodec26,
-  fixDecoderSize as fixDecoderSize25,
-  fixEncoderSize as fixEncoderSize25,
-  getBytesDecoder as getBytesDecoder25,
-  getBytesEncoder as getBytesEncoder37,
-  getStructDecoder as getStructDecoder26,
-  getStructEncoder as getStructEncoder26,
-  getU64Decoder as getU64Decoder15,
-  getU64Encoder as getU64Encoder16,
-  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS16,
-  SolanaError as SolanaError16,
-  transformEncoder as transformEncoder24
+  combineCodec as combineCodec30,
+  fixDecoderSize as fixDecoderSize29,
+  fixEncoderSize as fixEncoderSize29,
+  getBytesDecoder as getBytesDecoder29,
+  getBytesEncoder as getBytesEncoder42,
+  getStructDecoder as getStructDecoder30,
+  getStructEncoder as getStructEncoder30,
+  getU64Decoder as getU64Decoder17,
+  getU64Encoder as getU64Encoder18,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS19,
+  SolanaError as SolanaError19,
+  transformEncoder as transformEncoder28
 } from "@solana/kit";
 import {
-  getAccountMetaFactory as getAccountMetaFactory16
+  getAccountMetaFactory as getAccountMetaFactory19
 } from "@solana/kit/program-client-core";
 var ROUTE_PLATFORM_REVENUE_DISCRIMINATOR = new Uint8Array([72, 200, 22, 148, 177, 183, 136, 29]);
 function getRoutePlatformRevenueDiscriminatorBytes() {
-  return fixEncoderSize25(getBytesEncoder37(), 8).encode(
+  return fixEncoderSize29(getBytesEncoder42(), 8).encode(
     ROUTE_PLATFORM_REVENUE_DISCRIMINATOR
   );
 }
 function getRoutePlatformRevenueInstructionDataEncoder() {
-  return transformEncoder24(
-    getStructEncoder26([
-      ["discriminator", fixEncoderSize25(getBytesEncoder37(), 8)],
-      ["amount", getU64Encoder16()]
+  return transformEncoder28(
+    getStructEncoder30([
+      ["discriminator", fixEncoderSize29(getBytesEncoder42(), 8)],
+      ["amount", getU64Encoder18()]
     ]),
     (value) => ({
       ...value,
@@ -4731,13 +5715,13 @@ function getRoutePlatformRevenueInstructionDataEncoder() {
   );
 }
 function getRoutePlatformRevenueInstructionDataDecoder() {
-  return getStructDecoder26([
-    ["discriminator", fixDecoderSize25(getBytesDecoder25(), 8)],
-    ["amount", getU64Decoder15()]
+  return getStructDecoder30([
+    ["discriminator", fixDecoderSize29(getBytesDecoder29(), 8)],
+    ["amount", getU64Decoder17()]
   ]);
 }
 function getRoutePlatformRevenueInstructionDataCodec() {
-  return combineCodec26(
+  return combineCodec30(
     getRoutePlatformRevenueInstructionDataEncoder(),
     getRoutePlatformRevenueInstructionDataDecoder()
   );
@@ -4745,7 +5729,7 @@ function getRoutePlatformRevenueInstructionDataCodec() {
 function getRoutePlatformRevenueInstruction(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory16(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory19(programAddress, "programId");
   const originalAccounts = {
     admin: { value: input.admin ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -4813,8 +5797,8 @@ function getRoutePlatformRevenueInstruction(input, config) {
 }
 function parseRoutePlatformRevenueInstruction(instruction) {
   if (instruction.accounts.length < 10) {
-    throw new SolanaError16(
-      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS16,
+    throw new SolanaError19(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS19,
       {
         actualAccountMetas: instruction.accounts.length,
         expectedAccountMetas: 10
@@ -4849,33 +5833,33 @@ function parseRoutePlatformRevenueInstruction(instruction) {
 
 // clients/generated/instructions/routeTokenCreatorRevenue.ts
 import {
-  combineCodec as combineCodec27,
-  fixDecoderSize as fixDecoderSize26,
-  fixEncoderSize as fixEncoderSize26,
-  getBytesDecoder as getBytesDecoder26,
-  getBytesEncoder as getBytesEncoder38,
-  getStructDecoder as getStructDecoder27,
-  getStructEncoder as getStructEncoder27,
-  getU64Decoder as getU64Decoder16,
-  getU64Encoder as getU64Encoder17,
-  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS17,
-  SolanaError as SolanaError17,
-  transformEncoder as transformEncoder25
+  combineCodec as combineCodec31,
+  fixDecoderSize as fixDecoderSize30,
+  fixEncoderSize as fixEncoderSize30,
+  getBytesDecoder as getBytesDecoder30,
+  getBytesEncoder as getBytesEncoder43,
+  getStructDecoder as getStructDecoder31,
+  getStructEncoder as getStructEncoder31,
+  getU64Decoder as getU64Decoder18,
+  getU64Encoder as getU64Encoder19,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS20,
+  SolanaError as SolanaError20,
+  transformEncoder as transformEncoder29
 } from "@solana/kit";
 import {
-  getAccountMetaFactory as getAccountMetaFactory17
+  getAccountMetaFactory as getAccountMetaFactory20
 } from "@solana/kit/program-client-core";
 var ROUTE_TOKEN_CREATOR_REVENUE_DISCRIMINATOR = new Uint8Array([248, 247, 236, 188, 45, 130, 117, 221]);
 function getRouteTokenCreatorRevenueDiscriminatorBytes() {
-  return fixEncoderSize26(getBytesEncoder38(), 8).encode(
+  return fixEncoderSize30(getBytesEncoder43(), 8).encode(
     ROUTE_TOKEN_CREATOR_REVENUE_DISCRIMINATOR
   );
 }
 function getRouteTokenCreatorRevenueInstructionDataEncoder() {
-  return transformEncoder25(
-    getStructEncoder27([
-      ["discriminator", fixEncoderSize26(getBytesEncoder38(), 8)],
-      ["amount", getU64Encoder17()]
+  return transformEncoder29(
+    getStructEncoder31([
+      ["discriminator", fixEncoderSize30(getBytesEncoder43(), 8)],
+      ["amount", getU64Encoder19()]
     ]),
     (value) => ({
       ...value,
@@ -4884,13 +5868,13 @@ function getRouteTokenCreatorRevenueInstructionDataEncoder() {
   );
 }
 function getRouteTokenCreatorRevenueInstructionDataDecoder() {
-  return getStructDecoder27([
-    ["discriminator", fixDecoderSize26(getBytesDecoder26(), 8)],
-    ["amount", getU64Decoder16()]
+  return getStructDecoder31([
+    ["discriminator", fixDecoderSize30(getBytesDecoder30(), 8)],
+    ["amount", getU64Decoder18()]
   ]);
 }
 function getRouteTokenCreatorRevenueInstructionDataCodec() {
-  return combineCodec27(
+  return combineCodec31(
     getRouteTokenCreatorRevenueInstructionDataEncoder(),
     getRouteTokenCreatorRevenueInstructionDataDecoder()
   );
@@ -4898,7 +5882,7 @@ function getRouteTokenCreatorRevenueInstructionDataCodec() {
 function getRouteTokenCreatorRevenueInstruction(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory17(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory20(programAddress, "programId");
   const originalAccounts = {
     admin: { value: input.admin ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -4948,8 +5932,8 @@ function getRouteTokenCreatorRevenueInstruction(input, config) {
 }
 function parseRouteTokenCreatorRevenueInstruction(instruction) {
   if (instruction.accounts.length < 7) {
-    throw new SolanaError17(
-      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS17,
+    throw new SolanaError20(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS20,
       {
         actualAccountMetas: instruction.accounts.length,
         expectedAccountMetas: 7
@@ -4981,32 +5965,32 @@ function parseRouteTokenCreatorRevenueInstruction(instruction) {
 
 // clients/generated/instructions/setListingApproved.ts
 import {
-  combineCodec as combineCodec28,
-  fixDecoderSize as fixDecoderSize27,
-  fixEncoderSize as fixEncoderSize27,
+  combineCodec as combineCodec32,
+  fixDecoderSize as fixDecoderSize31,
+  fixEncoderSize as fixEncoderSize31,
   getBooleanDecoder as getBooleanDecoder8,
   getBooleanEncoder as getBooleanEncoder8,
-  getBytesDecoder as getBytesDecoder27,
-  getBytesEncoder as getBytesEncoder39,
-  getStructDecoder as getStructDecoder28,
-  getStructEncoder as getStructEncoder28,
-  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS18,
-  SolanaError as SolanaError18,
-  transformEncoder as transformEncoder26
+  getBytesDecoder as getBytesDecoder31,
+  getBytesEncoder as getBytesEncoder44,
+  getStructDecoder as getStructDecoder32,
+  getStructEncoder as getStructEncoder32,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS21,
+  SolanaError as SolanaError21,
+  transformEncoder as transformEncoder30
 } from "@solana/kit";
 import {
-  getAccountMetaFactory as getAccountMetaFactory18
+  getAccountMetaFactory as getAccountMetaFactory21
 } from "@solana/kit/program-client-core";
 var SET_LISTING_APPROVED_DISCRIMINATOR = new Uint8Array([199, 59, 208, 95, 38, 69, 168, 183]);
 function getSetListingApprovedDiscriminatorBytes() {
-  return fixEncoderSize27(getBytesEncoder39(), 8).encode(
+  return fixEncoderSize31(getBytesEncoder44(), 8).encode(
     SET_LISTING_APPROVED_DISCRIMINATOR
   );
 }
 function getSetListingApprovedInstructionDataEncoder() {
-  return transformEncoder26(
-    getStructEncoder28([
-      ["discriminator", fixEncoderSize27(getBytesEncoder39(), 8)],
+  return transformEncoder30(
+    getStructEncoder32([
+      ["discriminator", fixEncoderSize31(getBytesEncoder44(), 8)],
       ["approved", getBooleanEncoder8()]
     ]),
     (value) => ({
@@ -5016,13 +6000,13 @@ function getSetListingApprovedInstructionDataEncoder() {
   );
 }
 function getSetListingApprovedInstructionDataDecoder() {
-  return getStructDecoder28([
-    ["discriminator", fixDecoderSize27(getBytesDecoder27(), 8)],
+  return getStructDecoder32([
+    ["discriminator", fixDecoderSize31(getBytesDecoder31(), 8)],
     ["approved", getBooleanDecoder8()]
   ]);
 }
 function getSetListingApprovedInstructionDataCodec() {
-  return combineCodec28(
+  return combineCodec32(
     getSetListingApprovedInstructionDataEncoder(),
     getSetListingApprovedInstructionDataDecoder()
   );
@@ -5030,7 +6014,7 @@ function getSetListingApprovedInstructionDataCodec() {
 function getSetListingApprovedInstruction(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory18(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory21(programAddress, "programId");
   const originalAccounts = {
     admin: { value: input.admin ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -5060,8 +6044,8 @@ function getSetListingApprovedInstruction(input, config) {
 }
 function parseSetListingApprovedInstruction(instruction) {
   if (instruction.accounts.length < 3) {
-    throw new SolanaError18(
-      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS18,
+    throw new SolanaError21(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS21,
       {
         actualAccountMetas: instruction.accounts.length,
         expectedAccountMetas: 3
@@ -5089,33 +6073,33 @@ function parseSetListingApprovedInstruction(instruction) {
 
 // clients/generated/instructions/setListingPermitExpiry.ts
 import {
-  combineCodec as combineCodec29,
-  fixDecoderSize as fixDecoderSize28,
-  fixEncoderSize as fixEncoderSize28,
-  getBytesDecoder as getBytesDecoder28,
-  getBytesEncoder as getBytesEncoder40,
+  combineCodec as combineCodec33,
+  fixDecoderSize as fixDecoderSize32,
+  fixEncoderSize as fixEncoderSize32,
+  getBytesDecoder as getBytesDecoder32,
+  getBytesEncoder as getBytesEncoder45,
   getI64Decoder as getI64Decoder8,
   getI64Encoder as getI64Encoder8,
-  getStructDecoder as getStructDecoder29,
-  getStructEncoder as getStructEncoder29,
-  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS19,
-  SolanaError as SolanaError19,
-  transformEncoder as transformEncoder27
+  getStructDecoder as getStructDecoder33,
+  getStructEncoder as getStructEncoder33,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS22,
+  SolanaError as SolanaError22,
+  transformEncoder as transformEncoder31
 } from "@solana/kit";
 import {
-  getAccountMetaFactory as getAccountMetaFactory19,
-  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount15
+  getAccountMetaFactory as getAccountMetaFactory22,
+  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount18
 } from "@solana/kit/program-client-core";
 var SET_LISTING_PERMIT_EXPIRY_DISCRIMINATOR = new Uint8Array([211, 65, 230, 231, 156, 48, 13, 25]);
 function getSetListingPermitExpiryDiscriminatorBytes() {
-  return fixEncoderSize28(getBytesEncoder40(), 8).encode(
+  return fixEncoderSize32(getBytesEncoder45(), 8).encode(
     SET_LISTING_PERMIT_EXPIRY_DISCRIMINATOR
   );
 }
 function getSetListingPermitExpiryInstructionDataEncoder() {
-  return transformEncoder27(
-    getStructEncoder29([
-      ["discriminator", fixEncoderSize28(getBytesEncoder40(), 8)],
+  return transformEncoder31(
+    getStructEncoder33([
+      ["discriminator", fixEncoderSize32(getBytesEncoder45(), 8)],
       ["expiresAt", getI64Encoder8()]
     ]),
     (value) => ({
@@ -5125,13 +6109,13 @@ function getSetListingPermitExpiryInstructionDataEncoder() {
   );
 }
 function getSetListingPermitExpiryInstructionDataDecoder() {
-  return getStructDecoder29([
-    ["discriminator", fixDecoderSize28(getBytesDecoder28(), 8)],
+  return getStructDecoder33([
+    ["discriminator", fixDecoderSize32(getBytesDecoder32(), 8)],
     ["expiresAt", getI64Decoder8()]
   ]);
 }
 function getSetListingPermitExpiryInstructionDataCodec() {
-  return combineCodec29(
+  return combineCodec33(
     getSetListingPermitExpiryInstructionDataEncoder(),
     getSetListingPermitExpiryInstructionDataDecoder()
   );
@@ -5139,7 +6123,7 @@ function getSetListingPermitExpiryInstructionDataCodec() {
 async function getSetListingPermitExpiryInstructionAsync(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory19(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory22(programAddress, "programId");
   const originalAccounts = {
     admin: { value: input.admin ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -5154,7 +6138,7 @@ async function getSetListingPermitExpiryInstructionAsync(input, config) {
   if (!accounts.protocol.value) {
     accounts.protocol.value = await findProtocolPda(
       {
-        admin: getAddressFromResolvedInstructionAccount15(
+        admin: getAddressFromResolvedInstructionAccount18(
           "admin",
           accounts.admin.value
         )
@@ -5177,7 +6161,7 @@ async function getSetListingPermitExpiryInstructionAsync(input, config) {
 function getSetListingPermitExpiryInstruction(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory19(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory22(programAddress, "programId");
   const originalAccounts = {
     admin: { value: input.admin ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -5203,8 +6187,8 @@ function getSetListingPermitExpiryInstruction(input, config) {
 }
 function parseSetListingPermitExpiryInstruction(instruction) {
   if (instruction.accounts.length < 3) {
-    throw new SolanaError19(
-      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS19,
+    throw new SolanaError22(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS22,
       {
         actualAccountMetas: instruction.accounts.length,
         expectedAccountMetas: 3
@@ -5232,46 +6216,46 @@ function parseSetListingPermitExpiryInstruction(instruction) {
 
 // clients/generated/instructions/setMarketEnabled.ts
 import {
-  combineCodec as combineCodec30,
-  fixDecoderSize as fixDecoderSize29,
-  fixEncoderSize as fixEncoderSize29,
+  combineCodec as combineCodec34,
+  fixDecoderSize as fixDecoderSize33,
+  fixEncoderSize as fixEncoderSize33,
   getBooleanDecoder as getBooleanDecoder9,
   getBooleanEncoder as getBooleanEncoder9,
-  getBytesDecoder as getBytesDecoder29,
-  getBytesEncoder as getBytesEncoder41,
-  getStructDecoder as getStructDecoder30,
-  getStructEncoder as getStructEncoder30,
-  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS20,
-  SolanaError as SolanaError20,
-  transformEncoder as transformEncoder28
+  getBytesDecoder as getBytesDecoder33,
+  getBytesEncoder as getBytesEncoder46,
+  getStructDecoder as getStructDecoder34,
+  getStructEncoder as getStructEncoder34,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS23,
+  SolanaError as SolanaError23,
+  transformEncoder as transformEncoder32
 } from "@solana/kit";
 import {
-  getAccountMetaFactory as getAccountMetaFactory20,
-  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount16
+  getAccountMetaFactory as getAccountMetaFactory23,
+  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount19
 } from "@solana/kit/program-client-core";
 var SET_MARKET_ENABLED_DISCRIMINATOR = new Uint8Array([206, 60, 159, 159, 62, 242, 4, 82]);
 function getSetMarketEnabledDiscriminatorBytes() {
-  return fixEncoderSize29(getBytesEncoder41(), 8).encode(
+  return fixEncoderSize33(getBytesEncoder46(), 8).encode(
     SET_MARKET_ENABLED_DISCRIMINATOR
   );
 }
 function getSetMarketEnabledInstructionDataEncoder() {
-  return transformEncoder28(
-    getStructEncoder30([
-      ["discriminator", fixEncoderSize29(getBytesEncoder41(), 8)],
+  return transformEncoder32(
+    getStructEncoder34([
+      ["discriminator", fixEncoderSize33(getBytesEncoder46(), 8)],
       ["enabled", getBooleanEncoder9()]
     ]),
     (value) => ({ ...value, discriminator: SET_MARKET_ENABLED_DISCRIMINATOR })
   );
 }
 function getSetMarketEnabledInstructionDataDecoder() {
-  return getStructDecoder30([
-    ["discriminator", fixDecoderSize29(getBytesDecoder29(), 8)],
+  return getStructDecoder34([
+    ["discriminator", fixDecoderSize33(getBytesDecoder33(), 8)],
     ["enabled", getBooleanDecoder9()]
   ]);
 }
 function getSetMarketEnabledInstructionDataCodec() {
-  return combineCodec30(
+  return combineCodec34(
     getSetMarketEnabledInstructionDataEncoder(),
     getSetMarketEnabledInstructionDataDecoder()
   );
@@ -5279,7 +6263,7 @@ function getSetMarketEnabledInstructionDataCodec() {
 async function getSetMarketEnabledInstructionAsync(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory20(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory23(programAddress, "programId");
   const originalAccounts = {
     admin: { value: input.admin ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -5299,7 +6283,7 @@ async function getSetMarketEnabledInstructionAsync(input, config) {
   if (!accounts.protocol.value) {
     accounts.protocol.value = await findProtocolPda(
       {
-        admin: getAddressFromResolvedInstructionAccount16(
+        admin: getAddressFromResolvedInstructionAccount19(
           "admin",
           accounts.admin.value
         )
@@ -5310,7 +6294,7 @@ async function getSetMarketEnabledInstructionAsync(input, config) {
   if (!accounts.market.value) {
     accounts.market.value = await findMarketPda(
       {
-        listing: getAddressFromResolvedInstructionAccount16(
+        listing: getAddressFromResolvedInstructionAccount19(
           "listing",
           accounts.listing.value
         )
@@ -5334,7 +6318,7 @@ async function getSetMarketEnabledInstructionAsync(input, config) {
 function getSetMarketEnabledInstruction(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory20(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory23(programAddress, "programId");
   const originalAccounts = {
     admin: { value: input.admin ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -5366,8 +6350,8 @@ function getSetMarketEnabledInstruction(input, config) {
 }
 function parseSetMarketEnabledInstruction(instruction) {
   if (instruction.accounts.length < 4) {
-    throw new SolanaError20(
-      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS20,
+    throw new SolanaError23(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS23,
       {
         actualAccountMetas: instruction.accounts.length,
         expectedAccountMetas: 4
@@ -5394,21 +6378,21 @@ function parseSetMarketEnabledInstruction(instruction) {
 
 // clients/generated/instructions/setPaused.ts
 import {
-  combineCodec as combineCodec31,
-  fixDecoderSize as fixDecoderSize30,
-  fixEncoderSize as fixEncoderSize30,
+  combineCodec as combineCodec35,
+  fixDecoderSize as fixDecoderSize34,
+  fixEncoderSize as fixEncoderSize34,
   getBooleanDecoder as getBooleanDecoder10,
   getBooleanEncoder as getBooleanEncoder10,
-  getBytesDecoder as getBytesDecoder30,
-  getBytesEncoder as getBytesEncoder42,
-  getStructDecoder as getStructDecoder31,
-  getStructEncoder as getStructEncoder31,
-  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS21,
-  SolanaError as SolanaError21,
-  transformEncoder as transformEncoder29
+  getBytesDecoder as getBytesDecoder34,
+  getBytesEncoder as getBytesEncoder47,
+  getStructDecoder as getStructDecoder35,
+  getStructEncoder as getStructEncoder35,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS24,
+  SolanaError as SolanaError24,
+  transformEncoder as transformEncoder33
 } from "@solana/kit";
 import {
-  getAccountMetaFactory as getAccountMetaFactory21
+  getAccountMetaFactory as getAccountMetaFactory24
 } from "@solana/kit/program-client-core";
 var SET_PAUSED_DISCRIMINATOR = new Uint8Array([
   91,
@@ -5421,25 +6405,25 @@ var SET_PAUSED_DISCRIMINATOR = new Uint8Array([
   218
 ]);
 function getSetPausedDiscriminatorBytes() {
-  return fixEncoderSize30(getBytesEncoder42(), 8).encode(SET_PAUSED_DISCRIMINATOR);
+  return fixEncoderSize34(getBytesEncoder47(), 8).encode(SET_PAUSED_DISCRIMINATOR);
 }
 function getSetPausedInstructionDataEncoder() {
-  return transformEncoder29(
-    getStructEncoder31([
-      ["discriminator", fixEncoderSize30(getBytesEncoder42(), 8)],
+  return transformEncoder33(
+    getStructEncoder35([
+      ["discriminator", fixEncoderSize34(getBytesEncoder47(), 8)],
       ["paused", getBooleanEncoder10()]
     ]),
     (value) => ({ ...value, discriminator: SET_PAUSED_DISCRIMINATOR })
   );
 }
 function getSetPausedInstructionDataDecoder() {
-  return getStructDecoder31([
-    ["discriminator", fixDecoderSize30(getBytesDecoder30(), 8)],
+  return getStructDecoder35([
+    ["discriminator", fixDecoderSize34(getBytesDecoder34(), 8)],
     ["paused", getBooleanDecoder10()]
   ]);
 }
 function getSetPausedInstructionDataCodec() {
-  return combineCodec31(
+  return combineCodec35(
     getSetPausedInstructionDataEncoder(),
     getSetPausedInstructionDataDecoder()
   );
@@ -5447,7 +6431,7 @@ function getSetPausedInstructionDataCodec() {
 function getSetPausedInstruction(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory21(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory24(programAddress, "programId");
   const originalAccounts = {
     admin: { value: input.admin ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -5471,8 +6455,8 @@ function getSetPausedInstruction(input, config) {
 }
 function parseSetPausedInstruction(instruction) {
   if (instruction.accounts.length < 2) {
-    throw new SolanaError21(
-      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS21,
+    throw new SolanaError24(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS24,
       {
         actualAccountMetas: instruction.accounts.length,
         expectedAccountMetas: 2
@@ -5494,56 +6478,56 @@ function parseSetPausedInstruction(instruction) {
 
 // clients/generated/instructions/settlePosition.ts
 import {
-  combineCodec as combineCodec32,
-  fixDecoderSize as fixDecoderSize31,
-  fixEncoderSize as fixEncoderSize31,
-  getBytesDecoder as getBytesDecoder31,
-  getBytesEncoder as getBytesEncoder43,
-  getStructDecoder as getStructDecoder32,
-  getStructEncoder as getStructEncoder32,
+  combineCodec as combineCodec36,
+  fixDecoderSize as fixDecoderSize35,
+  fixEncoderSize as fixEncoderSize35,
+  getBytesDecoder as getBytesDecoder35,
+  getBytesEncoder as getBytesEncoder48,
+  getStructDecoder as getStructDecoder36,
+  getStructEncoder as getStructEncoder36,
   getU16Decoder as getU16Decoder4,
   getU16Encoder as getU16Encoder4,
-  getU64Decoder as getU64Decoder17,
-  getU64Encoder as getU64Encoder18,
-  getU8Decoder as getU8Decoder10,
-  getU8Encoder as getU8Encoder10,
-  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS22,
-  SolanaError as SolanaError22,
-  transformEncoder as transformEncoder30
+  getU64Decoder as getU64Decoder19,
+  getU64Encoder as getU64Encoder20,
+  getU8Decoder as getU8Decoder11,
+  getU8Encoder as getU8Encoder11,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS25,
+  SolanaError as SolanaError25,
+  transformEncoder as transformEncoder34
 } from "@solana/kit";
 import {
-  getAccountMetaFactory as getAccountMetaFactory22,
-  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount17
+  getAccountMetaFactory as getAccountMetaFactory25,
+  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount20
 } from "@solana/kit/program-client-core";
 var SETTLE_POSITION_DISCRIMINATOR = new Uint8Array(
   [33, 156, 74, 218, 215, 42, 112, 175]
 );
 function getSettlePositionDiscriminatorBytes() {
-  return fixEncoderSize31(getBytesEncoder43(), 8).encode(
+  return fixEncoderSize35(getBytesEncoder48(), 8).encode(
     SETTLE_POSITION_DISCRIMINATOR
   );
 }
 function getSettlePositionInstructionDataEncoder() {
-  return transformEncoder30(
-    getStructEncoder32([
-      ["discriminator", fixEncoderSize31(getBytesEncoder43(), 8)],
-      ["reason", getU8Encoder10()],
-      ["expectedPrice", getU64Encoder18()],
+  return transformEncoder34(
+    getStructEncoder36([
+      ["discriminator", fixEncoderSize35(getBytesEncoder48(), 8)],
+      ["reason", getU8Encoder11()],
+      ["expectedPrice", getU64Encoder20()],
       ["slippageBps", getU16Encoder4()]
     ]),
     (value) => ({ ...value, discriminator: SETTLE_POSITION_DISCRIMINATOR })
   );
 }
 function getSettlePositionInstructionDataDecoder() {
-  return getStructDecoder32([
-    ["discriminator", fixDecoderSize31(getBytesDecoder31(), 8)],
-    ["reason", getU8Decoder10()],
-    ["expectedPrice", getU64Decoder17()],
+  return getStructDecoder36([
+    ["discriminator", fixDecoderSize35(getBytesDecoder35(), 8)],
+    ["reason", getU8Decoder11()],
+    ["expectedPrice", getU64Decoder19()],
     ["slippageBps", getU16Decoder4()]
   ]);
 }
 function getSettlePositionInstructionDataCodec() {
-  return combineCodec32(
+  return combineCodec36(
     getSettlePositionInstructionDataEncoder(),
     getSettlePositionInstructionDataDecoder()
   );
@@ -5551,7 +6535,7 @@ function getSettlePositionInstructionDataCodec() {
 async function getSettlePositionInstructionAsync(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory22(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory25(programAddress, "programId");
   const originalAccounts = {
     actor: { value: input.actor ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -5597,7 +6581,7 @@ async function getSettlePositionInstructionAsync(input, config) {
   if (!accounts.userVault.value) {
     accounts.userVault.value = await findQuoteVaultPda(
       {
-        margin: getAddressFromResolvedInstructionAccount17(
+        margin: getAddressFromResolvedInstructionAccount20(
           "margin",
           accounts.margin.value
         )
@@ -5608,7 +6592,7 @@ async function getSettlePositionInstructionAsync(input, config) {
   if (!accounts.marketVault.value) {
     accounts.marketVault.value = await findMarketVaultPda(
       {
-        market: getAddressFromResolvedInstructionAccount17(
+        market: getAddressFromResolvedInstructionAccount20(
           "market",
           accounts.market.value
         )
@@ -5638,7 +6622,7 @@ async function getSettlePositionInstructionAsync(input, config) {
 function getSettlePositionInstruction(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory22(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory25(programAddress, "programId");
   const originalAccounts = {
     actor: { value: input.actor ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -5702,8 +6686,8 @@ function getSettlePositionInstruction(input, config) {
 }
 function parseSettlePositionInstruction(instruction) {
   if (instruction.accounts.length < 10) {
-    throw new SolanaError22(
-      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS22,
+    throw new SolanaError25(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS25,
       {
         actualAccountMetas: instruction.accounts.length,
         expectedAccountMetas: 10
@@ -5736,22 +6720,22 @@ function parseSettlePositionInstruction(instruction) {
 
 // clients/generated/instructions/withdraw.ts
 import {
-  combineCodec as combineCodec33,
-  fixDecoderSize as fixDecoderSize32,
-  fixEncoderSize as fixEncoderSize32,
-  getBytesDecoder as getBytesDecoder32,
-  getBytesEncoder as getBytesEncoder44,
-  getStructDecoder as getStructDecoder33,
-  getStructEncoder as getStructEncoder33,
-  getU64Decoder as getU64Decoder18,
-  getU64Encoder as getU64Encoder19,
-  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS23,
-  SolanaError as SolanaError23,
-  transformEncoder as transformEncoder31
+  combineCodec as combineCodec37,
+  fixDecoderSize as fixDecoderSize36,
+  fixEncoderSize as fixEncoderSize36,
+  getBytesDecoder as getBytesDecoder36,
+  getBytesEncoder as getBytesEncoder49,
+  getStructDecoder as getStructDecoder37,
+  getStructEncoder as getStructEncoder37,
+  getU64Decoder as getU64Decoder20,
+  getU64Encoder as getU64Encoder21,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS26,
+  SolanaError as SolanaError26,
+  transformEncoder as transformEncoder35
 } from "@solana/kit";
 import {
-  getAccountMetaFactory as getAccountMetaFactory23,
-  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount18
+  getAccountMetaFactory as getAccountMetaFactory26,
+  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount21
 } from "@solana/kit/program-client-core";
 var WITHDRAW_DISCRIMINATOR = new Uint8Array([
   183,
@@ -5764,25 +6748,25 @@ var WITHDRAW_DISCRIMINATOR = new Uint8Array([
   34
 ]);
 function getWithdrawDiscriminatorBytes() {
-  return fixEncoderSize32(getBytesEncoder44(), 8).encode(WITHDRAW_DISCRIMINATOR);
+  return fixEncoderSize36(getBytesEncoder49(), 8).encode(WITHDRAW_DISCRIMINATOR);
 }
 function getWithdrawInstructionDataEncoder() {
-  return transformEncoder31(
-    getStructEncoder33([
-      ["discriminator", fixEncoderSize32(getBytesEncoder44(), 8)],
-      ["amount", getU64Encoder19()]
+  return transformEncoder35(
+    getStructEncoder37([
+      ["discriminator", fixEncoderSize36(getBytesEncoder49(), 8)],
+      ["amount", getU64Encoder21()]
     ]),
     (value) => ({ ...value, discriminator: WITHDRAW_DISCRIMINATOR })
   );
 }
 function getWithdrawInstructionDataDecoder() {
-  return getStructDecoder33([
-    ["discriminator", fixDecoderSize32(getBytesDecoder32(), 8)],
-    ["amount", getU64Decoder18()]
+  return getStructDecoder37([
+    ["discriminator", fixDecoderSize36(getBytesDecoder36(), 8)],
+    ["amount", getU64Decoder20()]
   ]);
 }
 function getWithdrawInstructionDataCodec() {
-  return combineCodec33(
+  return combineCodec37(
     getWithdrawInstructionDataEncoder(),
     getWithdrawInstructionDataDecoder()
   );
@@ -5790,7 +6774,7 @@ function getWithdrawInstructionDataCodec() {
 async function getWithdrawInstructionAsync(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory23(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory26(programAddress, "programId");
   const originalAccounts = {
     owner: { value: input.owner ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -5825,11 +6809,11 @@ async function getWithdrawInstructionAsync(input, config) {
   if (!accounts.margin.value) {
     accounts.margin.value = await findMarginPda(
       {
-        protocol: getAddressFromResolvedInstructionAccount18(
+        protocol: getAddressFromResolvedInstructionAccount21(
           "protocol",
           accounts.protocol.value
         ),
-        owner: getAddressFromResolvedInstructionAccount18(
+        owner: getAddressFromResolvedInstructionAccount21(
           "owner",
           accounts.owner.value
         )
@@ -5840,7 +6824,7 @@ async function getWithdrawInstructionAsync(input, config) {
   if (!accounts.quoteVault.value) {
     accounts.quoteVault.value = await findQuoteVaultPda(
       {
-        margin: getAddressFromResolvedInstructionAccount18(
+        margin: getAddressFromResolvedInstructionAccount21(
           "margin",
           accounts.margin.value
         )
@@ -5867,7 +6851,7 @@ async function getWithdrawInstructionAsync(input, config) {
 function getWithdrawInstruction(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory23(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory26(programAddress, "programId");
   const originalAccounts = {
     owner: { value: input.owner ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -5917,8 +6901,8 @@ function getWithdrawInstruction(input, config) {
 }
 function parseWithdrawInstruction(instruction) {
   if (instruction.accounts.length < 7) {
-    throw new SolanaError23(
-      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS23,
+    throw new SolanaError26(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS26,
       {
         actualAccountMetas: instruction.accounts.length,
         expectedAccountMetas: 7
@@ -5948,34 +6932,34 @@ function parseWithdrawInstruction(instruction) {
 
 // clients/generated/instructions/withdrawMarketLiquidity.ts
 import {
-  combineCodec as combineCodec34,
-  fixDecoderSize as fixDecoderSize33,
-  fixEncoderSize as fixEncoderSize33,
-  getBytesDecoder as getBytesDecoder33,
-  getBytesEncoder as getBytesEncoder45,
-  getStructDecoder as getStructDecoder34,
-  getStructEncoder as getStructEncoder34,
-  getU64Decoder as getU64Decoder19,
-  getU64Encoder as getU64Encoder20,
-  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS24,
-  SolanaError as SolanaError24,
-  transformEncoder as transformEncoder32
+  combineCodec as combineCodec38,
+  fixDecoderSize as fixDecoderSize37,
+  fixEncoderSize as fixEncoderSize37,
+  getBytesDecoder as getBytesDecoder37,
+  getBytesEncoder as getBytesEncoder50,
+  getStructDecoder as getStructDecoder38,
+  getStructEncoder as getStructEncoder38,
+  getU64Decoder as getU64Decoder21,
+  getU64Encoder as getU64Encoder22,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS27,
+  SolanaError as SolanaError27,
+  transformEncoder as transformEncoder36
 } from "@solana/kit";
 import {
-  getAccountMetaFactory as getAccountMetaFactory24,
-  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount19
+  getAccountMetaFactory as getAccountMetaFactory27,
+  getAddressFromResolvedInstructionAccount as getAddressFromResolvedInstructionAccount22
 } from "@solana/kit/program-client-core";
 var WITHDRAW_MARKET_LIQUIDITY_DISCRIMINATOR = new Uint8Array([151, 228, 127, 80, 156, 209, 76, 82]);
 function getWithdrawMarketLiquidityDiscriminatorBytes() {
-  return fixEncoderSize33(getBytesEncoder45(), 8).encode(
+  return fixEncoderSize37(getBytesEncoder50(), 8).encode(
     WITHDRAW_MARKET_LIQUIDITY_DISCRIMINATOR
   );
 }
 function getWithdrawMarketLiquidityInstructionDataEncoder() {
-  return transformEncoder32(
-    getStructEncoder34([
-      ["discriminator", fixEncoderSize33(getBytesEncoder45(), 8)],
-      ["amount", getU64Encoder20()]
+  return transformEncoder36(
+    getStructEncoder38([
+      ["discriminator", fixEncoderSize37(getBytesEncoder50(), 8)],
+      ["amount", getU64Encoder22()]
     ]),
     (value) => ({
       ...value,
@@ -5984,13 +6968,13 @@ function getWithdrawMarketLiquidityInstructionDataEncoder() {
   );
 }
 function getWithdrawMarketLiquidityInstructionDataDecoder() {
-  return getStructDecoder34([
-    ["discriminator", fixDecoderSize33(getBytesDecoder33(), 8)],
-    ["amount", getU64Decoder19()]
+  return getStructDecoder38([
+    ["discriminator", fixDecoderSize37(getBytesDecoder37(), 8)],
+    ["amount", getU64Decoder21()]
   ]);
 }
 function getWithdrawMarketLiquidityInstructionDataCodec() {
-  return combineCodec34(
+  return combineCodec38(
     getWithdrawMarketLiquidityInstructionDataEncoder(),
     getWithdrawMarketLiquidityInstructionDataDecoder()
   );
@@ -5998,7 +6982,7 @@ function getWithdrawMarketLiquidityInstructionDataCodec() {
 async function getWithdrawMarketLiquidityInstructionAsync(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory24(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory27(programAddress, "programId");
   const originalAccounts = {
     lister: { value: input.lister ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -6033,7 +7017,7 @@ async function getWithdrawMarketLiquidityInstructionAsync(input, config) {
   if (!accounts.marketVault.value) {
     accounts.marketVault.value = await findMarketVaultPda(
       {
-        market: getAddressFromResolvedInstructionAccount19(
+        market: getAddressFromResolvedInstructionAccount22(
           "market",
           accounts.market.value
         )
@@ -6060,7 +7044,7 @@ async function getWithdrawMarketLiquidityInstructionAsync(input, config) {
 function getWithdrawMarketLiquidityInstruction(input, config) {
   const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
   const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
-  const getAccountMeta = getAccountMetaFactory24(programAddress, "programId");
+  const getAccountMeta = getAccountMetaFactory27(programAddress, "programId");
   const originalAccounts = {
     lister: { value: input.lister ?? null, isSigner: true, isWritable: false },
     protocol: {
@@ -6110,8 +7094,8 @@ function getWithdrawMarketLiquidityInstruction(input, config) {
 }
 function parseWithdrawMarketLiquidityInstruction(instruction) {
   if (instruction.accounts.length < 7) {
-    throw new SolanaError24(
-      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS24,
+    throw new SolanaError27(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS27,
       {
         actualAccountMetas: instruction.accounts.length,
         expectedAccountMetas: 7
@@ -6141,6 +7125,133 @@ function parseWithdrawMarketLiquidityInstruction(instruction) {
   };
 }
 
+// clients/generated/instructions/wrapBuybackSol.ts
+import {
+  combineCodec as combineCodec39,
+  fixDecoderSize as fixDecoderSize38,
+  fixEncoderSize as fixEncoderSize38,
+  getBytesDecoder as getBytesDecoder38,
+  getBytesEncoder as getBytesEncoder51,
+  getStructDecoder as getStructDecoder39,
+  getStructEncoder as getStructEncoder39,
+  getU64Decoder as getU64Decoder22,
+  getU64Encoder as getU64Encoder23,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS as SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS28,
+  SolanaError as SolanaError28,
+  transformEncoder as transformEncoder37
+} from "@solana/kit";
+import {
+  getAccountMetaFactory as getAccountMetaFactory28
+} from "@solana/kit/program-client-core";
+var WRAP_BUYBACK_SOL_DISCRIMINATOR = new Uint8Array([230, 81, 102, 81, 194, 180, 24, 22]);
+function getWrapBuybackSolDiscriminatorBytes() {
+  return fixEncoderSize38(getBytesEncoder51(), 8).encode(
+    WRAP_BUYBACK_SOL_DISCRIMINATOR
+  );
+}
+function getWrapBuybackSolInstructionDataEncoder() {
+  return transformEncoder37(
+    getStructEncoder39([
+      ["discriminator", fixEncoderSize38(getBytesEncoder51(), 8)],
+      ["amount", getU64Encoder23()]
+    ]),
+    (value) => ({ ...value, discriminator: WRAP_BUYBACK_SOL_DISCRIMINATOR })
+  );
+}
+function getWrapBuybackSolInstructionDataDecoder() {
+  return getStructDecoder39([
+    ["discriminator", fixDecoderSize38(getBytesDecoder38(), 8)],
+    ["amount", getU64Decoder22()]
+  ]);
+}
+function getWrapBuybackSolInstructionDataCodec() {
+  return combineCodec39(
+    getWrapBuybackSolInstructionDataEncoder(),
+    getWrapBuybackSolInstructionDataDecoder()
+  );
+}
+function getWrapBuybackSolInstruction(input, config) {
+  const programAddressInput = config?.programAddress ?? LEVERMEME_PROGRAM_ADDRESS;
+  const programAddress = typeof programAddressInput === "string" ? programAddressInput : programAddressInput.address;
+  const getAccountMeta = getAccountMetaFactory28(programAddress, "programId");
+  const originalAccounts = {
+    authority: {
+      value: input.authority ?? null,
+      isSigner: true,
+      isWritable: true
+    },
+    protocol: {
+      value: input.protocol ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    wsolTokens: {
+      value: input.wsolTokens ?? null,
+      isSigner: false,
+      isWritable: true
+    },
+    tokenProgram: {
+      value: input.tokenProgram ?? null,
+      isSigner: false,
+      isWritable: false
+    },
+    systemProgram: {
+      value: input.systemProgram ?? null,
+      isSigner: false,
+      isWritable: false
+    }
+  };
+  const accounts = originalAccounts;
+  const args = { ...input };
+  if (!accounts.tokenProgram.value) {
+    accounts.tokenProgram.value = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
+  }
+  if (!accounts.systemProgram.value) {
+    accounts.systemProgram.value = "11111111111111111111111111111111";
+  }
+  return Object.freeze({
+    accounts: [
+      getAccountMeta("authority", accounts.authority),
+      getAccountMeta("protocol", accounts.protocol),
+      getAccountMeta("wsolTokens", accounts.wsolTokens),
+      getAccountMeta("tokenProgram", accounts.tokenProgram),
+      getAccountMeta("systemProgram", accounts.systemProgram)
+    ],
+    data: getWrapBuybackSolInstructionDataEncoder().encode(
+      args
+    ),
+    programAddress
+  });
+}
+function parseWrapBuybackSolInstruction(instruction) {
+  if (instruction.accounts.length < 5) {
+    throw new SolanaError28(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS28,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 5
+      }
+    );
+  }
+  let accountIndex = 0;
+  const getNextAccount = () => {
+    const accountMeta = instruction.accounts[accountIndex];
+    accountIndex += 1;
+    return accountMeta;
+  };
+  return {
+    programAddress: instruction.programAddress,
+    accounts: {
+      authority: getNextAccount(),
+      protocol: getNextAccount(),
+      wsolTokens: getNextAccount(),
+      tokenProgram: getNextAccount(),
+      systemProgram: getNextAccount()
+    },
+    data: getWrapBuybackSolInstructionDataDecoder().decode(instruction.data)
+  };
+}
+
 // clients/generated/programs/levermeme.ts
 var LEVERMEME_PROGRAM_ADDRESS = "Fg6PaFpoGXkYsidMpWxTWqkZ7FEfcYkgMQhgS1h5A9t";
 var LevermemeAccount = /* @__PURE__ */ ((LevermemeAccount2) => {
@@ -6152,13 +7263,14 @@ var LevermemeAccount = /* @__PURE__ */ ((LevermemeAccount2) => {
   LevermemeAccount2[LevermemeAccount2["Market"] = 5] = "Market";
   LevermemeAccount2[LevermemeAccount2["Position"] = 6] = "Position";
   LevermemeAccount2[LevermemeAccount2["Protocol"] = 7] = "Protocol";
+  LevermemeAccount2[LevermemeAccount2["RevenueLedger"] = 8] = "RevenueLedger";
   return LevermemeAccount2;
 })(LevermemeAccount || {});
 function identifyLevermemeAccount(account) {
   const data = "data" in account ? account.data : account;
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([235, 102, 51, 70, 37, 179, 248, 13])
     ),
     0
@@ -6167,7 +7279,7 @@ function identifyLevermemeAccount(account) {
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([231, 12, 74, 54, 245, 181, 248, 38])
     ),
     0
@@ -6176,7 +7288,7 @@ function identifyLevermemeAccount(account) {
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([218, 32, 50, 73, 43, 134, 26, 58])
     ),
     0
@@ -6185,7 +7297,7 @@ function identifyLevermemeAccount(account) {
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([117, 63, 230, 146, 238, 62, 186, 162])
     ),
     0
@@ -6194,7 +7306,7 @@ function identifyLevermemeAccount(account) {
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([133, 220, 173, 213, 179, 211, 43, 238])
     ),
     0
@@ -6203,7 +7315,7 @@ function identifyLevermemeAccount(account) {
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([219, 190, 213, 55, 0, 227, 198, 154])
     ),
     0
@@ -6212,7 +7324,7 @@ function identifyLevermemeAccount(account) {
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([170, 188, 143, 228, 122, 64, 247, 208])
     ),
     0
@@ -6221,14 +7333,23 @@ function identifyLevermemeAccount(account) {
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([45, 39, 101, 43, 115, 72, 131, 40])
     ),
     0
   )) {
     return 7 /* Protocol */;
   }
-  throw new SolanaError25(
+  if (containsBytes(
+    data,
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
+      new Uint8Array([28, 159, 94, 108, 184, 213, 62, 53])
+    ),
+    0
+  )) {
+    return 8 /* RevenueLedger */;
+  }
+  throw new SolanaError29(
     SOLANA_ERROR__PROGRAM_CLIENTS__FAILED_TO_IDENTIFY_ACCOUNT,
     { accountData: data, programName: "levermeme" }
   );
@@ -6236,23 +7357,25 @@ function identifyLevermemeAccount(account) {
 var LevermemeEvent = /* @__PURE__ */ ((LevermemeEvent2) => {
   LevermemeEvent2[LevermemeEvent2["AirdropClaimed"] = 0] = "AirdropClaimed";
   LevermemeEvent2[LevermemeEvent2["AirdropCreated"] = 1] = "AirdropCreated";
-  LevermemeEvent2[LevermemeEvent2["CollateralChanged"] = 2] = "CollateralChanged";
-  LevermemeEvent2[LevermemeEvent2["ListingCancelled"] = 3] = "ListingCancelled";
-  LevermemeEvent2[LevermemeEvent2["ListingRequested"] = 4] = "ListingRequested";
-  LevermemeEvent2[LevermemeEvent2["ListingReviewed"] = 5] = "ListingReviewed";
-  LevermemeEvent2[LevermemeEvent2["PauseChanged"] = 6] = "PauseChanged";
-  LevermemeEvent2[LevermemeEvent2["PositionOpened"] = 7] = "PositionOpened";
-  LevermemeEvent2[LevermemeEvent2["PositionSettled"] = 8] = "PositionSettled";
-  LevermemeEvent2[LevermemeEvent2["PriceRefreshed"] = 9] = "PriceRefreshed";
-  LevermemeEvent2[LevermemeEvent2["ProtocolCreated"] = 10] = "ProtocolCreated";
-  LevermemeEvent2[LevermemeEvent2["RevenueRouted"] = 11] = "RevenueRouted";
+  LevermemeEvent2[LevermemeEvent2["BuybackExecuted"] = 2] = "BuybackExecuted";
+  LevermemeEvent2[LevermemeEvent2["CollateralChanged"] = 3] = "CollateralChanged";
+  LevermemeEvent2[LevermemeEvent2["CreatorFeesCollected"] = 4] = "CreatorFeesCollected";
+  LevermemeEvent2[LevermemeEvent2["ListingCancelled"] = 5] = "ListingCancelled";
+  LevermemeEvent2[LevermemeEvent2["ListingRequested"] = 6] = "ListingRequested";
+  LevermemeEvent2[LevermemeEvent2["ListingReviewed"] = 7] = "ListingReviewed";
+  LevermemeEvent2[LevermemeEvent2["PauseChanged"] = 8] = "PauseChanged";
+  LevermemeEvent2[LevermemeEvent2["PositionOpened"] = 9] = "PositionOpened";
+  LevermemeEvent2[LevermemeEvent2["PositionSettled"] = 10] = "PositionSettled";
+  LevermemeEvent2[LevermemeEvent2["PriceRefreshed"] = 11] = "PriceRefreshed";
+  LevermemeEvent2[LevermemeEvent2["ProtocolCreated"] = 12] = "ProtocolCreated";
+  LevermemeEvent2[LevermemeEvent2["RevenueRouted"] = 13] = "RevenueRouted";
   return LevermemeEvent2;
 })(LevermemeEvent || {});
 function identifyLevermemeEvent(event) {
   const data = "data" in event ? event.data : event;
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([125, 251, 195, 183, 202, 126, 89, 68])
     ),
     0
@@ -6261,7 +7384,7 @@ function identifyLevermemeEvent(event) {
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([190, 219, 101, 33, 208, 187, 149, 96])
     ),
     0
@@ -6270,93 +7393,111 @@ function identifyLevermemeEvent(event) {
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
+      new Uint8Array([150, 109, 157, 10, 124, 24, 38, 189])
+    ),
+    0
+  )) {
+    return 2 /* BuybackExecuted */;
+  }
+  if (containsBytes(
+    data,
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([172, 114, 48, 57, 98, 83, 95, 157])
     ),
     0
   )) {
-    return 2 /* CollateralChanged */;
+    return 3 /* CollateralChanged */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
+      new Uint8Array([117, 190, 177, 156, 222, 94, 28, 227])
+    ),
+    0
+  )) {
+    return 4 /* CreatorFeesCollected */;
+  }
+  if (containsBytes(
+    data,
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([11, 46, 163, 10, 103, 80, 139, 194])
     ),
     0
   )) {
-    return 3 /* ListingCancelled */;
+    return 5 /* ListingCancelled */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([150, 236, 30, 166, 150, 162, 210, 167])
     ),
     0
   )) {
-    return 4 /* ListingRequested */;
+    return 6 /* ListingRequested */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([33, 226, 137, 167, 158, 100, 9, 238])
     ),
     0
   )) {
-    return 5 /* ListingReviewed */;
+    return 7 /* ListingReviewed */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([238, 188, 213, 78, 134, 209, 178, 218])
     ),
     0
   )) {
-    return 6 /* PauseChanged */;
+    return 8 /* PauseChanged */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([237, 175, 243, 230, 147, 117, 101, 121])
     ),
     0
   )) {
-    return 7 /* PositionOpened */;
+    return 9 /* PositionOpened */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([75, 100, 92, 189, 245, 116, 252, 221])
     ),
     0
   )) {
-    return 8 /* PositionSettled */;
+    return 10 /* PositionSettled */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([64, 39, 28, 72, 53, 221, 84, 139])
     ),
     0
   )) {
-    return 9 /* PriceRefreshed */;
+    return 11 /* PriceRefreshed */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([15, 251, 247, 158, 97, 201, 1, 226])
     ),
     0
   )) {
-    return 10 /* ProtocolCreated */;
+    return 12 /* ProtocolCreated */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([57, 95, 242, 242, 222, 199, 192, 120])
     ),
     0
   )) {
-    return 11 /* RevenueRouted */;
+    return 13 /* RevenueRouted */;
   }
   throw new Error(
     "The provided event could not be identified as a levermeme event."
@@ -6367,33 +7508,37 @@ var LevermemeInstruction = /* @__PURE__ */ ((LevermemeInstruction2) => {
   LevermemeInstruction2[LevermemeInstruction2["CancelListing"] = 1] = "CancelListing";
   LevermemeInstruction2[LevermemeInstruction2["ClaimAirdrop"] = 2] = "ClaimAirdrop";
   LevermemeInstruction2[LevermemeInstruction2["CollectMarketFees"] = 3] = "CollectMarketFees";
-  LevermemeInstruction2[LevermemeInstruction2["CreateAirdrop"] = 4] = "CreateAirdrop";
-  LevermemeInstruction2[LevermemeInstruction2["CreateMarket"] = 5] = "CreateMarket";
-  LevermemeInstruction2[LevermemeInstruction2["Deposit"] = 6] = "Deposit";
-  LevermemeInstruction2[LevermemeInstruction2["FundMarket"] = 7] = "FundMarket";
-  LevermemeInstruction2[LevermemeInstruction2["InitializeProtocol"] = 8] = "InitializeProtocol";
-  LevermemeInstruction2[LevermemeInstruction2["OpenMarginAccount"] = 9] = "OpenMarginAccount";
-  LevermemeInstruction2[LevermemeInstruction2["OpenPosition"] = 10] = "OpenPosition";
-  LevermemeInstruction2[LevermemeInstruction2["ReclaimAirdrop"] = 11] = "ReclaimAirdrop";
-  LevermemeInstruction2[LevermemeInstruction2["RefreshMarketPrice"] = 12] = "RefreshMarketPrice";
-  LevermemeInstruction2[LevermemeInstruction2["RequestListing"] = 13] = "RequestListing";
-  LevermemeInstruction2[LevermemeInstruction2["RetireMarket"] = 14] = "RetireMarket";
-  LevermemeInstruction2[LevermemeInstruction2["RoutePlatformRevenue"] = 15] = "RoutePlatformRevenue";
-  LevermemeInstruction2[LevermemeInstruction2["RouteTokenCreatorRevenue"] = 16] = "RouteTokenCreatorRevenue";
-  LevermemeInstruction2[LevermemeInstruction2["SetListingApproved"] = 17] = "SetListingApproved";
-  LevermemeInstruction2[LevermemeInstruction2["SetListingPermitExpiry"] = 18] = "SetListingPermitExpiry";
-  LevermemeInstruction2[LevermemeInstruction2["SetMarketEnabled"] = 19] = "SetMarketEnabled";
-  LevermemeInstruction2[LevermemeInstruction2["SetPaused"] = 20] = "SetPaused";
-  LevermemeInstruction2[LevermemeInstruction2["SettlePosition"] = 21] = "SettlePosition";
-  LevermemeInstruction2[LevermemeInstruction2["Withdraw"] = 22] = "Withdraw";
-  LevermemeInstruction2[LevermemeInstruction2["WithdrawMarketLiquidity"] = 23] = "WithdrawMarketLiquidity";
+  LevermemeInstruction2[LevermemeInstruction2["CollectNativeCreatorFees"] = 4] = "CollectNativeCreatorFees";
+  LevermemeInstruction2[LevermemeInstruction2["CollectQuoteCreatorFees"] = 5] = "CollectQuoteCreatorFees";
+  LevermemeInstruction2[LevermemeInstruction2["CreateAirdrop"] = 6] = "CreateAirdrop";
+  LevermemeInstruction2[LevermemeInstruction2["CreateMarket"] = 7] = "CreateMarket";
+  LevermemeInstruction2[LevermemeInstruction2["Deposit"] = 8] = "Deposit";
+  LevermemeInstruction2[LevermemeInstruction2["ExecuteBuyback"] = 9] = "ExecuteBuyback";
+  LevermemeInstruction2[LevermemeInstruction2["FundMarket"] = 10] = "FundMarket";
+  LevermemeInstruction2[LevermemeInstruction2["InitializeProtocol"] = 11] = "InitializeProtocol";
+  LevermemeInstruction2[LevermemeInstruction2["OpenMarginAccount"] = 12] = "OpenMarginAccount";
+  LevermemeInstruction2[LevermemeInstruction2["OpenPosition"] = 13] = "OpenPosition";
+  LevermemeInstruction2[LevermemeInstruction2["ReclaimAirdrop"] = 14] = "ReclaimAirdrop";
+  LevermemeInstruction2[LevermemeInstruction2["RefreshMarketPrice"] = 15] = "RefreshMarketPrice";
+  LevermemeInstruction2[LevermemeInstruction2["RequestListing"] = 16] = "RequestListing";
+  LevermemeInstruction2[LevermemeInstruction2["RetireMarket"] = 17] = "RetireMarket";
+  LevermemeInstruction2[LevermemeInstruction2["RoutePlatformRevenue"] = 18] = "RoutePlatformRevenue";
+  LevermemeInstruction2[LevermemeInstruction2["RouteTokenCreatorRevenue"] = 19] = "RouteTokenCreatorRevenue";
+  LevermemeInstruction2[LevermemeInstruction2["SetListingApproved"] = 20] = "SetListingApproved";
+  LevermemeInstruction2[LevermemeInstruction2["SetListingPermitExpiry"] = 21] = "SetListingPermitExpiry";
+  LevermemeInstruction2[LevermemeInstruction2["SetMarketEnabled"] = 22] = "SetMarketEnabled";
+  LevermemeInstruction2[LevermemeInstruction2["SetPaused"] = 23] = "SetPaused";
+  LevermemeInstruction2[LevermemeInstruction2["SettlePosition"] = 24] = "SettlePosition";
+  LevermemeInstruction2[LevermemeInstruction2["Withdraw"] = 25] = "Withdraw";
+  LevermemeInstruction2[LevermemeInstruction2["WithdrawMarketLiquidity"] = 26] = "WithdrawMarketLiquidity";
+  LevermemeInstruction2[LevermemeInstruction2["WrapBuybackSol"] = 27] = "WrapBuybackSol";
   return LevermemeInstruction2;
 })(LevermemeInstruction || {});
 function identifyLevermemeInstruction(instruction) {
   const data = "data" in instruction ? instruction.data : instruction;
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([155, 67, 86, 117, 115, 161, 112, 127])
     ),
     0
@@ -6402,7 +7547,7 @@ function identifyLevermemeInstruction(instruction) {
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([41, 183, 50, 232, 230, 233, 157, 70])
     ),
     0
@@ -6411,7 +7556,7 @@ function identifyLevermemeInstruction(instruction) {
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([137, 50, 122, 111, 89, 254, 8, 20])
     ),
     0
@@ -6420,7 +7565,7 @@ function identifyLevermemeInstruction(instruction) {
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([91, 210, 175, 55, 51, 117, 137, 238])
     ),
     0
@@ -6429,185 +7574,221 @@ function identifyLevermemeInstruction(instruction) {
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
+      new Uint8Array([220, 242, 50, 172, 89, 68, 83, 38])
+    ),
+    0
+  )) {
+    return 4 /* CollectNativeCreatorFees */;
+  }
+  if (containsBytes(
+    data,
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
+      new Uint8Array([103, 255, 90, 194, 192, 129, 92, 158])
+    ),
+    0
+  )) {
+    return 5 /* CollectQuoteCreatorFees */;
+  }
+  if (containsBytes(
+    data,
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([227, 135, 208, 66, 137, 177, 80, 94])
     ),
     0
   )) {
-    return 4 /* CreateAirdrop */;
+    return 6 /* CreateAirdrop */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([103, 226, 97, 235, 200, 188, 251, 254])
     ),
     0
   )) {
-    return 5 /* CreateMarket */;
+    return 7 /* CreateMarket */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([242, 35, 198, 137, 82, 225, 242, 182])
     ),
     0
   )) {
-    return 6 /* Deposit */;
+    return 8 /* Deposit */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
+      new Uint8Array([47, 32, 19, 100, 184, 96, 144, 49])
+    ),
+    0
+  )) {
+    return 9 /* ExecuteBuyback */;
+  }
+  if (containsBytes(
+    data,
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([173, 177, 32, 57, 20, 248, 119, 160])
     ),
     0
   )) {
-    return 7 /* FundMarket */;
+    return 10 /* FundMarket */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([188, 233, 252, 106, 134, 146, 202, 91])
     ),
     0
   )) {
-    return 8 /* InitializeProtocol */;
+    return 11 /* InitializeProtocol */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([251, 54, 54, 233, 180, 125, 203, 107])
     ),
     0
   )) {
-    return 9 /* OpenMarginAccount */;
+    return 12 /* OpenMarginAccount */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([135, 128, 47, 77, 15, 152, 240, 49])
     ),
     0
   )) {
-    return 10 /* OpenPosition */;
+    return 13 /* OpenPosition */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([91, 136, 224, 68, 150, 221, 18, 207])
     ),
     0
   )) {
-    return 11 /* ReclaimAirdrop */;
+    return 14 /* ReclaimAirdrop */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([66, 92, 186, 127, 188, 0, 23, 207])
     ),
     0
   )) {
-    return 12 /* RefreshMarketPrice */;
+    return 15 /* RefreshMarketPrice */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([2, 167, 98, 66, 122, 255, 254, 216])
     ),
     0
   )) {
-    return 13 /* RequestListing */;
+    return 16 /* RequestListing */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([68, 198, 103, 192, 149, 141, 34, 156])
     ),
     0
   )) {
-    return 14 /* RetireMarket */;
+    return 17 /* RetireMarket */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([72, 200, 22, 148, 177, 183, 136, 29])
     ),
     0
   )) {
-    return 15 /* RoutePlatformRevenue */;
+    return 18 /* RoutePlatformRevenue */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([248, 247, 236, 188, 45, 130, 117, 221])
     ),
     0
   )) {
-    return 16 /* RouteTokenCreatorRevenue */;
+    return 19 /* RouteTokenCreatorRevenue */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([199, 59, 208, 95, 38, 69, 168, 183])
     ),
     0
   )) {
-    return 17 /* SetListingApproved */;
+    return 20 /* SetListingApproved */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([211, 65, 230, 231, 156, 48, 13, 25])
     ),
     0
   )) {
-    return 18 /* SetListingPermitExpiry */;
+    return 21 /* SetListingPermitExpiry */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([206, 60, 159, 159, 62, 242, 4, 82])
     ),
     0
   )) {
-    return 19 /* SetMarketEnabled */;
+    return 22 /* SetMarketEnabled */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([91, 60, 125, 192, 176, 225, 166, 218])
     ),
     0
   )) {
-    return 20 /* SetPaused */;
+    return 23 /* SetPaused */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([33, 156, 74, 218, 215, 42, 112, 175])
     ),
     0
   )) {
-    return 21 /* SettlePosition */;
+    return 24 /* SettlePosition */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([183, 18, 70, 156, 148, 109, 161, 34])
     ),
     0
   )) {
-    return 22 /* Withdraw */;
+    return 25 /* Withdraw */;
   }
   if (containsBytes(
     data,
-    fixEncoderSize34(getBytesEncoder46(), 8).encode(
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
       new Uint8Array([151, 228, 127, 80, 156, 209, 76, 82])
     ),
     0
   )) {
-    return 23 /* WithdrawMarketLiquidity */;
+    return 26 /* WithdrawMarketLiquidity */;
   }
-  throw new SolanaError25(
+  if (containsBytes(
+    data,
+    fixEncoderSize39(getBytesEncoder52(), 8).encode(
+      new Uint8Array([230, 81, 102, 81, 194, 180, 24, 22])
+    ),
+    0
+  )) {
+    return 27 /* WrapBuybackSol */;
+  }
+  throw new SolanaError29(
     SOLANA_ERROR__PROGRAM_CLIENTS__FAILED_TO_IDENTIFY_INSTRUCTION,
     { instructionData: data, programName: "levermeme" }
   );
@@ -6643,148 +7824,176 @@ function parseLevermemeInstruction(instruction) {
         ...parseCollectMarketFeesInstruction(instruction)
       };
     }
-    case 4 /* CreateAirdrop */: {
+    case 4 /* CollectNativeCreatorFees */: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: 4 /* CreateAirdrop */,
+        instructionType: 4 /* CollectNativeCreatorFees */,
+        ...parseCollectNativeCreatorFeesInstruction(instruction)
+      };
+    }
+    case 5 /* CollectQuoteCreatorFees */: {
+      assertIsInstructionWithAccounts(instruction);
+      return {
+        instructionType: 5 /* CollectQuoteCreatorFees */,
+        ...parseCollectQuoteCreatorFeesInstruction(instruction)
+      };
+    }
+    case 6 /* CreateAirdrop */: {
+      assertIsInstructionWithAccounts(instruction);
+      return {
+        instructionType: 6 /* CreateAirdrop */,
         ...parseCreateAirdropInstruction(instruction)
       };
     }
-    case 5 /* CreateMarket */: {
+    case 7 /* CreateMarket */: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: 5 /* CreateMarket */,
+        instructionType: 7 /* CreateMarket */,
         ...parseCreateMarketInstruction(instruction)
       };
     }
-    case 6 /* Deposit */: {
+    case 8 /* Deposit */: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: 6 /* Deposit */,
+        instructionType: 8 /* Deposit */,
         ...parseDepositInstruction(instruction)
       };
     }
-    case 7 /* FundMarket */: {
+    case 9 /* ExecuteBuyback */: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: 7 /* FundMarket */,
+        instructionType: 9 /* ExecuteBuyback */,
+        ...parseExecuteBuybackInstruction(instruction)
+      };
+    }
+    case 10 /* FundMarket */: {
+      assertIsInstructionWithAccounts(instruction);
+      return {
+        instructionType: 10 /* FundMarket */,
         ...parseFundMarketInstruction(instruction)
       };
     }
-    case 8 /* InitializeProtocol */: {
+    case 11 /* InitializeProtocol */: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: 8 /* InitializeProtocol */,
+        instructionType: 11 /* InitializeProtocol */,
         ...parseInitializeProtocolInstruction(instruction)
       };
     }
-    case 9 /* OpenMarginAccount */: {
+    case 12 /* OpenMarginAccount */: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: 9 /* OpenMarginAccount */,
+        instructionType: 12 /* OpenMarginAccount */,
         ...parseOpenMarginAccountInstruction(instruction)
       };
     }
-    case 10 /* OpenPosition */: {
+    case 13 /* OpenPosition */: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: 10 /* OpenPosition */,
+        instructionType: 13 /* OpenPosition */,
         ...parseOpenPositionInstruction(instruction)
       };
     }
-    case 11 /* ReclaimAirdrop */: {
+    case 14 /* ReclaimAirdrop */: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: 11 /* ReclaimAirdrop */,
+        instructionType: 14 /* ReclaimAirdrop */,
         ...parseReclaimAirdropInstruction(instruction)
       };
     }
-    case 12 /* RefreshMarketPrice */: {
+    case 15 /* RefreshMarketPrice */: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: 12 /* RefreshMarketPrice */,
+        instructionType: 15 /* RefreshMarketPrice */,
         ...parseRefreshMarketPriceInstruction(instruction)
       };
     }
-    case 13 /* RequestListing */: {
+    case 16 /* RequestListing */: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: 13 /* RequestListing */,
+        instructionType: 16 /* RequestListing */,
         ...parseRequestListingInstruction(instruction)
       };
     }
-    case 14 /* RetireMarket */: {
+    case 17 /* RetireMarket */: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: 14 /* RetireMarket */,
+        instructionType: 17 /* RetireMarket */,
         ...parseRetireMarketInstruction(instruction)
       };
     }
-    case 15 /* RoutePlatformRevenue */: {
+    case 18 /* RoutePlatformRevenue */: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: 15 /* RoutePlatformRevenue */,
+        instructionType: 18 /* RoutePlatformRevenue */,
         ...parseRoutePlatformRevenueInstruction(instruction)
       };
     }
-    case 16 /* RouteTokenCreatorRevenue */: {
+    case 19 /* RouteTokenCreatorRevenue */: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: 16 /* RouteTokenCreatorRevenue */,
+        instructionType: 19 /* RouteTokenCreatorRevenue */,
         ...parseRouteTokenCreatorRevenueInstruction(instruction)
       };
     }
-    case 17 /* SetListingApproved */: {
+    case 20 /* SetListingApproved */: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: 17 /* SetListingApproved */,
+        instructionType: 20 /* SetListingApproved */,
         ...parseSetListingApprovedInstruction(instruction)
       };
     }
-    case 18 /* SetListingPermitExpiry */: {
+    case 21 /* SetListingPermitExpiry */: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: 18 /* SetListingPermitExpiry */,
+        instructionType: 21 /* SetListingPermitExpiry */,
         ...parseSetListingPermitExpiryInstruction(instruction)
       };
     }
-    case 19 /* SetMarketEnabled */: {
+    case 22 /* SetMarketEnabled */: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: 19 /* SetMarketEnabled */,
+        instructionType: 22 /* SetMarketEnabled */,
         ...parseSetMarketEnabledInstruction(instruction)
       };
     }
-    case 20 /* SetPaused */: {
+    case 23 /* SetPaused */: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: 20 /* SetPaused */,
+        instructionType: 23 /* SetPaused */,
         ...parseSetPausedInstruction(instruction)
       };
     }
-    case 21 /* SettlePosition */: {
+    case 24 /* SettlePosition */: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: 21 /* SettlePosition */,
+        instructionType: 24 /* SettlePosition */,
         ...parseSettlePositionInstruction(instruction)
       };
     }
-    case 22 /* Withdraw */: {
+    case 25 /* Withdraw */: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: 22 /* Withdraw */,
+        instructionType: 25 /* Withdraw */,
         ...parseWithdrawInstruction(instruction)
       };
     }
-    case 23 /* WithdrawMarketLiquidity */: {
+    case 26 /* WithdrawMarketLiquidity */: {
       assertIsInstructionWithAccounts(instruction);
       return {
-        instructionType: 23 /* WithdrawMarketLiquidity */,
+        instructionType: 26 /* WithdrawMarketLiquidity */,
         ...parseWithdrawMarketLiquidityInstruction(instruction)
       };
     }
+    case 27 /* WrapBuybackSol */: {
+      assertIsInstructionWithAccounts(instruction);
+      return {
+        instructionType: 27 /* WrapBuybackSol */,
+        ...parseWrapBuybackSolInstruction(instruction)
+      };
+    }
     default:
-      throw new SolanaError25(
+      throw new SolanaError29(
         SOLANA_ERROR__PROGRAM_CLIENTS__UNRECOGNIZED_INSTRUCTION_TYPE,
         {
           instructionType,
@@ -6808,7 +8017,8 @@ function levermemeProgram(config = {}) {
           marginAccount: addSelfFetchFunctions(client, getMarginAccountCodec()),
           market: addSelfFetchFunctions(client, getMarketCodec()),
           position: addSelfFetchFunctions(client, getPositionCodec()),
-          protocol: addSelfFetchFunctions(client, getProtocolCodec())
+          protocol: addSelfFetchFunctions(client, getProtocolCodec()),
+          revenueLedger: addSelfFetchFunctions(client, getRevenueLedgerCodec())
         },
         instructions: {
           approveListingPermit: (input, instructionConfig) => addSelfPlanAndSendFunctions(
@@ -6835,6 +8045,18 @@ function levermemeProgram(config = {}) {
               programAddress: instructionConfig?.programAddress ?? config.programAddress
             })
           ),
+          collectNativeCreatorFees: (input, instructionConfig) => addSelfPlanAndSendFunctions(
+            client,
+            getCollectNativeCreatorFeesInstructionAsync(input, {
+              programAddress: instructionConfig?.programAddress ?? config.programAddress
+            })
+          ),
+          collectQuoteCreatorFees: (input, instructionConfig) => addSelfPlanAndSendFunctions(
+            client,
+            getCollectQuoteCreatorFeesInstructionAsync(input, {
+              programAddress: instructionConfig?.programAddress ?? config.programAddress
+            })
+          ),
           createAirdrop: (input, instructionConfig) => addSelfPlanAndSendFunctions(
             client,
             getCreateAirdropInstructionAsync(input, {
@@ -6850,6 +8072,12 @@ function levermemeProgram(config = {}) {
           deposit: (input, instructionConfig) => addSelfPlanAndSendFunctions(
             client,
             getDepositInstructionAsync(input, {
+              programAddress: instructionConfig?.programAddress ?? config.programAddress
+            })
+          ),
+          executeBuyback: (input, instructionConfig) => addSelfPlanAndSendFunctions(
+            client,
+            getExecuteBuybackInstructionAsync(input, {
               programAddress: instructionConfig?.programAddress ?? config.programAddress
             })
           ),
@@ -6954,6 +8182,12 @@ function levermemeProgram(config = {}) {
             getWithdrawMarketLiquidityInstructionAsync(input, {
               programAddress: instructionConfig?.programAddress ?? config.programAddress
             })
+          ),
+          wrapBuybackSol: (input, instructionConfig) => addSelfPlanAndSendFunctions(
+            client,
+            getWrapBuybackSolInstruction(input, {
+              programAddress: instructionConfig?.programAddress ?? config.programAddress
+            })
           )
         },
         pdas: {
@@ -6982,6 +8216,9 @@ function levermemeProgram(config = {}) {
             programAddress: pdaConfig?.programAddress ?? config.programAddress
           }),
           marketVault: (seeds, pdaConfig) => findMarketVaultPda(seeds, {
+            programAddress: pdaConfig?.programAddress ?? config.programAddress
+          }),
+          revenue: (seeds, pdaConfig) => findRevenuePda(seeds, {
             programAddress: pdaConfig?.programAddress ?? config.programAddress
           }),
           margin: (seeds, pdaConfig) => findMarginPda(seeds, {
@@ -7033,14 +8270,20 @@ var LEVERMEME_ERROR__EXPOSURE = 6026;
 var LEVERMEME_ERROR__SLIPPAGE = 6027;
 var LEVERMEME_ERROR__OWNER = 6028;
 var LEVERMEME_ERROR__HEALTHY = 6029;
+var LEVERMEME_ERROR__CREATOR_IDENTITY = 6030;
+var LEVERMEME_ERROR__BUYBACK_ROUTE = 6031;
+var LEVERMEME_ERROR__BUYBACK_BOUNDS = 6032;
 var levermemeErrorMessages;
 if (process.env["NODE_ENV"] !== "production") {
   levermemeErrorMessages = {
     [LEVERMEME_ERROR__ADMISSION]: `Listing admission or review missing`,
     [LEVERMEME_ERROR__ALREADY_CANCELLED]: `Listing was already cancelled`,
     [LEVERMEME_ERROR__AMOUNT]: `Invalid amount or leverage`,
+    [LEVERMEME_ERROR__BUYBACK_BOUNDS]: `Buyback input/output or authority balance bounds failed`,
+    [LEVERMEME_ERROR__BUYBACK_ROUTE]: `Unsupported or unsafe buyback route/accounts`,
     [LEVERMEME_ERROR__CAMPAIGN_CLOSED]: `Airdrop has not started, has expired, or was reclaimed`,
     [LEVERMEME_ERROR__CLOSED]: `Market or position is closed`,
+    [LEVERMEME_ERROR__CREATOR_IDENTITY]: `Creator identity, origin or fee vault was rejected`,
     [LEVERMEME_ERROR__DEVIATION]: `Oracle price deviates too far from reviewed TWAP`,
     [LEVERMEME_ERROR__EXPOSURE]: `Open interest limit exceeded`,
     [LEVERMEME_ERROR__FUNDS]: `Insufficient backing or vault invariant failed`,
@@ -7087,49 +8330,49 @@ function isLevermemeError(error, transactionMessage, code, config = {}) {
 
 // clients/generated/events/airdropClaimed.ts
 import {
-  combineCodec as combineCodec35,
+  combineCodec as combineCodec40,
   containsBytes as containsBytes2,
-  fixEncoderSize as fixEncoderSize35,
-  getAddressDecoder as getAddressDecoder11,
-  getAddressEncoder as getAddressEncoder25,
-  getBytesEncoder as getBytesEncoder47,
+  fixEncoderSize as fixEncoderSize40,
+  getAddressDecoder as getAddressDecoder12,
+  getAddressEncoder as getAddressEncoder28,
+  getBytesEncoder as getBytesEncoder53,
   getConstantDecoder,
   getConstantEncoder,
   getHiddenPrefixDecoder,
   getHiddenPrefixEncoder,
-  getStructDecoder as getStructDecoder35,
-  getStructEncoder as getStructEncoder35,
-  getU64Decoder as getU64Decoder20,
-  getU64Encoder as getU64Encoder21
+  getStructDecoder as getStructDecoder40,
+  getStructEncoder as getStructEncoder40,
+  getU64Decoder as getU64Decoder23,
+  getU64Encoder as getU64Encoder24
 } from "@solana/kit";
 var AIRDROP_CLAIMED_EVENT_DISCRIMINATOR = new Uint8Array([125, 251, 195, 183, 202, 126, 89, 68]);
 function getAirdropClaimedEventDiscriminatorBytes() {
-  return fixEncoderSize35(getBytesEncoder47(), 8).encode(
+  return fixEncoderSize40(getBytesEncoder53(), 8).encode(
     AIRDROP_CLAIMED_EVENT_DISCRIMINATOR
   );
 }
 function getAirdropClaimedEventEncoder() {
   return getHiddenPrefixEncoder(
-    getStructEncoder35([
-      ["campaign", getAddressEncoder25()],
-      ["owner", getAddressEncoder25()],
-      ["amount", getU64Encoder21()]
+    getStructEncoder40([
+      ["campaign", getAddressEncoder28()],
+      ["owner", getAddressEncoder28()],
+      ["amount", getU64Encoder24()]
     ]),
     [getConstantEncoder(AIRDROP_CLAIMED_EVENT_DISCRIMINATOR)]
   );
 }
 function getAirdropClaimedEventDecoder() {
   return getHiddenPrefixDecoder(
-    getStructDecoder35([
-      ["campaign", getAddressDecoder11()],
-      ["owner", getAddressDecoder11()],
-      ["amount", getU64Decoder20()]
+    getStructDecoder40([
+      ["campaign", getAddressDecoder12()],
+      ["owner", getAddressDecoder12()],
+      ["amount", getU64Decoder23()]
     ]),
     [getConstantDecoder(AIRDROP_CLAIMED_EVENT_DISCRIMINATOR)]
   );
 }
 function getAirdropClaimedEventCodec() {
-  return combineCodec35(
+  return combineCodec40(
     getAirdropClaimedEventEncoder(),
     getAirdropClaimedEventDecoder()
   );
@@ -7145,34 +8388,34 @@ function parseAirdropClaimedEvent(data) {
 
 // clients/generated/events/airdropCreated.ts
 import {
-  combineCodec as combineCodec36,
+  combineCodec as combineCodec41,
   containsBytes as containsBytes3,
-  fixEncoderSize as fixEncoderSize36,
-  getAddressDecoder as getAddressDecoder12,
-  getAddressEncoder as getAddressEncoder26,
-  getBytesEncoder as getBytesEncoder48,
+  fixEncoderSize as fixEncoderSize41,
+  getAddressDecoder as getAddressDecoder13,
+  getAddressEncoder as getAddressEncoder29,
+  getBytesEncoder as getBytesEncoder54,
   getConstantDecoder as getConstantDecoder2,
   getConstantEncoder as getConstantEncoder2,
   getHiddenPrefixDecoder as getHiddenPrefixDecoder2,
   getHiddenPrefixEncoder as getHiddenPrefixEncoder2,
   getI64Decoder as getI64Decoder9,
   getI64Encoder as getI64Encoder9,
-  getStructDecoder as getStructDecoder36,
-  getStructEncoder as getStructEncoder36,
-  getU64Decoder as getU64Decoder21,
-  getU64Encoder as getU64Encoder22
+  getStructDecoder as getStructDecoder41,
+  getStructEncoder as getStructEncoder41,
+  getU64Decoder as getU64Decoder24,
+  getU64Encoder as getU64Encoder25
 } from "@solana/kit";
 var AIRDROP_CREATED_EVENT_DISCRIMINATOR = new Uint8Array([190, 219, 101, 33, 208, 187, 149, 96]);
 function getAirdropCreatedEventDiscriminatorBytes() {
-  return fixEncoderSize36(getBytesEncoder48(), 8).encode(
+  return fixEncoderSize41(getBytesEncoder54(), 8).encode(
     AIRDROP_CREATED_EVENT_DISCRIMINATOR
   );
 }
 function getAirdropCreatedEventEncoder() {
   return getHiddenPrefixEncoder2(
-    getStructEncoder36([
-      ["campaign", getAddressEncoder26()],
-      ["total", getU64Encoder22()],
+    getStructEncoder41([
+      ["campaign", getAddressEncoder29()],
+      ["total", getU64Encoder25()],
       ["startsAt", getI64Encoder9()],
       ["endsAt", getI64Encoder9()]
     ]),
@@ -7181,9 +8424,9 @@ function getAirdropCreatedEventEncoder() {
 }
 function getAirdropCreatedEventDecoder() {
   return getHiddenPrefixDecoder2(
-    getStructDecoder36([
-      ["campaign", getAddressDecoder12()],
-      ["total", getU64Decoder21()],
+    getStructDecoder41([
+      ["campaign", getAddressDecoder13()],
+      ["total", getU64Decoder24()],
       ["startsAt", getI64Decoder9()],
       ["endsAt", getI64Decoder9()]
     ]),
@@ -7191,7 +8434,7 @@ function getAirdropCreatedEventDecoder() {
   );
 }
 function getAirdropCreatedEventCodec() {
-  return combineCodec36(
+  return combineCodec41(
     getAirdropCreatedEventEncoder(),
     getAirdropCreatedEventDecoder()
   );
@@ -7205,63 +8448,125 @@ function parseAirdropCreatedEvent(data) {
   );
 }
 
-// clients/generated/events/collateralChanged.ts
+// clients/generated/events/buybackExecuted.ts
 import {
-  combineCodec as combineCodec37,
+  combineCodec as combineCodec42,
   containsBytes as containsBytes4,
-  fixEncoderSize as fixEncoderSize37,
-  getAddressDecoder as getAddressDecoder13,
-  getAddressEncoder as getAddressEncoder27,
-  getBooleanDecoder as getBooleanDecoder11,
-  getBooleanEncoder as getBooleanEncoder11,
-  getBytesEncoder as getBytesEncoder49,
+  fixEncoderSize as fixEncoderSize42,
+  getAddressDecoder as getAddressDecoder14,
+  getAddressEncoder as getAddressEncoder30,
+  getBytesEncoder as getBytesEncoder55,
   getConstantDecoder as getConstantDecoder3,
   getConstantEncoder as getConstantEncoder3,
   getHiddenPrefixDecoder as getHiddenPrefixDecoder3,
   getHiddenPrefixEncoder as getHiddenPrefixEncoder3,
-  getStructDecoder as getStructDecoder37,
-  getStructEncoder as getStructEncoder37,
-  getU64Decoder as getU64Decoder22,
-  getU64Encoder as getU64Encoder23
+  getStructDecoder as getStructDecoder42,
+  getStructEncoder as getStructEncoder42,
+  getU64Decoder as getU64Decoder25,
+  getU64Encoder as getU64Encoder26
+} from "@solana/kit";
+var BUYBACK_EXECUTED_EVENT_DISCRIMINATOR = new Uint8Array([150, 109, 157, 10, 124, 24, 38, 189]);
+function getBuybackExecutedEventDiscriminatorBytes() {
+  return fixEncoderSize42(getBytesEncoder55(), 8).encode(
+    BUYBACK_EXECUTED_EVENT_DISCRIMINATOR
+  );
+}
+function getBuybackExecutedEventEncoder() {
+  return getHiddenPrefixEncoder3(
+    getStructEncoder42([
+      ["protocol", getAddressEncoder30()],
+      ["authority", getAddressEncoder30()],
+      ["inputMint", getAddressEncoder30()],
+      ["inputAmount", getU64Encoder26()],
+      ["burned", getU64Encoder26()]
+    ]),
+    [getConstantEncoder3(BUYBACK_EXECUTED_EVENT_DISCRIMINATOR)]
+  );
+}
+function getBuybackExecutedEventDecoder() {
+  return getHiddenPrefixDecoder3(
+    getStructDecoder42([
+      ["protocol", getAddressDecoder14()],
+      ["authority", getAddressDecoder14()],
+      ["inputMint", getAddressDecoder14()],
+      ["inputAmount", getU64Decoder25()],
+      ["burned", getU64Decoder25()]
+    ]),
+    [getConstantDecoder3(BUYBACK_EXECUTED_EVENT_DISCRIMINATOR)]
+  );
+}
+function getBuybackExecutedEventCodec() {
+  return combineCodec42(
+    getBuybackExecutedEventEncoder(),
+    getBuybackExecutedEventDecoder()
+  );
+}
+function parseBuybackExecutedEvent(data) {
+  if (containsBytes4(data, BUYBACK_EXECUTED_EVENT_DISCRIMINATOR, 0)) {
+    return getBuybackExecutedEventDecoder().decode(data);
+  }
+  throw new Error(
+    'The provided data does not match the "BuybackExecutedEvent" event discriminators.'
+  );
+}
+
+// clients/generated/events/collateralChanged.ts
+import {
+  combineCodec as combineCodec43,
+  containsBytes as containsBytes5,
+  fixEncoderSize as fixEncoderSize43,
+  getAddressDecoder as getAddressDecoder15,
+  getAddressEncoder as getAddressEncoder31,
+  getBooleanDecoder as getBooleanDecoder11,
+  getBooleanEncoder as getBooleanEncoder11,
+  getBytesEncoder as getBytesEncoder56,
+  getConstantDecoder as getConstantDecoder4,
+  getConstantEncoder as getConstantEncoder4,
+  getHiddenPrefixDecoder as getHiddenPrefixDecoder4,
+  getHiddenPrefixEncoder as getHiddenPrefixEncoder4,
+  getStructDecoder as getStructDecoder43,
+  getStructEncoder as getStructEncoder43,
+  getU64Decoder as getU64Decoder26,
+  getU64Encoder as getU64Encoder27
 } from "@solana/kit";
 var COLLATERAL_CHANGED_EVENT_DISCRIMINATOR = new Uint8Array([172, 114, 48, 57, 98, 83, 95, 157]);
 function getCollateralChangedEventDiscriminatorBytes() {
-  return fixEncoderSize37(getBytesEncoder49(), 8).encode(
+  return fixEncoderSize43(getBytesEncoder56(), 8).encode(
     COLLATERAL_CHANGED_EVENT_DISCRIMINATOR
   );
 }
 function getCollateralChangedEventEncoder() {
-  return getHiddenPrefixEncoder3(
-    getStructEncoder37([
-      ["margin", getAddressEncoder27()],
-      ["owner", getAddressEncoder27()],
-      ["amount", getU64Encoder23()],
+  return getHiddenPrefixEncoder4(
+    getStructEncoder43([
+      ["margin", getAddressEncoder31()],
+      ["owner", getAddressEncoder31()],
+      ["amount", getU64Encoder27()],
       ["deposit", getBooleanEncoder11()],
-      ["balance", getU64Encoder23()]
+      ["balance", getU64Encoder27()]
     ]),
-    [getConstantEncoder3(COLLATERAL_CHANGED_EVENT_DISCRIMINATOR)]
+    [getConstantEncoder4(COLLATERAL_CHANGED_EVENT_DISCRIMINATOR)]
   );
 }
 function getCollateralChangedEventDecoder() {
-  return getHiddenPrefixDecoder3(
-    getStructDecoder37([
-      ["margin", getAddressDecoder13()],
-      ["owner", getAddressDecoder13()],
-      ["amount", getU64Decoder22()],
+  return getHiddenPrefixDecoder4(
+    getStructDecoder43([
+      ["margin", getAddressDecoder15()],
+      ["owner", getAddressDecoder15()],
+      ["amount", getU64Decoder26()],
       ["deposit", getBooleanDecoder11()],
-      ["balance", getU64Decoder22()]
+      ["balance", getU64Decoder26()]
     ]),
-    [getConstantDecoder3(COLLATERAL_CHANGED_EVENT_DISCRIMINATOR)]
+    [getConstantDecoder4(COLLATERAL_CHANGED_EVENT_DISCRIMINATOR)]
   );
 }
 function getCollateralChangedEventCodec() {
-  return combineCodec37(
+  return combineCodec43(
     getCollateralChangedEventEncoder(),
     getCollateralChangedEventDecoder()
   );
 }
 function parseCollateralChangedEvent(data) {
-  if (containsBytes4(data, COLLATERAL_CHANGED_EVENT_DISCRIMINATOR, 0)) {
+  if (containsBytes5(data, COLLATERAL_CHANGED_EVENT_DISCRIMINATOR, 0)) {
     return getCollateralChangedEventDecoder().decode(data);
   }
   throw new Error(
@@ -7269,53 +8574,121 @@ function parseCollateralChangedEvent(data) {
   );
 }
 
+// clients/generated/events/creatorFeesCollected.ts
+import {
+  combineCodec as combineCodec44,
+  containsBytes as containsBytes6,
+  fixEncoderSize as fixEncoderSize44,
+  getAddressDecoder as getAddressDecoder16,
+  getAddressEncoder as getAddressEncoder32,
+  getBytesEncoder as getBytesEncoder57,
+  getConstantDecoder as getConstantDecoder5,
+  getConstantEncoder as getConstantEncoder5,
+  getHiddenPrefixDecoder as getHiddenPrefixDecoder5,
+  getHiddenPrefixEncoder as getHiddenPrefixEncoder5,
+  getStructDecoder as getStructDecoder44,
+  getStructEncoder as getStructEncoder44,
+  getU64Decoder as getU64Decoder27,
+  getU64Encoder as getU64Encoder28,
+  getU8Decoder as getU8Decoder12,
+  getU8Encoder as getU8Encoder12
+} from "@solana/kit";
+var CREATOR_FEES_COLLECTED_EVENT_DISCRIMINATOR = new Uint8Array([117, 190, 177, 156, 222, 94, 28, 227]);
+function getCreatorFeesCollectedEventDiscriminatorBytes() {
+  return fixEncoderSize44(getBytesEncoder57(), 8).encode(
+    CREATOR_FEES_COLLECTED_EVENT_DISCRIMINATOR
+  );
+}
+function getCreatorFeesCollectedEventEncoder() {
+  return getHiddenPrefixEncoder5(
+    getStructEncoder44([
+      ["protocol", getAddressEncoder32()],
+      ["creator", getAddressEncoder32()],
+      ["mint", getAddressEncoder32()],
+      ["amount", getU64Encoder28()],
+      ["treasury", getU64Encoder28()],
+      ["buyback", getU64Encoder28()],
+      ["sourceKind", getU8Encoder12()]
+    ]),
+    [getConstantEncoder5(CREATOR_FEES_COLLECTED_EVENT_DISCRIMINATOR)]
+  );
+}
+function getCreatorFeesCollectedEventDecoder() {
+  return getHiddenPrefixDecoder5(
+    getStructDecoder44([
+      ["protocol", getAddressDecoder16()],
+      ["creator", getAddressDecoder16()],
+      ["mint", getAddressDecoder16()],
+      ["amount", getU64Decoder27()],
+      ["treasury", getU64Decoder27()],
+      ["buyback", getU64Decoder27()],
+      ["sourceKind", getU8Decoder12()]
+    ]),
+    [getConstantDecoder5(CREATOR_FEES_COLLECTED_EVENT_DISCRIMINATOR)]
+  );
+}
+function getCreatorFeesCollectedEventCodec() {
+  return combineCodec44(
+    getCreatorFeesCollectedEventEncoder(),
+    getCreatorFeesCollectedEventDecoder()
+  );
+}
+function parseCreatorFeesCollectedEvent(data) {
+  if (containsBytes6(data, CREATOR_FEES_COLLECTED_EVENT_DISCRIMINATOR, 0)) {
+    return getCreatorFeesCollectedEventDecoder().decode(data);
+  }
+  throw new Error(
+    'The provided data does not match the "CreatorFeesCollectedEvent" event discriminators.'
+  );
+}
+
 // clients/generated/events/listingCancelled.ts
 import {
-  combineCodec as combineCodec38,
-  containsBytes as containsBytes5,
-  fixEncoderSize as fixEncoderSize38,
-  getAddressDecoder as getAddressDecoder14,
-  getAddressEncoder as getAddressEncoder28,
-  getBytesEncoder as getBytesEncoder50,
-  getConstantDecoder as getConstantDecoder4,
-  getConstantEncoder as getConstantEncoder4,
-  getHiddenPrefixDecoder as getHiddenPrefixDecoder4,
-  getHiddenPrefixEncoder as getHiddenPrefixEncoder4,
-  getStructDecoder as getStructDecoder38,
-  getStructEncoder as getStructEncoder38
+  combineCodec as combineCodec45,
+  containsBytes as containsBytes7,
+  fixEncoderSize as fixEncoderSize45,
+  getAddressDecoder as getAddressDecoder17,
+  getAddressEncoder as getAddressEncoder33,
+  getBytesEncoder as getBytesEncoder58,
+  getConstantDecoder as getConstantDecoder6,
+  getConstantEncoder as getConstantEncoder6,
+  getHiddenPrefixDecoder as getHiddenPrefixDecoder6,
+  getHiddenPrefixEncoder as getHiddenPrefixEncoder6,
+  getStructDecoder as getStructDecoder45,
+  getStructEncoder as getStructEncoder45
 } from "@solana/kit";
 var LISTING_CANCELLED_EVENT_DISCRIMINATOR = new Uint8Array([11, 46, 163, 10, 103, 80, 139, 194]);
 function getListingCancelledEventDiscriminatorBytes() {
-  return fixEncoderSize38(getBytesEncoder50(), 8).encode(
+  return fixEncoderSize45(getBytesEncoder58(), 8).encode(
     LISTING_CANCELLED_EVENT_DISCRIMINATOR
   );
 }
 function getListingCancelledEventEncoder() {
-  return getHiddenPrefixEncoder4(
-    getStructEncoder38([
-      ["listing", getAddressEncoder28()],
-      ["lister", getAddressEncoder28()]
+  return getHiddenPrefixEncoder6(
+    getStructEncoder45([
+      ["listing", getAddressEncoder33()],
+      ["lister", getAddressEncoder33()]
     ]),
-    [getConstantEncoder4(LISTING_CANCELLED_EVENT_DISCRIMINATOR)]
+    [getConstantEncoder6(LISTING_CANCELLED_EVENT_DISCRIMINATOR)]
   );
 }
 function getListingCancelledEventDecoder() {
-  return getHiddenPrefixDecoder4(
-    getStructDecoder38([
-      ["listing", getAddressDecoder14()],
-      ["lister", getAddressDecoder14()]
+  return getHiddenPrefixDecoder6(
+    getStructDecoder45([
+      ["listing", getAddressDecoder17()],
+      ["lister", getAddressDecoder17()]
     ]),
-    [getConstantDecoder4(LISTING_CANCELLED_EVENT_DISCRIMINATOR)]
+    [getConstantDecoder6(LISTING_CANCELLED_EVENT_DISCRIMINATOR)]
   );
 }
 function getListingCancelledEventCodec() {
-  return combineCodec38(
+  return combineCodec45(
     getListingCancelledEventEncoder(),
     getListingCancelledEventDecoder()
   );
 }
 function parseListingCancelledEvent(data) {
-  if (containsBytes5(data, LISTING_CANCELLED_EVENT_DISCRIMINATOR, 0)) {
+  if (containsBytes7(data, LISTING_CANCELLED_EVENT_DISCRIMINATOR, 0)) {
     return getListingCancelledEventDecoder().decode(data);
   }
   throw new Error(
@@ -7325,61 +8698,61 @@ function parseListingCancelledEvent(data) {
 
 // clients/generated/events/listingRequested.ts
 import {
-  combineCodec as combineCodec39,
-  containsBytes as containsBytes6,
-  fixEncoderSize as fixEncoderSize39,
-  getAddressDecoder as getAddressDecoder15,
-  getAddressEncoder as getAddressEncoder29,
-  getBytesEncoder as getBytesEncoder51,
-  getConstantDecoder as getConstantDecoder5,
-  getConstantEncoder as getConstantEncoder5,
-  getHiddenPrefixDecoder as getHiddenPrefixDecoder5,
-  getHiddenPrefixEncoder as getHiddenPrefixEncoder5,
-  getStructDecoder as getStructDecoder39,
-  getStructEncoder as getStructEncoder39,
-  getU64Decoder as getU64Decoder23,
-  getU64Encoder as getU64Encoder24
+  combineCodec as combineCodec46,
+  containsBytes as containsBytes8,
+  fixEncoderSize as fixEncoderSize46,
+  getAddressDecoder as getAddressDecoder18,
+  getAddressEncoder as getAddressEncoder34,
+  getBytesEncoder as getBytesEncoder59,
+  getConstantDecoder as getConstantDecoder7,
+  getConstantEncoder as getConstantEncoder7,
+  getHiddenPrefixDecoder as getHiddenPrefixDecoder7,
+  getHiddenPrefixEncoder as getHiddenPrefixEncoder7,
+  getStructDecoder as getStructDecoder46,
+  getStructEncoder as getStructEncoder46,
+  getU64Decoder as getU64Decoder28,
+  getU64Encoder as getU64Encoder29
 } from "@solana/kit";
 var LISTING_REQUESTED_EVENT_DISCRIMINATOR = new Uint8Array([150, 236, 30, 166, 150, 162, 210, 167]);
 function getListingRequestedEventDiscriminatorBytes() {
-  return fixEncoderSize39(getBytesEncoder51(), 8).encode(
+  return fixEncoderSize46(getBytesEncoder59(), 8).encode(
     LISTING_REQUESTED_EVENT_DISCRIMINATOR
   );
 }
 function getListingRequestedEventEncoder() {
-  return getHiddenPrefixEncoder5(
-    getStructEncoder39([
-      ["listing", getAddressEncoder29()],
-      ["lister", getAddressEncoder29()],
-      ["baseMint", getAddressEncoder29()],
-      ["solLamports", getU64Encoder24()],
-      ["tokenAmount", getU64Encoder24()],
-      ["burned", getU64Encoder24()]
+  return getHiddenPrefixEncoder7(
+    getStructEncoder46([
+      ["listing", getAddressEncoder34()],
+      ["lister", getAddressEncoder34()],
+      ["baseMint", getAddressEncoder34()],
+      ["solLamports", getU64Encoder29()],
+      ["tokenAmount", getU64Encoder29()],
+      ["burned", getU64Encoder29()]
     ]),
-    [getConstantEncoder5(LISTING_REQUESTED_EVENT_DISCRIMINATOR)]
+    [getConstantEncoder7(LISTING_REQUESTED_EVENT_DISCRIMINATOR)]
   );
 }
 function getListingRequestedEventDecoder() {
-  return getHiddenPrefixDecoder5(
-    getStructDecoder39([
-      ["listing", getAddressDecoder15()],
-      ["lister", getAddressDecoder15()],
-      ["baseMint", getAddressDecoder15()],
-      ["solLamports", getU64Decoder23()],
-      ["tokenAmount", getU64Decoder23()],
-      ["burned", getU64Decoder23()]
+  return getHiddenPrefixDecoder7(
+    getStructDecoder46([
+      ["listing", getAddressDecoder18()],
+      ["lister", getAddressDecoder18()],
+      ["baseMint", getAddressDecoder18()],
+      ["solLamports", getU64Decoder28()],
+      ["tokenAmount", getU64Decoder28()],
+      ["burned", getU64Decoder28()]
     ]),
-    [getConstantDecoder5(LISTING_REQUESTED_EVENT_DISCRIMINATOR)]
+    [getConstantDecoder7(LISTING_REQUESTED_EVENT_DISCRIMINATOR)]
   );
 }
 function getListingRequestedEventCodec() {
-  return combineCodec39(
+  return combineCodec46(
     getListingRequestedEventEncoder(),
     getListingRequestedEventDecoder()
   );
 }
 function parseListingRequestedEvent(data) {
-  if (containsBytes6(data, LISTING_REQUESTED_EVENT_DISCRIMINATOR, 0)) {
+  if (containsBytes8(data, LISTING_REQUESTED_EVENT_DISCRIMINATOR, 0)) {
     return getListingRequestedEventDecoder().decode(data);
   }
   throw new Error(
@@ -7389,53 +8762,53 @@ function parseListingRequestedEvent(data) {
 
 // clients/generated/events/listingReviewed.ts
 import {
-  combineCodec as combineCodec40,
-  containsBytes as containsBytes7,
-  fixEncoderSize as fixEncoderSize40,
-  getAddressDecoder as getAddressDecoder16,
-  getAddressEncoder as getAddressEncoder30,
+  combineCodec as combineCodec47,
+  containsBytes as containsBytes9,
+  fixEncoderSize as fixEncoderSize47,
+  getAddressDecoder as getAddressDecoder19,
+  getAddressEncoder as getAddressEncoder35,
   getBooleanDecoder as getBooleanDecoder12,
   getBooleanEncoder as getBooleanEncoder12,
-  getBytesEncoder as getBytesEncoder52,
-  getConstantDecoder as getConstantDecoder6,
-  getConstantEncoder as getConstantEncoder6,
-  getHiddenPrefixDecoder as getHiddenPrefixDecoder6,
-  getHiddenPrefixEncoder as getHiddenPrefixEncoder6,
-  getStructDecoder as getStructDecoder40,
-  getStructEncoder as getStructEncoder40
+  getBytesEncoder as getBytesEncoder60,
+  getConstantDecoder as getConstantDecoder8,
+  getConstantEncoder as getConstantEncoder8,
+  getHiddenPrefixDecoder as getHiddenPrefixDecoder8,
+  getHiddenPrefixEncoder as getHiddenPrefixEncoder8,
+  getStructDecoder as getStructDecoder47,
+  getStructEncoder as getStructEncoder47
 } from "@solana/kit";
 var LISTING_REVIEWED_EVENT_DISCRIMINATOR = new Uint8Array([33, 226, 137, 167, 158, 100, 9, 238]);
 function getListingReviewedEventDiscriminatorBytes() {
-  return fixEncoderSize40(getBytesEncoder52(), 8).encode(
+  return fixEncoderSize47(getBytesEncoder60(), 8).encode(
     LISTING_REVIEWED_EVENT_DISCRIMINATOR
   );
 }
 function getListingReviewedEventEncoder() {
-  return getHiddenPrefixEncoder6(
-    getStructEncoder40([
-      ["listing", getAddressEncoder30()],
+  return getHiddenPrefixEncoder8(
+    getStructEncoder47([
+      ["listing", getAddressEncoder35()],
       ["approved", getBooleanEncoder12()]
     ]),
-    [getConstantEncoder6(LISTING_REVIEWED_EVENT_DISCRIMINATOR)]
+    [getConstantEncoder8(LISTING_REVIEWED_EVENT_DISCRIMINATOR)]
   );
 }
 function getListingReviewedEventDecoder() {
-  return getHiddenPrefixDecoder6(
-    getStructDecoder40([
-      ["listing", getAddressDecoder16()],
+  return getHiddenPrefixDecoder8(
+    getStructDecoder47([
+      ["listing", getAddressDecoder19()],
       ["approved", getBooleanDecoder12()]
     ]),
-    [getConstantDecoder6(LISTING_REVIEWED_EVENT_DISCRIMINATOR)]
+    [getConstantDecoder8(LISTING_REVIEWED_EVENT_DISCRIMINATOR)]
   );
 }
 function getListingReviewedEventCodec() {
-  return combineCodec40(
+  return combineCodec47(
     getListingReviewedEventEncoder(),
     getListingReviewedEventDecoder()
   );
 }
 function parseListingReviewedEvent(data) {
-  if (containsBytes7(data, LISTING_REVIEWED_EVENT_DISCRIMINATOR, 0)) {
+  if (containsBytes9(data, LISTING_REVIEWED_EVENT_DISCRIMINATOR, 0)) {
     return getListingReviewedEventDecoder().decode(data);
   }
   throw new Error(
@@ -7445,53 +8818,53 @@ function parseListingReviewedEvent(data) {
 
 // clients/generated/events/pauseChanged.ts
 import {
-  combineCodec as combineCodec41,
-  containsBytes as containsBytes8,
-  fixEncoderSize as fixEncoderSize41,
-  getAddressDecoder as getAddressDecoder17,
-  getAddressEncoder as getAddressEncoder31,
+  combineCodec as combineCodec48,
+  containsBytes as containsBytes10,
+  fixEncoderSize as fixEncoderSize48,
+  getAddressDecoder as getAddressDecoder20,
+  getAddressEncoder as getAddressEncoder36,
   getBooleanDecoder as getBooleanDecoder13,
   getBooleanEncoder as getBooleanEncoder13,
-  getBytesEncoder as getBytesEncoder53,
-  getConstantDecoder as getConstantDecoder7,
-  getConstantEncoder as getConstantEncoder7,
-  getHiddenPrefixDecoder as getHiddenPrefixDecoder7,
-  getHiddenPrefixEncoder as getHiddenPrefixEncoder7,
-  getStructDecoder as getStructDecoder41,
-  getStructEncoder as getStructEncoder41
+  getBytesEncoder as getBytesEncoder61,
+  getConstantDecoder as getConstantDecoder9,
+  getConstantEncoder as getConstantEncoder9,
+  getHiddenPrefixDecoder as getHiddenPrefixDecoder9,
+  getHiddenPrefixEncoder as getHiddenPrefixEncoder9,
+  getStructDecoder as getStructDecoder48,
+  getStructEncoder as getStructEncoder48
 } from "@solana/kit";
 var PAUSE_CHANGED_EVENT_DISCRIMINATOR = new Uint8Array([238, 188, 213, 78, 134, 209, 178, 218]);
 function getPauseChangedEventDiscriminatorBytes() {
-  return fixEncoderSize41(getBytesEncoder53(), 8).encode(
+  return fixEncoderSize48(getBytesEncoder61(), 8).encode(
     PAUSE_CHANGED_EVENT_DISCRIMINATOR
   );
 }
 function getPauseChangedEventEncoder() {
-  return getHiddenPrefixEncoder7(
-    getStructEncoder41([
-      ["protocol", getAddressEncoder31()],
+  return getHiddenPrefixEncoder9(
+    getStructEncoder48([
+      ["protocol", getAddressEncoder36()],
       ["paused", getBooleanEncoder13()]
     ]),
-    [getConstantEncoder7(PAUSE_CHANGED_EVENT_DISCRIMINATOR)]
+    [getConstantEncoder9(PAUSE_CHANGED_EVENT_DISCRIMINATOR)]
   );
 }
 function getPauseChangedEventDecoder() {
-  return getHiddenPrefixDecoder7(
-    getStructDecoder41([
-      ["protocol", getAddressDecoder17()],
+  return getHiddenPrefixDecoder9(
+    getStructDecoder48([
+      ["protocol", getAddressDecoder20()],
       ["paused", getBooleanDecoder13()]
     ]),
-    [getConstantDecoder7(PAUSE_CHANGED_EVENT_DISCRIMINATOR)]
+    [getConstantDecoder9(PAUSE_CHANGED_EVENT_DISCRIMINATOR)]
   );
 }
 function getPauseChangedEventCodec() {
-  return combineCodec41(
+  return combineCodec48(
     getPauseChangedEventEncoder(),
     getPauseChangedEventDecoder()
   );
 }
 function parsePauseChangedEvent(data) {
-  if (containsBytes8(data, PAUSE_CHANGED_EVENT_DISCRIMINATOR, 0)) {
+  if (containsBytes10(data, PAUSE_CHANGED_EVENT_DISCRIMINATOR, 0)) {
     return getPauseChangedEventDecoder().decode(data);
   }
   throw new Error(
@@ -7501,67 +8874,67 @@ function parsePauseChangedEvent(data) {
 
 // clients/generated/events/positionOpened.ts
 import {
-  combineCodec as combineCodec42,
-  containsBytes as containsBytes9,
-  fixEncoderSize as fixEncoderSize42,
-  getAddressDecoder as getAddressDecoder18,
-  getAddressEncoder as getAddressEncoder32,
+  combineCodec as combineCodec49,
+  containsBytes as containsBytes11,
+  fixEncoderSize as fixEncoderSize49,
+  getAddressDecoder as getAddressDecoder21,
+  getAddressEncoder as getAddressEncoder37,
   getBooleanDecoder as getBooleanDecoder14,
   getBooleanEncoder as getBooleanEncoder14,
-  getBytesEncoder as getBytesEncoder54,
-  getConstantDecoder as getConstantDecoder8,
-  getConstantEncoder as getConstantEncoder8,
-  getHiddenPrefixDecoder as getHiddenPrefixDecoder8,
-  getHiddenPrefixEncoder as getHiddenPrefixEncoder8,
-  getStructDecoder as getStructDecoder42,
-  getStructEncoder as getStructEncoder42,
-  getU64Decoder as getU64Decoder24,
-  getU64Encoder as getU64Encoder25
+  getBytesEncoder as getBytesEncoder62,
+  getConstantDecoder as getConstantDecoder10,
+  getConstantEncoder as getConstantEncoder10,
+  getHiddenPrefixDecoder as getHiddenPrefixDecoder10,
+  getHiddenPrefixEncoder as getHiddenPrefixEncoder10,
+  getStructDecoder as getStructDecoder49,
+  getStructEncoder as getStructEncoder49,
+  getU64Decoder as getU64Decoder29,
+  getU64Encoder as getU64Encoder30
 } from "@solana/kit";
 var POSITION_OPENED_EVENT_DISCRIMINATOR = new Uint8Array([237, 175, 243, 230, 147, 117, 101, 121]);
 function getPositionOpenedEventDiscriminatorBytes() {
-  return fixEncoderSize42(getBytesEncoder54(), 8).encode(
+  return fixEncoderSize49(getBytesEncoder62(), 8).encode(
     POSITION_OPENED_EVENT_DISCRIMINATOR
   );
 }
 function getPositionOpenedEventEncoder() {
-  return getHiddenPrefixEncoder8(
-    getStructEncoder42([
-      ["position", getAddressEncoder32()],
-      ["owner", getAddressEncoder32()],
-      ["market", getAddressEncoder32()],
-      ["notional", getU64Encoder25()],
-      ["collateral", getU64Encoder25()],
-      ["entryPrice", getU64Encoder25()],
-      ["maxProfit", getU64Encoder25()],
+  return getHiddenPrefixEncoder10(
+    getStructEncoder49([
+      ["position", getAddressEncoder37()],
+      ["owner", getAddressEncoder37()],
+      ["market", getAddressEncoder37()],
+      ["notional", getU64Encoder30()],
+      ["collateral", getU64Encoder30()],
+      ["entryPrice", getU64Encoder30()],
+      ["maxProfit", getU64Encoder30()],
       ["long", getBooleanEncoder14()]
     ]),
-    [getConstantEncoder8(POSITION_OPENED_EVENT_DISCRIMINATOR)]
+    [getConstantEncoder10(POSITION_OPENED_EVENT_DISCRIMINATOR)]
   );
 }
 function getPositionOpenedEventDecoder() {
-  return getHiddenPrefixDecoder8(
-    getStructDecoder42([
-      ["position", getAddressDecoder18()],
-      ["owner", getAddressDecoder18()],
-      ["market", getAddressDecoder18()],
-      ["notional", getU64Decoder24()],
-      ["collateral", getU64Decoder24()],
-      ["entryPrice", getU64Decoder24()],
-      ["maxProfit", getU64Decoder24()],
+  return getHiddenPrefixDecoder10(
+    getStructDecoder49([
+      ["position", getAddressDecoder21()],
+      ["owner", getAddressDecoder21()],
+      ["market", getAddressDecoder21()],
+      ["notional", getU64Decoder29()],
+      ["collateral", getU64Decoder29()],
+      ["entryPrice", getU64Decoder29()],
+      ["maxProfit", getU64Decoder29()],
       ["long", getBooleanDecoder14()]
     ]),
-    [getConstantDecoder8(POSITION_OPENED_EVENT_DISCRIMINATOR)]
+    [getConstantDecoder10(POSITION_OPENED_EVENT_DISCRIMINATOR)]
   );
 }
 function getPositionOpenedEventCodec() {
-  return combineCodec42(
+  return combineCodec49(
     getPositionOpenedEventEncoder(),
     getPositionOpenedEventDecoder()
   );
 }
 function parsePositionOpenedEvent(data) {
-  if (containsBytes9(data, POSITION_OPENED_EVENT_DISCRIMINATOR, 0)) {
+  if (containsBytes11(data, POSITION_OPENED_EVENT_DISCRIMINATOR, 0)) {
     return getPositionOpenedEventDecoder().decode(data);
   }
   throw new Error(
@@ -7571,67 +8944,67 @@ function parsePositionOpenedEvent(data) {
 
 // clients/generated/events/positionSettled.ts
 import {
-  combineCodec as combineCodec43,
-  containsBytes as containsBytes10,
-  fixEncoderSize as fixEncoderSize43,
-  getAddressDecoder as getAddressDecoder19,
-  getAddressEncoder as getAddressEncoder33,
-  getBytesEncoder as getBytesEncoder55,
-  getConstantDecoder as getConstantDecoder9,
-  getConstantEncoder as getConstantEncoder9,
-  getHiddenPrefixDecoder as getHiddenPrefixDecoder9,
-  getHiddenPrefixEncoder as getHiddenPrefixEncoder9,
-  getStructDecoder as getStructDecoder43,
-  getStructEncoder as getStructEncoder43,
-  getU64Decoder as getU64Decoder25,
-  getU64Encoder as getU64Encoder26,
-  getU8Decoder as getU8Decoder11,
-  getU8Encoder as getU8Encoder11
+  combineCodec as combineCodec50,
+  containsBytes as containsBytes12,
+  fixEncoderSize as fixEncoderSize50,
+  getAddressDecoder as getAddressDecoder22,
+  getAddressEncoder as getAddressEncoder38,
+  getBytesEncoder as getBytesEncoder63,
+  getConstantDecoder as getConstantDecoder11,
+  getConstantEncoder as getConstantEncoder11,
+  getHiddenPrefixDecoder as getHiddenPrefixDecoder11,
+  getHiddenPrefixEncoder as getHiddenPrefixEncoder11,
+  getStructDecoder as getStructDecoder50,
+  getStructEncoder as getStructEncoder50,
+  getU64Decoder as getU64Decoder30,
+  getU64Encoder as getU64Encoder31,
+  getU8Decoder as getU8Decoder13,
+  getU8Encoder as getU8Encoder13
 } from "@solana/kit";
 var POSITION_SETTLED_EVENT_DISCRIMINATOR = new Uint8Array([75, 100, 92, 189, 245, 116, 252, 221]);
 function getPositionSettledEventDiscriminatorBytes() {
-  return fixEncoderSize43(getBytesEncoder55(), 8).encode(
+  return fixEncoderSize50(getBytesEncoder63(), 8).encode(
     POSITION_SETTLED_EVENT_DISCRIMINATOR
   );
 }
 function getPositionSettledEventEncoder() {
-  return getHiddenPrefixEncoder9(
-    getStructEncoder43([
-      ["position", getAddressEncoder33()],
-      ["owner", getAddressEncoder33()],
-      ["market", getAddressEncoder33()],
-      ["payout", getU64Encoder26()],
-      ["fee", getU64Encoder26()],
-      ["bounty", getU64Encoder26()],
-      ["exitPrice", getU64Encoder26()],
-      ["reason", getU8Encoder11()]
+  return getHiddenPrefixEncoder11(
+    getStructEncoder50([
+      ["position", getAddressEncoder38()],
+      ["owner", getAddressEncoder38()],
+      ["market", getAddressEncoder38()],
+      ["payout", getU64Encoder31()],
+      ["fee", getU64Encoder31()],
+      ["bounty", getU64Encoder31()],
+      ["exitPrice", getU64Encoder31()],
+      ["reason", getU8Encoder13()]
     ]),
-    [getConstantEncoder9(POSITION_SETTLED_EVENT_DISCRIMINATOR)]
+    [getConstantEncoder11(POSITION_SETTLED_EVENT_DISCRIMINATOR)]
   );
 }
 function getPositionSettledEventDecoder() {
-  return getHiddenPrefixDecoder9(
-    getStructDecoder43([
-      ["position", getAddressDecoder19()],
-      ["owner", getAddressDecoder19()],
-      ["market", getAddressDecoder19()],
-      ["payout", getU64Decoder25()],
-      ["fee", getU64Decoder25()],
-      ["bounty", getU64Decoder25()],
-      ["exitPrice", getU64Decoder25()],
-      ["reason", getU8Decoder11()]
+  return getHiddenPrefixDecoder11(
+    getStructDecoder50([
+      ["position", getAddressDecoder22()],
+      ["owner", getAddressDecoder22()],
+      ["market", getAddressDecoder22()],
+      ["payout", getU64Decoder30()],
+      ["fee", getU64Decoder30()],
+      ["bounty", getU64Decoder30()],
+      ["exitPrice", getU64Decoder30()],
+      ["reason", getU8Decoder13()]
     ]),
-    [getConstantDecoder9(POSITION_SETTLED_EVENT_DISCRIMINATOR)]
+    [getConstantDecoder11(POSITION_SETTLED_EVENT_DISCRIMINATOR)]
   );
 }
 function getPositionSettledEventCodec() {
-  return combineCodec43(
+  return combineCodec50(
     getPositionSettledEventEncoder(),
     getPositionSettledEventDecoder()
   );
 }
 function parsePositionSettledEvent(data) {
-  if (containsBytes10(data, POSITION_SETTLED_EVENT_DISCRIMINATOR, 0)) {
+  if (containsBytes12(data, POSITION_SETTLED_EVENT_DISCRIMINATOR, 0)) {
     return getPositionSettledEventDecoder().decode(data);
   }
   throw new Error(
@@ -7641,55 +9014,55 @@ function parsePositionSettledEvent(data) {
 
 // clients/generated/events/priceRefreshed.ts
 import {
-  combineCodec as combineCodec44,
-  containsBytes as containsBytes11,
-  fixEncoderSize as fixEncoderSize44,
-  getAddressDecoder as getAddressDecoder20,
-  getAddressEncoder as getAddressEncoder34,
-  getBytesEncoder as getBytesEncoder56,
-  getConstantDecoder as getConstantDecoder10,
-  getConstantEncoder as getConstantEncoder10,
-  getHiddenPrefixDecoder as getHiddenPrefixDecoder10,
-  getHiddenPrefixEncoder as getHiddenPrefixEncoder10,
-  getStructDecoder as getStructDecoder44,
-  getStructEncoder as getStructEncoder44,
-  getU64Decoder as getU64Decoder26,
-  getU64Encoder as getU64Encoder27
+  combineCodec as combineCodec51,
+  containsBytes as containsBytes13,
+  fixEncoderSize as fixEncoderSize51,
+  getAddressDecoder as getAddressDecoder23,
+  getAddressEncoder as getAddressEncoder39,
+  getBytesEncoder as getBytesEncoder64,
+  getConstantDecoder as getConstantDecoder12,
+  getConstantEncoder as getConstantEncoder12,
+  getHiddenPrefixDecoder as getHiddenPrefixDecoder12,
+  getHiddenPrefixEncoder as getHiddenPrefixEncoder12,
+  getStructDecoder as getStructDecoder51,
+  getStructEncoder as getStructEncoder51,
+  getU64Decoder as getU64Decoder31,
+  getU64Encoder as getU64Encoder32
 } from "@solana/kit";
 var PRICE_REFRESHED_EVENT_DISCRIMINATOR = new Uint8Array([64, 39, 28, 72, 53, 221, 84, 139]);
 function getPriceRefreshedEventDiscriminatorBytes() {
-  return fixEncoderSize44(getBytesEncoder56(), 8).encode(
+  return fixEncoderSize51(getBytesEncoder64(), 8).encode(
     PRICE_REFRESHED_EVENT_DISCRIMINATOR
   );
 }
 function getPriceRefreshedEventEncoder() {
-  return getHiddenPrefixEncoder10(
-    getStructEncoder44([
-      ["market", getAddressEncoder34()],
-      ["price", getU64Encoder27()],
-      ["slot", getU64Encoder27()]
+  return getHiddenPrefixEncoder12(
+    getStructEncoder51([
+      ["market", getAddressEncoder39()],
+      ["price", getU64Encoder32()],
+      ["slot", getU64Encoder32()]
     ]),
-    [getConstantEncoder10(PRICE_REFRESHED_EVENT_DISCRIMINATOR)]
+    [getConstantEncoder12(PRICE_REFRESHED_EVENT_DISCRIMINATOR)]
   );
 }
 function getPriceRefreshedEventDecoder() {
-  return getHiddenPrefixDecoder10(
-    getStructDecoder44([
-      ["market", getAddressDecoder20()],
-      ["price", getU64Decoder26()],
-      ["slot", getU64Decoder26()]
+  return getHiddenPrefixDecoder12(
+    getStructDecoder51([
+      ["market", getAddressDecoder23()],
+      ["price", getU64Decoder31()],
+      ["slot", getU64Decoder31()]
     ]),
-    [getConstantDecoder10(PRICE_REFRESHED_EVENT_DISCRIMINATOR)]
+    [getConstantDecoder12(PRICE_REFRESHED_EVENT_DISCRIMINATOR)]
   );
 }
 function getPriceRefreshedEventCodec() {
-  return combineCodec44(
+  return combineCodec51(
     getPriceRefreshedEventEncoder(),
     getPriceRefreshedEventDecoder()
   );
 }
 function parsePriceRefreshedEvent(data) {
-  if (containsBytes11(data, PRICE_REFRESHED_EVENT_DISCRIMINATOR, 0)) {
+  if (containsBytes13(data, PRICE_REFRESHED_EVENT_DISCRIMINATOR, 0)) {
     return getPriceRefreshedEventDecoder().decode(data);
   }
   throw new Error(
@@ -7699,51 +9072,51 @@ function parsePriceRefreshedEvent(data) {
 
 // clients/generated/events/protocolCreated.ts
 import {
-  combineCodec as combineCodec45,
-  containsBytes as containsBytes12,
-  fixEncoderSize as fixEncoderSize45,
-  getAddressDecoder as getAddressDecoder21,
-  getAddressEncoder as getAddressEncoder35,
-  getBytesEncoder as getBytesEncoder57,
-  getConstantDecoder as getConstantDecoder11,
-  getConstantEncoder as getConstantEncoder11,
-  getHiddenPrefixDecoder as getHiddenPrefixDecoder11,
-  getHiddenPrefixEncoder as getHiddenPrefixEncoder11,
-  getStructDecoder as getStructDecoder45,
-  getStructEncoder as getStructEncoder45
+  combineCodec as combineCodec52,
+  containsBytes as containsBytes14,
+  fixEncoderSize as fixEncoderSize52,
+  getAddressDecoder as getAddressDecoder24,
+  getAddressEncoder as getAddressEncoder40,
+  getBytesEncoder as getBytesEncoder65,
+  getConstantDecoder as getConstantDecoder13,
+  getConstantEncoder as getConstantEncoder13,
+  getHiddenPrefixDecoder as getHiddenPrefixDecoder13,
+  getHiddenPrefixEncoder as getHiddenPrefixEncoder13,
+  getStructDecoder as getStructDecoder52,
+  getStructEncoder as getStructEncoder52
 } from "@solana/kit";
 var PROTOCOL_CREATED_EVENT_DISCRIMINATOR = new Uint8Array([15, 251, 247, 158, 97, 201, 1, 226]);
 function getProtocolCreatedEventDiscriminatorBytes() {
-  return fixEncoderSize45(getBytesEncoder57(), 8).encode(
+  return fixEncoderSize52(getBytesEncoder65(), 8).encode(
     PROTOCOL_CREATED_EVENT_DISCRIMINATOR
   );
 }
 function getProtocolCreatedEventEncoder() {
-  return getHiddenPrefixEncoder11(
-    getStructEncoder45([
-      ["protocol", getAddressEncoder35()],
-      ["admin", getAddressEncoder35()]
+  return getHiddenPrefixEncoder13(
+    getStructEncoder52([
+      ["protocol", getAddressEncoder40()],
+      ["admin", getAddressEncoder40()]
     ]),
-    [getConstantEncoder11(PROTOCOL_CREATED_EVENT_DISCRIMINATOR)]
+    [getConstantEncoder13(PROTOCOL_CREATED_EVENT_DISCRIMINATOR)]
   );
 }
 function getProtocolCreatedEventDecoder() {
-  return getHiddenPrefixDecoder11(
-    getStructDecoder45([
-      ["protocol", getAddressDecoder21()],
-      ["admin", getAddressDecoder21()]
+  return getHiddenPrefixDecoder13(
+    getStructDecoder52([
+      ["protocol", getAddressDecoder24()],
+      ["admin", getAddressDecoder24()]
     ]),
-    [getConstantDecoder11(PROTOCOL_CREATED_EVENT_DISCRIMINATOR)]
+    [getConstantDecoder13(PROTOCOL_CREATED_EVENT_DISCRIMINATOR)]
   );
 }
 function getProtocolCreatedEventCodec() {
-  return combineCodec45(
+  return combineCodec52(
     getProtocolCreatedEventEncoder(),
     getProtocolCreatedEventDecoder()
   );
 }
 function parseProtocolCreatedEvent(data) {
-  if (containsBytes12(data, PROTOCOL_CREATED_EVENT_DISCRIMINATOR, 0)) {
+  if (containsBytes14(data, PROTOCOL_CREATED_EVENT_DISCRIMINATOR, 0)) {
     return getProtocolCreatedEventDecoder().decode(data);
   }
   throw new Error(
@@ -7753,61 +9126,61 @@ function parseProtocolCreatedEvent(data) {
 
 // clients/generated/events/revenueRouted.ts
 import {
-  combineCodec as combineCodec46,
-  containsBytes as containsBytes13,
-  fixEncoderSize as fixEncoderSize46,
-  getAddressDecoder as getAddressDecoder22,
-  getAddressEncoder as getAddressEncoder36,
+  combineCodec as combineCodec53,
+  containsBytes as containsBytes15,
+  fixEncoderSize as fixEncoderSize53,
+  getAddressDecoder as getAddressDecoder25,
+  getAddressEncoder as getAddressEncoder41,
   getArrayDecoder as getArrayDecoder3,
   getArrayEncoder as getArrayEncoder3,
-  getBytesEncoder as getBytesEncoder58,
-  getConstantDecoder as getConstantDecoder12,
-  getConstantEncoder as getConstantEncoder12,
-  getHiddenPrefixDecoder as getHiddenPrefixDecoder12,
-  getHiddenPrefixEncoder as getHiddenPrefixEncoder12,
-  getStructDecoder as getStructDecoder46,
-  getStructEncoder as getStructEncoder46,
-  getU64Decoder as getU64Decoder27,
-  getU64Encoder as getU64Encoder28,
-  getU8Decoder as getU8Decoder12,
-  getU8Encoder as getU8Encoder12
+  getBytesEncoder as getBytesEncoder66,
+  getConstantDecoder as getConstantDecoder14,
+  getConstantEncoder as getConstantEncoder14,
+  getHiddenPrefixDecoder as getHiddenPrefixDecoder14,
+  getHiddenPrefixEncoder as getHiddenPrefixEncoder14,
+  getStructDecoder as getStructDecoder53,
+  getStructEncoder as getStructEncoder53,
+  getU64Decoder as getU64Decoder32,
+  getU64Encoder as getU64Encoder33,
+  getU8Decoder as getU8Decoder14,
+  getU8Encoder as getU8Encoder14
 } from "@solana/kit";
 var REVENUE_ROUTED_EVENT_DISCRIMINATOR = new Uint8Array([57, 95, 242, 242, 222, 199, 192, 120]);
 function getRevenueRoutedEventDiscriminatorBytes() {
-  return fixEncoderSize46(getBytesEncoder58(), 8).encode(
+  return fixEncoderSize53(getBytesEncoder66(), 8).encode(
     REVENUE_ROUTED_EVENT_DISCRIMINATOR
   );
 }
 function getRevenueRoutedEventEncoder() {
-  return getHiddenPrefixEncoder12(
-    getStructEncoder46([
-      ["protocol", getAddressEncoder36()],
-      ["amount", getU64Encoder28()],
-      ["kind", getU8Encoder12()],
-      ["parts", getArrayEncoder3(getU64Encoder28(), { size: 4 })]
+  return getHiddenPrefixEncoder14(
+    getStructEncoder53([
+      ["protocol", getAddressEncoder41()],
+      ["amount", getU64Encoder33()],
+      ["kind", getU8Encoder14()],
+      ["parts", getArrayEncoder3(getU64Encoder33(), { size: 4 })]
     ]),
-    [getConstantEncoder12(REVENUE_ROUTED_EVENT_DISCRIMINATOR)]
+    [getConstantEncoder14(REVENUE_ROUTED_EVENT_DISCRIMINATOR)]
   );
 }
 function getRevenueRoutedEventDecoder() {
-  return getHiddenPrefixDecoder12(
-    getStructDecoder46([
-      ["protocol", getAddressDecoder22()],
-      ["amount", getU64Decoder27()],
-      ["kind", getU8Decoder12()],
-      ["parts", getArrayDecoder3(getU64Decoder27(), { size: 4 })]
+  return getHiddenPrefixDecoder14(
+    getStructDecoder53([
+      ["protocol", getAddressDecoder25()],
+      ["amount", getU64Decoder32()],
+      ["kind", getU8Decoder14()],
+      ["parts", getArrayDecoder3(getU64Decoder32(), { size: 4 })]
     ]),
-    [getConstantDecoder12(REVENUE_ROUTED_EVENT_DISCRIMINATOR)]
+    [getConstantDecoder14(REVENUE_ROUTED_EVENT_DISCRIMINATOR)]
   );
 }
 function getRevenueRoutedEventCodec() {
-  return combineCodec46(
+  return combineCodec53(
     getRevenueRoutedEventEncoder(),
     getRevenueRoutedEventDecoder()
   );
 }
 function parseRevenueRoutedEvent(data) {
-  if (containsBytes13(data, REVENUE_ROUTED_EVENT_DISCRIMINATOR, 0)) {
+  if (containsBytes15(data, REVENUE_ROUTED_EVENT_DISCRIMINATOR, 0)) {
     return getRevenueRoutedEventDecoder().decode(data);
   }
   throw new Error(
@@ -7820,20 +9193,28 @@ export {
   AIRDROP_CLAIM_DISCRIMINATOR,
   AIRDROP_CREATED_EVENT_DISCRIMINATOR,
   APPROVE_LISTING_PERMIT_DISCRIMINATOR,
+  BUYBACK_EXECUTED_EVENT_DISCRIMINATOR,
   CANCEL_LISTING_DISCRIMINATOR,
   CLAIM_AIRDROP_DISCRIMINATOR,
   COLLATERAL_CHANGED_EVENT_DISCRIMINATOR,
   COLLECT_MARKET_FEES_DISCRIMINATOR,
+  COLLECT_NATIVE_CREATOR_FEES_DISCRIMINATOR,
+  COLLECT_QUOTE_CREATOR_FEES_DISCRIMINATOR,
   CREATE_AIRDROP_DISCRIMINATOR,
   CREATE_MARKET_DISCRIMINATOR,
+  CREATOR_FEES_COLLECTED_EVENT_DISCRIMINATOR,
   DEPOSIT_DISCRIMINATOR,
+  EXECUTE_BUYBACK_DISCRIMINATOR,
   FUND_MARKET_DISCRIMINATOR,
   INITIALIZE_PROTOCOL_DISCRIMINATOR,
   LEVERMEME_ERROR__ADMISSION,
   LEVERMEME_ERROR__ALREADY_CANCELLED,
   LEVERMEME_ERROR__AMOUNT,
+  LEVERMEME_ERROR__BUYBACK_BOUNDS,
+  LEVERMEME_ERROR__BUYBACK_ROUTE,
   LEVERMEME_ERROR__CAMPAIGN_CLOSED,
   LEVERMEME_ERROR__CLOSED,
+  LEVERMEME_ERROR__CREATOR_IDENTITY,
   LEVERMEME_ERROR__DEVIATION,
   LEVERMEME_ERROR__EXPOSURE,
   LEVERMEME_ERROR__FUNDS,
@@ -7883,6 +9264,7 @@ export {
   REFRESH_MARKET_PRICE_DISCRIMINATOR,
   REQUEST_LISTING_DISCRIMINATOR,
   RETIRE_MARKET_DISCRIMINATOR,
+  REVENUE_LEDGER_DISCRIMINATOR,
   REVENUE_ROUTED_EVENT_DISCRIMINATOR,
   ROUTE_PLATFORM_REVENUE_DISCRIMINATOR,
   ROUTE_TOKEN_CREATOR_REVENUE_DISCRIMINATOR,
@@ -7893,6 +9275,7 @@ export {
   SET_PAUSED_DISCRIMINATOR,
   WITHDRAW_DISCRIMINATOR,
   WITHDRAW_MARKET_LIQUIDITY_DISCRIMINATOR,
+  WRAP_BUYBACK_SOL_DISCRIMINATOR,
   decodeAirdropCampaign,
   decodeAirdropClaim,
   decodeListing,
@@ -7901,6 +9284,7 @@ export {
   decodeMarket,
   decodePosition,
   decodeProtocol,
+  decodeRevenueLedger,
   fetchAirdropCampaign,
   fetchAirdropClaim,
   fetchAllAirdropCampaign,
@@ -7917,8 +9301,10 @@ export {
   fetchAllMaybeMarket,
   fetchAllMaybePosition,
   fetchAllMaybeProtocol,
+  fetchAllMaybeRevenueLedger,
   fetchAllPosition,
   fetchAllProtocol,
+  fetchAllRevenueLedger,
   fetchListing,
   fetchListingPermit,
   fetchMarginAccount,
@@ -7931,8 +9317,10 @@ export {
   fetchMaybeMarket,
   fetchMaybePosition,
   fetchMaybeProtocol,
+  fetchMaybeRevenueLedger,
   fetchPosition,
   fetchProtocol,
+  fetchRevenueLedger,
   findAirdropVaultPda,
   findBaseVaultPda,
   findCampaignPda,
@@ -7945,6 +9333,7 @@ export {
   findPositionPda,
   findProtocolPda,
   findQuoteVaultPda,
+  findRevenuePda,
   getAirdropCampaignCodec,
   getAirdropCampaignDecoder,
   getAirdropCampaignDiscriminatorBytes,
@@ -7969,6 +9358,10 @@ export {
   getApproveListingPermitInstructionDataCodec,
   getApproveListingPermitInstructionDataDecoder,
   getApproveListingPermitInstructionDataEncoder,
+  getBuybackExecutedEventCodec,
+  getBuybackExecutedEventDecoder,
+  getBuybackExecutedEventDiscriminatorBytes,
+  getBuybackExecutedEventEncoder,
   getCancelListingDiscriminatorBytes,
   getCancelListingInstruction,
   getCancelListingInstructionAsync,
@@ -7991,6 +9384,18 @@ export {
   getCollectMarketFeesInstructionDataCodec,
   getCollectMarketFeesInstructionDataDecoder,
   getCollectMarketFeesInstructionDataEncoder,
+  getCollectNativeCreatorFeesDiscriminatorBytes,
+  getCollectNativeCreatorFeesInstruction,
+  getCollectNativeCreatorFeesInstructionAsync,
+  getCollectNativeCreatorFeesInstructionDataCodec,
+  getCollectNativeCreatorFeesInstructionDataDecoder,
+  getCollectNativeCreatorFeesInstructionDataEncoder,
+  getCollectQuoteCreatorFeesDiscriminatorBytes,
+  getCollectQuoteCreatorFeesInstruction,
+  getCollectQuoteCreatorFeesInstructionAsync,
+  getCollectQuoteCreatorFeesInstructionDataCodec,
+  getCollectQuoteCreatorFeesInstructionDataDecoder,
+  getCollectQuoteCreatorFeesInstructionDataEncoder,
   getCreateAirdropDiscriminatorBytes,
   getCreateAirdropInstruction,
   getCreateAirdropInstructionAsync,
@@ -8003,12 +9408,22 @@ export {
   getCreateMarketInstructionDataCodec,
   getCreateMarketInstructionDataDecoder,
   getCreateMarketInstructionDataEncoder,
+  getCreatorFeesCollectedEventCodec,
+  getCreatorFeesCollectedEventDecoder,
+  getCreatorFeesCollectedEventDiscriminatorBytes,
+  getCreatorFeesCollectedEventEncoder,
   getDepositDiscriminatorBytes,
   getDepositInstruction,
   getDepositInstructionAsync,
   getDepositInstructionDataCodec,
   getDepositInstructionDataDecoder,
   getDepositInstructionDataEncoder,
+  getExecuteBuybackDiscriminatorBytes,
+  getExecuteBuybackInstruction,
+  getExecuteBuybackInstructionAsync,
+  getExecuteBuybackInstructionDataCodec,
+  getExecuteBuybackInstructionDataDecoder,
+  getExecuteBuybackInstructionDataEncoder,
   getFundMarketDiscriminatorBytes,
   getFundMarketInstruction,
   getFundMarketInstructionAsync,
@@ -8125,6 +9540,11 @@ export {
   getRetireMarketInstructionDataCodec,
   getRetireMarketInstructionDataDecoder,
   getRetireMarketInstructionDataEncoder,
+  getRevenueLedgerCodec,
+  getRevenueLedgerDecoder,
+  getRevenueLedgerDiscriminatorBytes,
+  getRevenueLedgerEncoder,
+  getRevenueLedgerSize,
   getRevenueRoutedEventCodec,
   getRevenueRoutedEventDecoder,
   getRevenueRoutedEventDiscriminatorBytes,
@@ -8179,6 +9599,11 @@ export {
   getWithdrawMarketLiquidityInstructionDataCodec,
   getWithdrawMarketLiquidityInstructionDataDecoder,
   getWithdrawMarketLiquidityInstructionDataEncoder,
+  getWrapBuybackSolDiscriminatorBytes,
+  getWrapBuybackSolInstruction,
+  getWrapBuybackSolInstructionDataCodec,
+  getWrapBuybackSolInstructionDataDecoder,
+  getWrapBuybackSolInstructionDataEncoder,
   identifyLevermemeAccount,
   identifyLevermemeEvent,
   identifyLevermemeInstruction,
@@ -8187,13 +9612,18 @@ export {
   parseAirdropClaimedEvent,
   parseAirdropCreatedEvent,
   parseApproveListingPermitInstruction,
+  parseBuybackExecutedEvent,
   parseCancelListingInstruction,
   parseClaimAirdropInstruction,
   parseCollateralChangedEvent,
   parseCollectMarketFeesInstruction,
+  parseCollectNativeCreatorFeesInstruction,
+  parseCollectQuoteCreatorFeesInstruction,
   parseCreateAirdropInstruction,
   parseCreateMarketInstruction,
+  parseCreatorFeesCollectedEvent,
   parseDepositInstruction,
+  parseExecuteBuybackInstruction,
   parseFundMarketInstruction,
   parseInitializeProtocolInstruction,
   parseLevermemeInstruction,
@@ -8220,5 +9650,6 @@ export {
   parseSetPausedInstruction,
   parseSettlePositionInstruction,
   parseWithdrawInstruction,
-  parseWithdrawMarketLiquidityInstruction
+  parseWithdrawMarketLiquidityInstruction,
+  parseWrapBuybackSolInstruction
 };

@@ -4,7 +4,7 @@
     "name": "levermeme",
     "version": "0.1.0",
     "spec": "0.1.0",
-    "description": "LeverMeme listing burns and segregated collateral custody; trading not implemented"
+    "description": "LeverMeme guarded capped leverage, creator revenue and atomic buyback burns"
   },
   "instructions": [
     {
@@ -558,6 +558,279 @@
       "args": []
     },
     {
+      "name": "collect_native_creator_fees",
+      "discriminator": [
+        220,
+        242,
+        50,
+        172,
+        89,
+        68,
+        83,
+        38
+      ],
+      "accounts": [
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          },
+          "relations": [
+            "revenue"
+          ]
+        },
+        {
+          "name": "revenue",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  118,
+                  101,
+                  110,
+                  117,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              }
+            ]
+          }
+        },
+        {
+          "name": "origin"
+        },
+        {
+          "name": "creator_vault",
+          "writable": true
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "buyback_fund",
+          "writable": true
+        },
+        {
+          "name": "event_authority"
+        },
+        {
+          "name": "pump_program",
+          "address": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "collect_quote_creator_fees",
+      "discriminator": [
+        103,
+        255,
+        90,
+        194,
+        192,
+        129,
+        92,
+        158
+      ],
+      "accounts": [
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          },
+          "relations": [
+            "revenue"
+          ]
+        },
+        {
+          "name": "revenue",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  118,
+                  101,
+                  110,
+                  117,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              }
+            ]
+          }
+        },
+        {
+          "name": "origin"
+        },
+        {
+          "name": "input_mint"
+        },
+        {
+          "name": "creator_tokens",
+          "writable": true
+        },
+        {
+          "name": "vault_authority",
+          "writable": true
+        },
+        {
+          "name": "fee_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "vault_authority"
+              },
+              {
+                "kind": "account",
+                "path": "input_program"
+              },
+              {
+                "kind": "account",
+                "path": "input_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "buyback_fund",
+          "writable": true
+        },
+        {
+          "name": "fee_program"
+        },
+        {
+          "name": "event_authority"
+        },
+        {
+          "name": "input_program"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "source_kind",
+          "type": "u8"
+        }
+      ]
+    },
+    {
       "name": "create_airdrop",
       "docs": [
         "One funded supply-airdrop campaign per protocol, exactly 10% of the",
@@ -978,6 +1251,119 @@
       ]
     },
     {
+      "name": "execute_buyback",
+      "discriminator": [
+        47,
+        32,
+        19,
+        100,
+        184,
+        96,
+        144,
+        49
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          },
+          "relations": [
+            "revenue"
+          ]
+        },
+        {
+          "name": "revenue",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  118,
+                  101,
+                  110,
+                  117,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              }
+            ]
+          }
+        },
+        {
+          "name": "input_mint"
+        },
+        {
+          "name": "input_tokens",
+          "writable": true
+        },
+        {
+          "name": "lever_mint",
+          "writable": true,
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "lever_tokens",
+          "writable": true
+        },
+        {
+          "name": "input_program"
+        },
+        {
+          "name": "lever_program"
+        },
+        {
+          "name": "jupiter_program",
+          "address": "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"
+        }
+      ],
+      "args": [
+        {
+          "name": "input_amount",
+          "type": "u64"
+        },
+        {
+          "name": "minimum_output",
+          "type": "u64"
+        },
+        {
+          "name": "swap_data",
+          "type": "bytes"
+        }
+      ]
+    },
+    {
       "name": "fund_market",
       "discriminator": [
         173,
@@ -1143,6 +1529,30 @@
               {
                 "kind": "account",
                 "path": "admin"
+              }
+            ]
+          }
+        },
+        {
+          "name": "revenue",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  118,
+                  101,
+                  110,
+                  117,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
               }
             ]
           }
@@ -3256,6 +3666,69 @@
           "type": "u64"
         }
       ]
+    },
+    {
+      "name": "wrap_buyback_sol",
+      "discriminator": [
+        230,
+        81,
+        102,
+        81,
+        194,
+        180,
+        24,
+        22
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          }
+        },
+        {
+          "name": "wsol_tokens",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -3362,6 +3835,19 @@
         131,
         40
       ]
+    },
+    {
+      "name": "RevenueLedger",
+      "discriminator": [
+        28,
+        159,
+        94,
+        108,
+        184,
+        213,
+        62,
+        53
+      ]
     }
   ],
   "events": [
@@ -3392,6 +3878,19 @@
       ]
     },
     {
+      "name": "BuybackExecuted",
+      "discriminator": [
+        150,
+        109,
+        157,
+        10,
+        124,
+        24,
+        38,
+        189
+      ]
+    },
+    {
       "name": "CollateralChanged",
       "discriminator": [
         172,
@@ -3402,6 +3901,19 @@
         83,
         95,
         157
+      ]
+    },
+    {
+      "name": "CreatorFeesCollected",
+      "discriminator": [
+        117,
+        190,
+        177,
+        156,
+        222,
+        94,
+        28,
+        227
       ]
     },
     {
@@ -3672,6 +4184,21 @@
       "code": 6029,
       "name": "Healthy",
       "msg": "Position is not liquidatable or at its profit cap"
+    },
+    {
+      "code": 6030,
+      "name": "CreatorIdentity",
+      "msg": "Creator identity, origin or fee vault was rejected"
+    },
+    {
+      "code": 6031,
+      "name": "BuybackRoute",
+      "msg": "Unsupported or unsafe buyback route/accounts"
+    },
+    {
+      "code": 6032,
+      "name": "BuybackBounds",
+      "msg": "Buyback input/output or authority balance bounds failed"
     }
   ],
   "types": [
@@ -3789,6 +4316,34 @@
       }
     },
     {
+      "name": "BuybackExecuted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "protocol",
+            "type": "pubkey"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "input_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "input_amount",
+            "type": "u64"
+          },
+          {
+            "name": "burned",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
       "name": "CollateralChanged",
       "type": {
         "kind": "struct",
@@ -3812,6 +4367,42 @@
           {
             "name": "balance",
             "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreatorFeesCollected",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "protocol",
+            "type": "pubkey"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "treasury",
+            "type": "u64"
+          },
+          {
+            "name": "buyback",
+            "type": "u64"
+          },
+          {
+            "name": "source_kind",
+            "type": "u8"
           }
         ]
       }
@@ -4467,6 +5058,42 @@
           {
             "name": "admin",
             "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RevenueLedger",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "protocol",
+            "type": "pubkey"
+          },
+          {
+            "name": "native_creator_collected",
+            "type": "u64"
+          },
+          {
+            "name": "wsol_creator_collected",
+            "type": "u64"
+          },
+          {
+            "name": "quote_creator_collected",
+            "type": "u64"
+          },
+          {
+            "name": "quote_buyback_spent",
+            "type": "u64"
+          },
+          {
+            "name": "wsol_buyback_spent",
+            "type": "u64"
+          },
+          {
+            "name": "buyback_burned",
+            "type": "u64"
           }
         ]
       }

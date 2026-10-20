@@ -13,7 +13,7 @@ The public website is separate from a funded exchange. Do not bypass these gates
 9. Funded acceptance with explicit wallet approval: deposit → long/short → owner close → withdraw; liquidation; profit cap; reserve withdrawal rejection; outage settlement; pause; fee distribution to all actual owners; listing retirement/escrow return; funded airdrop claim/replay/expiry. Check balances and fees from confirmed transactions, not only UI counters.
 10. Publish actual review/acceptance receipts, profit-cap/outage/fees/risk disclosures, campaign eligibility and recipient addresses. Set production RPC and valid public configuration; enable website gates only after operator release approval. Start with conservative limits, monitor continuously, and keep incident response available.
 
-Do not advertise automatic pump.fun fee collection, swaps, liquidity deployment, buybacks or burn execution: those integrations are not implemented. A separate, reviewed integration release is required.
+V3 implements direct creator-fee collection and bounded atomic Jupiter buyback/burn, with optional policy-controlled worker execution. Funded acceptance must cover the actual Pump/PumpSwap/Jupiter programs, recipient aliasing, input/output bounds, mint supply changes and rollback. Live IAM/KMS acceptance and durable worker deployment are separate requirements. Do not advertise automatic treasury investment or SOL/base escrow conversion into xSOL capital: those functions are not implemented.
 
 ## Incident response
 
