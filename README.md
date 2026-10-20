@@ -2,7 +2,9 @@
 
 Lev Pad targets leveraged pump.fun markets on Solana mainnet, paired against xSOL. The current public interface is still a demo: landing page, trading terminal, listing preview, and portfolio.
 
-Live site: https://lev-pad-live.sufficientlev.chatgpt.site
+Vercel production: https://lev-pad.vercel.app
+
+`vercel.json` serves the static `dist/` output with no install or build step. The production project is `lev-pad` under `jaycarson373-7760s-projects`. Deploy from this repository using `vercel deploy --prod` after linking to that project.
 
 ## Run locally
 
