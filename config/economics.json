@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "activation": "pending-contract-deployment-and-funded-acceptance",
+  "platformRevenueBps": {
+    "liquidityAndInsurance": 7500,
+    "userCampaigns": 1000,
+    "marketCreator": 500,
+    "buybackAndBurn": 1000
+  },
+  "leverMemeCreatorRevenueBps": {
+    "treasuryAndInsurance": 5000,
+    "buybackAndBurn": 5000
+  },
+  "airdropSupplyBps": 1000,
+  "maxLeverage": 10,
+  "marketAdmission": "manual-approval",
+  "listingBurnBaseUnits": null,
+  "minimumSolLamports": null,
+  "tradingFeeBps": null
+}

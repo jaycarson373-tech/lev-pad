@@ -36,8 +36,11 @@ try{
  await page.locator('#mint').fill('BM2k8mJUbMthHoioykyUm2NjMrXvLBYhoXruwYLpump');await page.locator('#verify-mint').click();await page.locator('[data-next="2"]:enabled').waitFor();await page.locator('[data-next="2"]').click();
  await page.locator('#sol-liquidity').fill('2');await page.locator('#token-liquidity').fill('10000');await page.locator('#review-listing').click();await page.locator('#save-listing').click();
  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('levermeme:list-draft')).tokens),'10000');
- assert.equal(await page.getByRole('button',{name:'Burn & list · opening soon',exact:true}).isDisabled(),true);
+ assert.equal(await page.getByRole('button',{name:'Burn & request review · opening soon',exact:true}).isDisabled(),true);
+ assert.match(await page.locator('.launch-summary').textContent(),/Manual review required/);
  await page.locator('nav a[data-nav="ecosystem"]').click();assert.equal(await page.locator('.eco-card').count(),4);
+ assert.deepEqual(await page.locator('.eco-card .metric').allTextContents(),['75%','10%','5%','10%']);
+ assert.match(await page.locator('.launch-callout').first().textContent(),/10% of supply/);
  await page.screenshot({path:new URL('levermeme-ecosystem.png',output).pathname,fullPage:true});
  await page.setViewportSize({width:390,height:844});await page.goto(origin);await page.locator('.desk').waitFor();
  for(const route of ['/','/list-token/','/portfolio/','/ecosystem/']){

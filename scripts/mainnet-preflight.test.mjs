@@ -10,6 +10,7 @@ test('validates actual address byte length', () => {
   assert.equal(decodeAddress(TOKEN_PROGRAM).length, 32);
   assert.throws(() => decodeAddress('fake')); assert.throws(() => decodeAddress('0'.repeat(44)));
   assert.equal(validateConfig({}).length, 6);
+  assert(validateConfig({perpsProgram:'Fg6PaFpoGXkYsidMpWxTWqkZ7FEfcYkgMQhgS1h5A9t'}).some(error=>error.includes('template')));
 });
 test('rejects mint account substitutions and unsafe authorities', () => {
   const data = Buffer.alloc(82); data[45] = 1; data[44] = 6;

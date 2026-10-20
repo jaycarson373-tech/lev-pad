@@ -28,6 +28,7 @@ export function validateConfig(config) {
     try { decodeAddress(config?.[field]); } catch { errors.push(`${field}: missing or invalid Solana address`); }
   }
   if (config?.perpsProgram === TOKEN_PROGRAM) errors.push('perpsProgram: cannot be the SPL Token program');
+  if (config?.perpsProgram === 'Fg6PaFpoGXkYsidMpWxTWqkZ7FEfcYkgMQhgS1h5A9t') errors.push('perpsProgram: Anchor template address is not a deployment');
   return errors;
 }
 

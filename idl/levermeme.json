@@ -1,0 +1,2273 @@
+{
+  "address": "Fg6PaFpoGXkYsidMpWxTWqkZ7FEfcYkgMQhgS1h5A9t",
+  "metadata": {
+    "name": "levermeme",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "LeverMeme listing burns and segregated collateral custody; trading not implemented"
+  },
+  "instructions": [
+    {
+      "name": "cancel_listing",
+      "docs": [
+        "The lister can reclaim both liquidity assets, even while paused.",
+        "The admission burn is irreversible. The tombstone prevents replay/relisting."
+      ],
+      "discriminator": [
+        41,
+        183,
+        50,
+        232,
+        230,
+        233,
+        157,
+        70
+      ],
+      "accounts": [
+        {
+          "name": "lister",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "listing"
+          ]
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          },
+          "relations": [
+            "listing"
+          ]
+        },
+        {
+          "name": "listing",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  105,
+                  115,
+                  116,
+                  105,
+                  110,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              },
+              {
+                "kind": "account",
+                "path": "base_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint",
+          "relations": [
+            "listing"
+          ]
+        },
+        {
+          "name": "base_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  115,
+                  101,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "listing"
+              }
+            ]
+          },
+          "relations": [
+            "listing"
+          ]
+        },
+        {
+          "name": "base_destination",
+          "writable": true
+        },
+        {
+          "name": "base_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "claim_airdrop",
+      "discriminator": [
+        137,
+        50,
+        122,
+        111,
+        89,
+        254,
+        8,
+        20
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          },
+          "relations": [
+            "campaign"
+          ]
+        },
+        {
+          "name": "campaign",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  105,
+                  114,
+                  100,
+                  114,
+                  111,
+                  112
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              }
+            ]
+          }
+        },
+        {
+          "name": "claim",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  108,
+                  97,
+                  105,
+                  109
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "campaign"
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "lever_mint",
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "airdrop_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  105,
+                  114,
+                  100,
+                  114,
+                  111,
+                  112,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "campaign"
+              }
+            ]
+          }
+        },
+        {
+          "name": "destination",
+          "writable": true
+        },
+        {
+          "name": "lever_program"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "index",
+          "type": "u64"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "proof",
+          "type": {
+            "vec": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "create_airdrop",
+      "docs": [
+        "One funded supply-airdrop campaign per protocol, exactly 10% of the",
+        "immutable supply checkpoint captured at protocol initialization."
+      ],
+      "discriminator": [
+        227,
+        135,
+        208,
+        66,
+        137,
+        177,
+        80,
+        94
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          }
+        },
+        {
+          "name": "lever_mint",
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "campaign",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  105,
+                  114,
+                  100,
+                  114,
+                  111,
+                  112
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              }
+            ]
+          }
+        },
+        {
+          "name": "airdrop_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  105,
+                  114,
+                  100,
+                  114,
+                  111,
+                  112,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "campaign"
+              }
+            ]
+          }
+        },
+        {
+          "name": "source",
+          "writable": true
+        },
+        {
+          "name": "lever_program"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "root",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "starts_at",
+          "type": "i64"
+        },
+        {
+          "name": "ends_at",
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "deposit",
+      "discriminator": [
+        242,
+        35,
+        198,
+        137,
+        82,
+        225,
+        242,
+        182
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true,
+          "relations": [
+            "margin"
+          ]
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          },
+          "relations": [
+            "margin"
+          ]
+        },
+        {
+          "name": "margin",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  103,
+                  105,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "source",
+          "writable": true
+        },
+        {
+          "name": "quote_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  113,
+                  117,
+                  111,
+                  116,
+                  101,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "margin"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "initialize_protocol",
+      "docs": [
+        "Each administrator gets its own namespace. Clients pin the intended config",
+        "PDA; an attacker cannot initialize or replace someone else's namespace."
+      ],
+      "discriminator": [
+        188,
+        233,
+        252,
+        106,
+        134,
+        146,
+        202,
+        91
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "protocol",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "admin"
+              }
+            ]
+          }
+        },
+        {
+          "name": "lever_mint"
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "policy",
+          "type": {
+            "defined": {
+              "name": "ListingPolicy"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "open_margin_account",
+      "discriminator": [
+        251,
+        54,
+        54,
+        233,
+        180,
+        125,
+        203,
+        107
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "margin",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  103,
+                  105,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  113,
+                  117,
+                  111,
+                  116,
+                  101,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "margin"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_program"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "reclaim_airdrop",
+      "docs": [
+        "Expired leftovers go only to the original administrator's token account."
+      ],
+      "discriminator": [
+        91,
+        136,
+        224,
+        68,
+        150,
+        221,
+        18,
+        207
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          },
+          "relations": [
+            "campaign"
+          ]
+        },
+        {
+          "name": "campaign",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  105,
+                  114,
+                  100,
+                  114,
+                  111,
+                  112
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              }
+            ]
+          }
+        },
+        {
+          "name": "lever_mint",
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "airdrop_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  105,
+                  114,
+                  100,
+                  114,
+                  111,
+                  112,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "campaign"
+              }
+            ]
+          }
+        },
+        {
+          "name": "destination",
+          "writable": true
+        },
+        {
+          "name": "lever_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "request_listing",
+      "docs": [
+        "All three effects are atomic: burn, meme-token escrow and SOL escrow.",
+        "Listing requests are not active derivative markets."
+      ],
+      "discriminator": [
+        2,
+        167,
+        98,
+        66,
+        122,
+        255,
+        254,
+        216
+      ],
+      "accounts": [
+        {
+          "name": "lister",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "protocol",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          }
+        },
+        {
+          "name": "reviewer",
+          "signer": true
+        },
+        {
+          "name": "listing",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  105,
+                  115,
+                  116,
+                  105,
+                  110,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              },
+              {
+                "kind": "account",
+                "path": "base_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint"
+        },
+        {
+          "name": "pump_curve",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  45,
+                  99,
+                  117,
+                  114,
+                  118,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "base_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                1,
+                86,
+                224,
+                246,
+                147,
+                102,
+                90,
+                207,
+                68,
+                219,
+                21,
+                104,
+                191,
+                23,
+                91,
+                170,
+                81,
+                137,
+                203,
+                151,
+                245,
+                210,
+                255,
+                59,
+                101,
+                93,
+                43,
+                182,
+                253,
+                109,
+                24,
+                176
+              ]
+            }
+          }
+        },
+        {
+          "name": "lever_mint",
+          "writable": true,
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "lever_source",
+          "writable": true
+        },
+        {
+          "name": "base_source",
+          "writable": true
+        },
+        {
+          "name": "base_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  97,
+                  115,
+                  101,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "listing"
+              }
+            ]
+          }
+        },
+        {
+          "name": "lever_program"
+        },
+        {
+          "name": "base_program"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "sol_lamports",
+          "type": "u64"
+        },
+        {
+          "name": "token_amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "route_platform_revenue",
+      "docs": [
+        "Distribute actual quote tokens owned by the operator. This does not",
+        "withdraw user collateral or claim that a derivative trade took place."
+      ],
+      "discriminator": [
+        72,
+        200,
+        22,
+        148,
+        177,
+        183,
+        136,
+        29
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "protocol",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          },
+          "relations": [
+            "listing"
+          ]
+        },
+        {
+          "name": "listing",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  105,
+                  115,
+                  116,
+                  105,
+                  110,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              },
+              {
+                "kind": "account",
+                "path": "listing.base_mint",
+                "account": "Listing"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "source",
+          "writable": true
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "campaign_fund",
+          "writable": true
+        },
+        {
+          "name": "creator",
+          "writable": true
+        },
+        {
+          "name": "buyback_fund",
+          "writable": true
+        },
+        {
+          "name": "quote_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "route_token_creator_revenue",
+      "docs": [
+        "LeverMeme's own creator revenue, after collection/conversion to xSOL,",
+        "routes 50/50. A buyback allocation is not itself a swap or token burn."
+      ],
+      "discriminator": [
+        248,
+        247,
+        236,
+        188,
+        45,
+        130,
+        117,
+        221
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "protocol",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "source",
+          "writable": true
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "buyback_fund",
+          "writable": true
+        },
+        {
+          "name": "quote_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "set_listing_approved",
+      "docs": [
+        "Admission approval is explicit. This does not activate derivative trading."
+      ],
+      "discriminator": [
+        199,
+        59,
+        208,
+        95,
+        38,
+        69,
+        168,
+        183
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          },
+          "relations": [
+            "listing"
+          ]
+        },
+        {
+          "name": "listing",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  105,
+                  115,
+                  116,
+                  105,
+                  110,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              },
+              {
+                "kind": "account",
+                "path": "listing.base_mint",
+                "account": "Listing"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "approved",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "set_paused",
+      "docs": [
+        "Pausing stops new burns and deposits. Exits remain permissionless to owners."
+      ],
+      "discriminator": [
+        91,
+        60,
+        125,
+        192,
+        176,
+        225,
+        166,
+        218
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "protocol",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "paused",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "withdraw",
+      "docs": [
+        "No administrator can redirect a user's collateral. There is no trading",
+        "instruction in this release; no margin can be locked or reallocated."
+      ],
+      "discriminator": [
+        183,
+        18,
+        70,
+        156,
+        148,
+        109,
+        161,
+        34
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true,
+          "relations": [
+            "margin"
+          ]
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          },
+          "relations": [
+            "margin"
+          ]
+        },
+        {
+          "name": "margin",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  103,
+                  105,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "destination",
+          "writable": true
+        },
+        {
+          "name": "quote_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  113,
+                  117,
+                  111,
+                  116,
+                  101,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "margin"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "AirdropCampaign",
+      "discriminator": [
+        235,
+        102,
+        51,
+        70,
+        37,
+        179,
+        248,
+        13
+      ]
+    },
+    {
+      "name": "AirdropClaim",
+      "discriminator": [
+        231,
+        12,
+        74,
+        54,
+        245,
+        181,
+        248,
+        38
+      ]
+    },
+    {
+      "name": "Listing",
+      "discriminator": [
+        218,
+        32,
+        50,
+        73,
+        43,
+        134,
+        26,
+        58
+      ]
+    },
+    {
+      "name": "MarginAccount",
+      "discriminator": [
+        133,
+        220,
+        173,
+        213,
+        179,
+        211,
+        43,
+        238
+      ]
+    },
+    {
+      "name": "Protocol",
+      "discriminator": [
+        45,
+        39,
+        101,
+        43,
+        115,
+        72,
+        131,
+        40
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "AirdropClaimed",
+      "discriminator": [
+        125,
+        251,
+        195,
+        183,
+        202,
+        126,
+        89,
+        68
+      ]
+    },
+    {
+      "name": "AirdropCreated",
+      "discriminator": [
+        190,
+        219,
+        101,
+        33,
+        208,
+        187,
+        149,
+        96
+      ]
+    },
+    {
+      "name": "CollateralChanged",
+      "discriminator": [
+        172,
+        114,
+        48,
+        57,
+        98,
+        83,
+        95,
+        157
+      ]
+    },
+    {
+      "name": "ListingCancelled",
+      "discriminator": [
+        11,
+        46,
+        163,
+        10,
+        103,
+        80,
+        139,
+        194
+      ]
+    },
+    {
+      "name": "ListingRequested",
+      "discriminator": [
+        150,
+        236,
+        30,
+        166,
+        150,
+        162,
+        210,
+        167
+      ]
+    },
+    {
+      "name": "ListingReviewed",
+      "discriminator": [
+        33,
+        226,
+        137,
+        167,
+        158,
+        100,
+        9,
+        238
+      ]
+    },
+    {
+      "name": "PauseChanged",
+      "discriminator": [
+        238,
+        188,
+        213,
+        78,
+        134,
+        209,
+        178,
+        218
+      ]
+    },
+    {
+      "name": "ProtocolCreated",
+      "discriminator": [
+        15,
+        251,
+        247,
+        158,
+        97,
+        201,
+        1,
+        226
+      ]
+    },
+    {
+      "name": "RevenueRouted",
+      "discriminator": [
+        57,
+        95,
+        242,
+        242,
+        222,
+        199,
+        192,
+        120
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Paused",
+      "msg": "New listings and deposits are paused"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidAmount",
+      "msg": "The amount is zero or below the configured minimum"
+    },
+    {
+      "code": 6002,
+      "name": "Overflow",
+      "msg": "Arithmetic overflow"
+    },
+    {
+      "code": 6003,
+      "name": "UnsafeMint",
+      "msg": "Token mint is uninitialized, mintable or freezable"
+    },
+    {
+      "code": 6004,
+      "name": "UnsafeExtension",
+      "msg": "Token-2022 extension is not supported for custody"
+    },
+    {
+      "code": 6005,
+      "name": "SameMint",
+      "msg": "Base, quote and burn mints must be distinct"
+    },
+    {
+      "code": 6006,
+      "name": "NotPump",
+      "msg": "The coin is not a verified pump.fun mint"
+    },
+    {
+      "code": 6007,
+      "name": "TransferDelta",
+      "msg": "Token transfer amount does not match the received balance"
+    },
+    {
+      "code": 6008,
+      "name": "AlreadyCancelled",
+      "msg": "Listing was already cancelled"
+    },
+    {
+      "code": 6009,
+      "name": "InsufficientFunds",
+      "msg": "Insufficient available balance"
+    },
+    {
+      "code": 6010,
+      "name": "InvalidPolicy",
+      "msg": "Invalid listing or fee policy"
+    },
+    {
+      "code": 6011,
+      "name": "NotApproved",
+      "msg": "Market listing has not been approved, or was cancelled"
+    },
+    {
+      "code": 6012,
+      "name": "InvalidCampaign",
+      "msg": "Invalid campaign timing, root or proof length"
+    },
+    {
+      "code": 6013,
+      "name": "CampaignClosed",
+      "msg": "Airdrop has not started, has expired, or was reclaimed"
+    },
+    {
+      "code": 6014,
+      "name": "InvalidProof",
+      "msg": "Airdrop proof does not match this campaign, wallet, index and amount"
+    }
+  ],
+  "types": [
+    {
+      "name": "AirdropCampaign",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "protocol",
+            "type": "pubkey"
+          },
+          {
+            "name": "root",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "total",
+            "type": "u64"
+          },
+          {
+            "name": "claimed",
+            "type": "u64"
+          },
+          {
+            "name": "starts_at",
+            "type": "i64"
+          },
+          {
+            "name": "ends_at",
+            "type": "i64"
+          },
+          {
+            "name": "reclaimed",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AirdropClaim",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "campaign",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "index",
+            "type": "u64"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AirdropClaimed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "campaign",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AirdropCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "campaign",
+            "type": "pubkey"
+          },
+          {
+            "name": "total",
+            "type": "u64"
+          },
+          {
+            "name": "starts_at",
+            "type": "i64"
+          },
+          {
+            "name": "ends_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CollateralChanged",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "margin",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "deposit",
+            "type": "bool"
+          },
+          {
+            "name": "balance",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Listing",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "protocol",
+            "type": "pubkey"
+          },
+          {
+            "name": "lister",
+            "type": "pubkey"
+          },
+          {
+            "name": "base_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "base_vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "sol_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "token_amount",
+            "type": "u64"
+          },
+          {
+            "name": "burned",
+            "type": "u64"
+          },
+          {
+            "name": "requested_at",
+            "type": "i64"
+          },
+          {
+            "name": "cancelled",
+            "type": "bool"
+          },
+          {
+            "name": "approved",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ListingCancelled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "listing",
+            "type": "pubkey"
+          },
+          {
+            "name": "lister",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ListingPolicy",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "burn_amount",
+            "type": "u64"
+          },
+          {
+            "name": "min_sol_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "fee_shares",
+            "docs": [
+              "Treasury/insurance, campaigns, market creator, buyback/burn."
+            ],
+            "type": {
+              "array": [
+                "u16",
+                4
+              ]
+            }
+          },
+          {
+            "name": "fee_destinations",
+            "docs": [
+              "Owners of treasury, campaign and buyback token accounts. The 5% royalty",
+              "belongs to each approved listing's recorded lister, not a global owner."
+            ],
+            "type": {
+              "array": [
+                "pubkey",
+                3
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ListingRequested",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "listing",
+            "type": "pubkey"
+          },
+          {
+            "name": "lister",
+            "type": "pubkey"
+          },
+          {
+            "name": "base_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "sol_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "token_amount",
+            "type": "u64"
+          },
+          {
+            "name": "burned",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ListingReviewed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "listing",
+            "type": "pubkey"
+          },
+          {
+            "name": "approved",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MarginAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "protocol",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "balance",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PauseChanged",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "protocol",
+            "type": "pubkey"
+          },
+          {
+            "name": "paused",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Protocol",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "lever_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "quote_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "policy",
+            "type": {
+              "defined": {
+                "name": "ListingPolicy"
+              }
+            }
+          },
+          {
+            "name": "paused",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "total_burned",
+            "type": "u64"
+          },
+          {
+            "name": "listing_count",
+            "type": "u64"
+          },
+          {
+            "name": "initial_supply",
+            "type": "u64"
+          },
+          {
+            "name": "platform_revenue",
+            "type": "u64"
+          },
+          {
+            "name": "token_creator_revenue",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProtocolCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "protocol",
+            "type": "pubkey"
+          },
+          {
+            "name": "admin",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RevenueRouted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "protocol",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "kind",
+            "type": "u8"
+          },
+          {
+            "name": "parts",
+            "type": {
+              "array": [
+                "u64",
+                4
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

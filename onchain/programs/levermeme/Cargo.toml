@@ -1,0 +1,30 @@
+[package]
+name = "levermeme"
+version = "0.1.0"
+edition = "2021"
+description = "LeverMeme listing burns and segregated collateral custody; trading not implemented"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "levermeme"
+
+[features]
+default = []
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+anchor-debug = []
+
+[dependencies]
+anchor-lang = "=1.1.2"
+solana-sha256-hasher = "3.1.0"
+anchor-spl = { version = "=1.1.2", default-features = false, features = ["token", "token_2022", "associated_token"] }
+
+[dev-dependencies]
+litesvm = "=0.10.0"
+solana-account = "3.2"
+solana-address = "2"
+solana-message = "3"
+solana-transaction = "3"

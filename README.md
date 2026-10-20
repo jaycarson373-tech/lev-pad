@@ -27,11 +27,13 @@ For Vercel, import the repository root. Set `SOLANA_RPC_URL` as a server-only en
 
 Empty market terminal, long/short selection, exact integer-based 1–10× sizing, and three-step listing drafts. Listing verifies the mint, mainnet genesis, pump.fun curve PDA, owner and discriminator. Wallet connection uses real Wallet Standard discovery on `solana:mainnet`; the portfolio can read finalized wallet SOL balances. Drafts are saved on the current device and are not submitted listings.
 
-The ecosystem view separates insurance, user rewards, Meme Bank reserves and buybacks/burns. Fee splits, eligibility, treasury permissions and activation are pending configuration. No financial returns are promised.
+The ecosystem uses the current working policy: platform revenue 75% liquidity/insurance, 10% user campaigns, 5% approved market lister and 10% buyback/burn allocation; LeverMeme's own pump.fun creator revenue 50% treasury/insurance and 50% buyback/burn allocation. A separate 10% supply airdrop is specified. No fees have been collected or distributed and no returns are promised. See `config/economics.json`.
+
+An undeployed Anchor program now implements atomic listing burns and SOL/token escrow, manual approval, isolated owner-only collateral custody, actual operator-funded revenue routing, and a funded replay-protected airdrop. The generated IDL and Kit client are included. See [onchain/README.md](onchain/README.md) for builds, safety boundaries and the precise remaining work. This is not the missing derivatives engine and is not connected to public fund-moving controls.
 
 ## Production trading status
 
-This is a public pre-launch interface. Trading, collateral deposits/withdrawals, burns, market funding and reward claims are unavailable. No transaction instructions are constructed or sent. No market charts, collateral balances, positions, or trade histories are fabricated. Account reads and passing tests do not constitute a security audit or full mainnet acceptance.
+This is a public pre-launch interface. Trading, collateral deposits/withdrawals, burns, market funding and reward claims are unavailable through the frontend. It does not construct or send fund-moving transactions. No market charts, collateral balances, positions, or trade histories are fabricated. Account reads and passing tests do not constitute a security audit or full mainnet acceptance.
 
 Real trading still requires verified LeverMeme and xSOL mints, a deployed derivatives program and authenticated market registry, funded vaults, burn requirements, minimum liquidity, fee policies/recipients, live pricing, collateral/settlement handling and tested liquidation rules. Supplying SOL plus meme tokens while quoting in xSOL requires defined conversion/vault rules. Pump.fun origin alone does not establish eligibility for 10× exposure.
 

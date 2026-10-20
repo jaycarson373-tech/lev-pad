@@ -1,0 +1,11 @@
+onchain/
+tests/
+idl/
+clients/generated/
+scripts/browser-check.mjs
+scripts/mainnet-preflight.test.mjs
+node_modules/
+.git/
+.env*
+!.env.example
+.openai/
