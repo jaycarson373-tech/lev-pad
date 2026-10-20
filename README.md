@@ -1,59 +1,62 @@
 # LeverMeme
 
-LeverMeme targets pump.fun-only markets up to 10× long/short, paired against xSOL. Rebranded from Lev Pad. The launch registry starts empty: no seeded tokens, positions, charts, volume or rewards.
+Pump.fun-origin meme markets on Solana, paired against the configured xSOL mint. Up to 10× isolated long/short exposure with **fully reserved, capped profits**, not uncapped perpetuals. No fabricated markets, volume, charts or positions.
 
-Vercel production: https://levermeme.vercel.app (also https://lev-pad.vercel.app).
+Public interface: https://levermeme.vercel.app
+Source: https://github.com/jaycarson373-tech/lev-pad
 
-Vercel's project is named `levermeme`, so production releases use its branded production domain.
+## Current release status
 
-`vercel.json` runs `npm ci` and `npm run build`, serves `dist/`, and deploys read-only functions from `api/`. The production project is `levermeme` under `jaycarson373-7760s-projects`.
+The website can be published; accepting production funds is NOT yet authorized or verified. The default configuration rejects funding/trading. No program deployment, initialization or mainnet trade has been sent by this implementation.
 
-## Run locally
+Implemented: admission permits, atomic listing burn/SOL/token escrow, manual approval, owner-only available-collateral withdrawals, capped leverage engine, reserves, settlement/liquidation, oracle-verification adapter, fee distribution, funded Merkle airdrop, generated IDL/client, transaction simulation/preview/wallet approval/confirmation, operator console and managed-signer keeper runner.
 
-Requires Node 22+ and npm. From this directory:
+Still required: actual mint and program identities, secure program deployment, live oracle-provider acceptance, independent security/economic review, funded end-to-end acceptance, production RPC, funded xSOL reserves and a deployed/monitored keeper. A private key and CA alone are insufficient. Never paste a key into chat, source or Vercel.
+
+## Run and verify
+
+Requires Node 22+, Rust, Anchor 1.1.2 and Solana platform-tools for on-chain work.
 
 ```sh
 npm ci
-npm run build
 npm test
-node scripts/browser-check.mjs
+npm run build
+npm run test:browser
+npm run build:onchain
+npm run test:onchain
+npm run check:release
 ```
 
-Routes: `/`, `/trade/`, `/list-token/`, `/portfolio/`, `/ecosystem/`. Source is in `web/`; generated output is in `dist/`. A plain static server does not serve the Vercel API functions. Browser tests use Playwright; install Chromium using `npx playwright install chromium` if needed. Screenshots are written to the workspace `outputs/` directory, outside this checkout.
+The last command is read-only and deliberately exits nonzero while setup is incomplete. It is an operational check, not a security certification. GitHub Actions verifies JavaScript, production dependency advisories and browser behavior. Rust/SBF checks run separately with the documented toolchain.
 
-For Vercel, import the repository root. Set `SOLANA_RPC_URL` as a server-only environment variable for production-grade mainnet reads. The fallback public RPC is rate-limited and may reject shared hosting requests. API failures appear as errors, never invented verification or balances. No paid RPC credential is bundled in the client.
+Routes: /, /trade/, /list-token/, /portfolio/, /ecosystem/, /admin/. Source: web/. Generated site: dist/. Vercel serves api/ functions; a plain static server does not. Browser tests run a local API adapter and write screenshots outside this checkout to the workspace outputs/ directory.
 
-## Current functionality
+## Activation configuration
 
-Empty market terminal, long/short selection, exact integer-based 1–10× sizing, and three-step listing drafts. Listing verifies the mint, mainnet genesis, pump.fun curve PDA, owner and discriminator. Wallet connection uses real Wallet Standard discovery on `solana:mainnet`; the portfolio can read finalized wallet SOL balances. Drafts are saved on the current device and are not submitted listings.
+Public configuration lives in config/launch.json; a server-only LEVERMEME_LAUNCH_CONFIG JSON override is supported. Use public program/admin/mint addresses, reviewed SBF SHA-256 and byte size, expected upgrade authority (null only for immutable), and links to actual review/acceptance reports. Report links are not automatically authenticated audit evidence.
 
-The ecosystem uses the current working policy: platform revenue 75% liquidity/insurance, 10% user campaigns, 5% approved market lister and 10% buyback/burn allocation; LeverMeme's own pump.fun creator revenue 50% treasury/insurance and 50% buyback/burn allocation. A separate 10% supply airdrop is specified. No fees have been collected or distributed and no returns are promised. See `config/economics.json`.
+Set SOLANA_RPC_URL in Vercel for reliable mainnet reads/simulation. SWITCHBOARD_CROSSBAR_URL selects a reviewed HTTPS Crossbar provider. The documented public default did not resolve during this release; no live provider-format/oracle acceptance is claimed.
 
-An undeployed Anchor program now implements atomic listing burns and SOL/token escrow, manual approval, isolated owner-only collateral custody, actual operator-funded revenue routing, and a funded replay-protected airdrop. The generated IDL and Kit client are included. See [onchain/README.md](onchain/README.md) for builds, safety boundaries and the precise remaining work. This is not the missing derivatives engine and is not connected to public fund-moving controls.
+The backend pins mainnet genesis, program loader/ProgramData PDA, deployed bytecode and upgrade authority before constructing or relaying transactions. It verifies protocol namespace, token identities, ownership and discriminators. Default template identities are rejected.
 
-## Production trading status
+Initialize from /admin/ using the configured operator wallet. Initialization starts paused. Review recipient owners, actual burn/minimum funding and immutable per-market oracle/risk settings. Admission is permit → lister burn/fund → operator approval → additional xSOL capital → verified oracle → explicit enablement. Only enable custody/trading website flags after the release checklist passes.
 
-This is a public pre-launch interface. Trading, collateral deposits/withdrawals, burns, market funding and reward claims are unavailable through the frontend. It does not construct or send fund-moving transactions. No market charts, collateral balances, positions, or trade histories are fabricated. Account reads and passing tests do not constitute a security audit or full mainnet acceptance.
+## Economics and boundaries
 
-Real trading still requires verified LeverMeme and xSOL mints, a deployed derivatives program and authenticated market registry, funded vaults, burn requirements, minimum liquidity, fee policies/recipients, live pricing, collateral/settlement handling and tested liquidation rules. Supplying SOL plus meme tokens while quoting in xSOL requires defined conversion/vault rules. Pump.fun origin alone does not establish eligibility for 10× exposure.
+Platform fees: 75% treasury/liquidity/insurance, 10% campaigns, 5% actual market lister, 10% buyback allocation. LeverMeme's collected-and-converted creator revenue has a separate 50/50 treasury/buyback route. A separately funded airdrop uses exactly floor(initial supply / 10).
 
-## Mainnet release checks
+Fee routing transfers actual xSOL; treasury/campaign/buyback recipients control funds after receipt. These are allocations, not automatically executed liquidity additions, pump.fun fee collection, swaps, buybacks or burns. Those integrations are not implemented. Admission burns and airdrop claims are implemented.
 
-Copy `mainnet.config.example.json` to `mainnet.config.json` and populate verified public addresses. Set `SOLANA_RPC_URL` using your local environment or hosting secret manager. Never paste keys into source.
+SOL + meme-token admission escrow is NOT an AMM or xSOL conversion. Listers must additionally supply real xSOL reserve capital. Markets do not pay bank interest or guaranteed returns. Fully reserved caps limit payouts to isolated collateral plus reserved profit; oracle integrity and timely operation still matter.
+
+## Keeper
 
 ```sh
-node --test scripts/mainnet-preflight.test.mjs
-node scripts/mainnet-preflight.mjs mainnet.config.json
+KEEPER_WALLET_ADDRESS=<public-address> npm run keeper -- --once
 ```
 
-Preflight rejects missing configuration, wrong networks, invalid mint/vault accounts, and unexpected owners. Account checks do not prove market bindings, oracle safety, solvency, or launch readiness; the report retains those explicit release requirements. The command exits nonzero until full launch acceptance has a separate implementation. See `PROJECT.md` for the saved scope and release checkpoint.
+Default is simulation-only. Execution additionally requires --execute, KEEPER_REMOTE_SIGNER_URL (HTTPS), explicit KEEPER_MAX_LAMPORTS_PER_TX and KEEPER_DAILY_LAMPORTS, and optionally a server-side KEEPER_REMOTE_SIGNER_TOKEN. No local secret-key loader exists. The external signer must independently enforce wallet/program/action/SOL limits; it is not provisioned by this repository.
 
-## Files
+Use a durable .runtime/ volume and one process. Pending signatures block new submissions until resolved. The runner reserves conservative daily costs, bounds each simulated SOL debit, checks signed message equality, and persists signatures before broadcast. It is not deployed on Vercel; serverless request handlers are not durable liquidation daemons. After a crash, confirm the process is stopped and reconcile the stored signature before manually removing a stale keeper.lock. Monitoring, redundant oracle connectivity and alerting remain operational requirements.
 
-- `web/`: LeverMeme page, style, icon and wallet client source
-- `api/` and `lib/`: read-only mainnet API handlers and verification
-- `dist/`: generated multi-route website and bundled assets
-- `tests/` and `scripts/`: build, browser and account validation checks
-- `.openai/hosting.json`: existing Sites deployment identity
-
-Legacy artwork is retained but unused. The new design uses original UI styling and a simple vector mark; it does not copy the reference site's source or assets.
+See [onchain/README.md](onchain/README.md) and [RELEASE.md](RELEASE.md) for exact contract limits and acceptance steps.

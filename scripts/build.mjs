@@ -4,10 +4,10 @@ const root = new URL('../', import.meta.url);
 await mkdir(new URL('dist/assets/', root), { recursive: true });
 await copyFile(new URL('web/styles.css', root), new URL('dist/assets/levermeme.css', root));
 await copyFile(new URL('web/favicon.svg', root), new URL('dist/assets/favicon.svg', root));
-for (const route of ['', 'trade/', 'list-token/', 'portfolio/', 'ecosystem/']) {
+for (const route of ['', 'trade/', 'list-token/', 'portfolio/', 'ecosystem/', 'admin/']) {
   await mkdir(new URL(`dist/${route}`, root), { recursive: true });
   await copyFile(new URL('web/index.html', root), new URL(`dist/${route}index.html`, root));
 }
 await build({ entryPoints: [new URL('web/app.js', root).pathname], outfile: new URL('dist/assets/levermeme.js', root).pathname,
   bundle: true, minify: true, format: 'esm', target: 'es2022', legalComments: 'none' });
-console.log('LeverMeme built: 5 routes, Wallet Standard connection, empty launch registry.');
+console.log('LeverMeme built: 6 routes, verified runtime registry, wallet transaction review, and operator console.');

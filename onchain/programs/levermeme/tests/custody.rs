@@ -15,6 +15,9 @@ use solana_account::Account as SvmAccount;
 use solana_message::Message;
 use solana_transaction::Transaction;
 
+#[path = "engine_cases/mod.rs"]
+mod engine_cases;
+
 fn key(byte: u8) -> Pubkey {
     Pubkey::new_from_array([byte; 32])
 }
@@ -86,6 +89,23 @@ impl Env {
         }
         let protocol =
             Pubkey::find_program_address(&[b"protocol", admin.as_ref()], &levermeme::ID).0;
+        let curve_for = |mint: Pubkey| {
+            Pubkey::find_program_address(&[b"bonding-curve", mint.as_ref()], &levermeme::PUMP_ID).0
+        };
+        for mint in [lever, quote] {
+            let mut data = vec![0; 49];
+            data[..8].copy_from_slice(&levermeme::CURVE_DISC);
+            svm.set_account(
+                curve_for(mint),
+                SvmAccount {
+                    lamports: 10_000_000,
+                    data,
+                    owner: levermeme::PUMP_ID,
+                    ..SvmAccount::default()
+                },
+            )
+            .unwrap();
+        }
         let mut env = Self {
             svm,
             admin,
@@ -104,6 +124,8 @@ impl Env {
                     protocol,
                     lever_mint: lever,
                     quote_mint: quote,
+                    lever_curve: curve_for(lever),
+                    quote_curve: curve_for(quote),
                     system_program: Pubkey::default(),
                 },
                 ix::InitializeProtocol {
@@ -209,6 +231,36 @@ impl Env {
         (margin, vault)
     }
     fn listing_accounts(&mut self) -> a::RequestListing {
+        let permit = Pubkey::find_program_address(
+            &[
+                b"listing-permit",
+                self.protocol.as_ref(),
+                self.base.as_ref(),
+                self.user.as_ref(),
+            ],
+            &levermeme::ID,
+        )
+        .0;
+        if self.svm.get_account(&permit).is_none() {
+            let now = self.svm.get_sysvar::<Clock>().unix_timestamp;
+            self.send(
+                self.admin,
+                ix(
+                    a::ApproveListingPermit {
+                        admin: self.admin,
+                        protocol: self.protocol,
+                        base_mint: self.base,
+                        lister: self.user,
+                        permit,
+                        system_program: Pubkey::default(),
+                    },
+                    ix::ApproveListingPermit {
+                        expires_at: now + 604000,
+                    },
+                ),
+            )
+            .unwrap();
+        }
         let listing = Pubkey::find_program_address(
             &[b"listing", self.protocol.as_ref(), self.base.as_ref()],
             &levermeme::ID,
@@ -239,7 +291,7 @@ impl Env {
         a::RequestListing {
             lister: self.user,
             protocol: self.protocol,
-            reviewer: self.admin,
+            permit,
             listing,
             base_mint: self.base,
             pump_curve: curve,
@@ -447,11 +499,11 @@ fn listing_rejects_curve_substitution_and_unsafe_mints_without_burning() {
 }
 
 #[test]
-fn admission_requires_the_real_operators_signature_before_burning() {
+fn admission_requires_an_operator_permit_and_lister_signature_before_burning() {
     let mut env = Env::new();
     env.pause(false);
     let mut accounts = env.listing_accounts();
-    accounts.reviewer = env.attacker;
+    accounts.permit = env.attacker;
     assert!(env
         .send(
             env.user,
@@ -472,8 +524,8 @@ fn admission_requires_the_real_operators_signature_before_burning() {
             token_amount: 100,
         },
     );
-    instruction.accounts[2].is_signer = false;
-    assert!(env.send(env.user, instruction).is_err());
+    instruction.accounts[0].is_signer = false;
+    assert!(env.send(env.attacker, instruction).is_err());
     assert_eq!(env.amount(key(20)), 10_000);
     assert_eq!(env.mint_supply(env.lever), 1_000_000_000);
 }

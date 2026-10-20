@@ -31,7 +31,6 @@ import {
   type InstructionWithAccounts,
   type InstructionWithData,
   type ReadonlyAccount,
-  type ReadonlySignerAccount,
   type ReadonlyUint8Array,
   type WritableAccount,
   type WritableSignerAccount,
@@ -45,7 +44,7 @@ import {
   type ResolvedInstructionAccount,
   type ResolvedInstructionAccountMeta,
 } from "@solana/kit/program-client-core";
-import { findBaseVaultPda, findListingPda } from "../pdas";
+import { findBaseVaultPda, findListingPda, findPermitPda } from "../pdas";
 import { LEVERMEME_PROGRAM_ADDRESS } from "../programs";
 
 export const REQUEST_LISTING_DISCRIMINATOR: ReadonlyUint8Array = new Uint8Array(
@@ -62,7 +61,7 @@ export type RequestListingInstruction<
   TProgram extends string = typeof LEVERMEME_PROGRAM_ADDRESS,
   TAccountLister extends string | AccountMeta<string> = string,
   TAccountProtocol extends string | AccountMeta<string> = string,
-  TAccountReviewer extends string | AccountMeta<string> = string,
+  TAccountPermit extends string | AccountMeta<string> = string,
   TAccountListing extends string | AccountMeta<string> = string,
   TAccountBaseMint extends string | AccountMeta<string> = string,
   TAccountPumpCurve extends string | AccountMeta<string> = string,
@@ -86,10 +85,9 @@ export type RequestListingInstruction<
       TAccountProtocol extends string
         ? WritableAccount<TAccountProtocol>
         : TAccountProtocol,
-      TAccountReviewer extends string
-        ? ReadonlySignerAccount<TAccountReviewer> &
-            AccountSignerMeta<TAccountReviewer>
-        : TAccountReviewer,
+      TAccountPermit extends string
+        ? WritableAccount<TAccountPermit>
+        : TAccountPermit,
       TAccountListing extends string
         ? WritableAccount<TAccountListing>
         : TAccountListing,
@@ -167,7 +165,7 @@ export function getRequestListingInstructionDataCodec(): FixedSizeCodec<
 export type RequestListingAsyncInput<
   TAccountLister extends InstructionSignerInput = InstructionSignerInput,
   TAccountProtocol extends InstructionAccountInput = InstructionAccountInput,
-  TAccountReviewer extends InstructionSignerInput = InstructionSignerInput,
+  TAccountPermit extends InstructionAccountInput = InstructionAccountInput,
   TAccountListing extends InstructionAccountInput = InstructionAccountInput,
   TAccountBaseMint extends InstructionAccountInput = InstructionAccountInput,
   TAccountPumpCurve extends InstructionAccountInput = InstructionAccountInput,
@@ -183,7 +181,7 @@ export type RequestListingAsyncInput<
 > = {
   lister: TAccountLister;
   protocol: TAccountProtocol;
-  reviewer: TAccountReviewer;
+  permit?: TAccountPermit;
   listing?: TAccountListing;
   baseMint: TAccountBaseMint;
   pumpCurve?: TAccountPumpCurve;
@@ -201,7 +199,7 @@ export type RequestListingAsyncInput<
 export async function getRequestListingInstructionAsync<
   TAccountLister extends InstructionSignerInput,
   TAccountProtocol extends InstructionAccountInput,
-  TAccountReviewer extends InstructionSignerInput,
+  TAccountPermit extends InstructionAccountInput,
   TAccountListing extends InstructionAccountInput,
   TAccountBaseMint extends InstructionAccountInput,
   TAccountPumpCurve extends InstructionAccountInput,
@@ -217,7 +215,7 @@ export async function getRequestListingInstructionAsync<
   input: RequestListingAsyncInput<
     TAccountLister,
     TAccountProtocol,
-    TAccountReviewer,
+    TAccountPermit,
     TAccountListing,
     TAccountBaseMint,
     TAccountPumpCurve,
@@ -244,8 +242,8 @@ export async function getRequestListingInstructionAsync<
       InstructionAccountInputAddress<TAccountProtocol>
     >,
     ResolvedInstructionAccountMeta<
-      TAccountReviewer,
-      InstructionAccountInputAddress<TAccountReviewer>
+      TAccountPermit,
+      InstructionAccountInputAddress<TAccountPermit>
     >,
     ResolvedInstructionAccountMeta<
       TAccountListing,
@@ -308,11 +306,7 @@ export async function getRequestListingInstructionAsync<
       isSigner: false,
       isWritable: true,
     },
-    reviewer: {
-      value: input.reviewer ?? null,
-      isSigner: true,
-      isWritable: false,
-    },
+    permit: { value: input.permit ?? null, isSigner: false, isWritable: true },
     listing: {
       value: input.listing ?? null,
       isSigner: false,
@@ -373,6 +367,25 @@ export async function getRequestListingInstructionAsync<
   const args = { ...input };
 
   // Resolve default values.
+  if (!accounts.permit.value) {
+    accounts.permit.value = await findPermitPda(
+      {
+        protocol: getAddressFromResolvedInstructionAccount(
+          "protocol",
+          accounts.protocol.value,
+        ),
+        baseMint: getAddressFromResolvedInstructionAccount(
+          "baseMint",
+          accounts.baseMint.value,
+        ),
+        lister: getAddressFromResolvedInstructionAccount(
+          "lister",
+          accounts.lister.value,
+        ),
+      },
+      { programAddress },
+    );
+  }
   if (!accounts.listing.value) {
     accounts.listing.value = await findListingPda(
       {
@@ -427,7 +440,7 @@ export async function getRequestListingInstructionAsync<
     accounts: [
       getAccountMeta("lister", accounts.lister),
       getAccountMeta("protocol", accounts.protocol),
-      getAccountMeta("reviewer", accounts.reviewer),
+      getAccountMeta("permit", accounts.permit),
       getAccountMeta("listing", accounts.listing),
       getAccountMeta("baseMint", accounts.baseMint),
       getAccountMeta("pumpCurve", accounts.pumpCurve),
@@ -454,8 +467,8 @@ export async function getRequestListingInstructionAsync<
       InstructionAccountInputAddress<TAccountProtocol>
     >,
     ResolvedInstructionAccountMeta<
-      TAccountReviewer,
-      InstructionAccountInputAddress<TAccountReviewer>
+      TAccountPermit,
+      InstructionAccountInputAddress<TAccountPermit>
     >,
     ResolvedInstructionAccountMeta<
       TAccountListing,
@@ -503,7 +516,7 @@ export async function getRequestListingInstructionAsync<
 export type RequestListingInput<
   TAccountLister extends InstructionSignerInput = InstructionSignerInput,
   TAccountProtocol extends InstructionAccountInput = InstructionAccountInput,
-  TAccountReviewer extends InstructionSignerInput = InstructionSignerInput,
+  TAccountPermit extends InstructionAccountInput = InstructionAccountInput,
   TAccountListing extends InstructionAccountInput = InstructionAccountInput,
   TAccountBaseMint extends InstructionAccountInput = InstructionAccountInput,
   TAccountPumpCurve extends InstructionAccountInput = InstructionAccountInput,
@@ -519,7 +532,7 @@ export type RequestListingInput<
 > = {
   lister: TAccountLister;
   protocol: TAccountProtocol;
-  reviewer: TAccountReviewer;
+  permit: TAccountPermit;
   listing: TAccountListing;
   baseMint: TAccountBaseMint;
   pumpCurve: TAccountPumpCurve;
@@ -537,7 +550,7 @@ export type RequestListingInput<
 export function getRequestListingInstruction<
   TAccountLister extends InstructionSignerInput,
   TAccountProtocol extends InstructionAccountInput,
-  TAccountReviewer extends InstructionSignerInput,
+  TAccountPermit extends InstructionAccountInput,
   TAccountListing extends InstructionAccountInput,
   TAccountBaseMint extends InstructionAccountInput,
   TAccountPumpCurve extends InstructionAccountInput,
@@ -553,7 +566,7 @@ export function getRequestListingInstruction<
   input: RequestListingInput<
     TAccountLister,
     TAccountProtocol,
-    TAccountReviewer,
+    TAccountPermit,
     TAccountListing,
     TAccountBaseMint,
     TAccountPumpCurve,
@@ -579,8 +592,8 @@ export function getRequestListingInstruction<
     InstructionAccountInputAddress<TAccountProtocol>
   >,
   ResolvedInstructionAccountMeta<
-    TAccountReviewer,
-    InstructionAccountInputAddress<TAccountReviewer>
+    TAccountPermit,
+    InstructionAccountInputAddress<TAccountPermit>
   >,
   ResolvedInstructionAccountMeta<
     TAccountListing,
@@ -642,11 +655,7 @@ export function getRequestListingInstruction<
       isSigner: false,
       isWritable: true,
     },
-    reviewer: {
-      value: input.reviewer ?? null,
-      isSigner: true,
-      isWritable: false,
-    },
+    permit: { value: input.permit ?? null, isSigner: false, isWritable: true },
     listing: {
       value: input.listing ?? null,
       isSigner: false,
@@ -716,7 +725,7 @@ export function getRequestListingInstruction<
     accounts: [
       getAccountMeta("lister", accounts.lister),
       getAccountMeta("protocol", accounts.protocol),
-      getAccountMeta("reviewer", accounts.reviewer),
+      getAccountMeta("permit", accounts.permit),
       getAccountMeta("listing", accounts.listing),
       getAccountMeta("baseMint", accounts.baseMint),
       getAccountMeta("pumpCurve", accounts.pumpCurve),
@@ -743,8 +752,8 @@ export function getRequestListingInstruction<
       InstructionAccountInputAddress<TAccountProtocol>
     >,
     ResolvedInstructionAccountMeta<
-      TAccountReviewer,
-      InstructionAccountInputAddress<TAccountReviewer>
+      TAccountPermit,
+      InstructionAccountInputAddress<TAccountPermit>
     >,
     ResolvedInstructionAccountMeta<
       TAccountListing,
@@ -797,7 +806,7 @@ export type ParsedRequestListingInstruction<
   accounts: {
     lister: TAccountMetas[0];
     protocol: TAccountMetas[1];
-    reviewer: TAccountMetas[2];
+    permit: TAccountMetas[2];
     listing: TAccountMetas[3];
     baseMint: TAccountMetas[4];
     pumpCurve: TAccountMetas[5];
@@ -840,7 +849,7 @@ export function parseRequestListingInstruction<
     accounts: {
       lister: getNextAccount(),
       protocol: getNextAccount(),
-      reviewer: getNextAccount(),
+      permit: getNextAccount(),
       listing: getNextAccount(),
       baseMint: getNextAccount(),
       pumpCurve: getNextAccount(),

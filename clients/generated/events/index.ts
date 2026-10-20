@@ -13,5 +13,8 @@ export * from "./listingCancelled";
 export * from "./listingRequested";
 export * from "./listingReviewed";
 export * from "./pauseChanged";
+export * from "./positionOpened";
+export * from "./positionSettled";
+export * from "./priceRefreshed";
 export * from "./protocolCreated";
 export * from "./revenueRouted";

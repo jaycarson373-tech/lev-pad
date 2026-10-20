@@ -4,13 +4,18 @@ import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import coin from '../api/coin.mjs';
 import wallet from '../api/wallet.mjs';
+import runtime from '../api/runtime.mjs';
+import transaction from '../api/transaction.mjs';
+import { key } from '../tests/helpers/protocol-fixture.mjs';
 
 const root=new URL('../dist/',import.meta.url);
 const server=createServer(async(req,res)=>{
   const pathname=new URL(req.url,'http://localhost').pathname;
   if(pathname.startsWith('/api/')){
     res.status=code=>{res.statusCode=code;return res;};res.json=body=>{res.setHeader('content-type','application/json');res.end(JSON.stringify(body));};
-    return pathname==='/api/coin'?coin(req,res):wallet(req,res);
+    if(req.method==='POST'){let body='';for await(const chunk of req){body+=chunk;if(body.length>12000){res.statusCode=413;res.end();return;}}try{req.body=JSON.parse(body);}catch{res.statusCode=400;res.end();return;}}
+    const handler={'/api/coin':coin,'/api/wallet':wallet,'/api/runtime':runtime,'/api/transaction':transaction}[pathname];
+    if(!handler){res.statusCode=404;res.end();return;}return handler(req,res);
   }
   const path=pathname==='/'?'index.html':pathname.endsWith('/')?pathname.slice(1)+'index.html':pathname.slice(1);
   try{const content=await readFile(new URL(path,root));res.setHeader('content-type',path.endsWith('.js')?'text/javascript':path.endsWith('.css')?'text/css':path.endsWith('.svg')?'image/svg+xml':'text/html');res.end(content);}catch{res.statusCode=404;res.end('Not found');}
@@ -43,10 +48,27 @@ try{
  assert.match(await page.locator('.launch-callout').first().textContent(),/10% of supply/);
  await page.screenshot({path:new URL('levermeme-ecosystem.png',output).pathname,fullPage:true});
  await page.setViewportSize({width:390,height:844});await page.goto(origin);await page.locator('.desk').waitFor();
- for(const route of ['/','/list-token/','/portfolio/','/ecosystem/']){
+ for(const route of ['/','/trade/','/list-token/','/portfolio/','/ecosystem/','/admin/']){
    await page.goto(origin+route);await page.locator('#main>*').waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`horizontal overflow on ${route}`);
  }
+ await page.goto(origin+'/admin/');await page.getByRole('heading',{name:'Launch with receipts.'}).waitFor();
+ assert.match(await page.locator('#main').textContent(),/Never enter a private key/);
+ const runtimeResponse=await page.request.get(origin+'/api/runtime');assert.equal(runtimeResponse.status(),200);assert.equal((await runtimeResponse.json()).configured,false);
+ assert.equal((await page.request.get(origin+'/api/transaction')).status(),405);
  await page.goto(origin);await page.locator('.desk').waitFor();await page.screenshot({path:new URL('levermeme-mobile.png',output).pathname,fullPage:true});
  await page.locator('.menu-toggle').click();assert.equal(await page.locator('.menu-toggle').getAttribute('aria-expanded'),'true');await page.locator('nav a[data-nav="launch"]').click();assert.equal(await page.locator('.menu-toggle').getAttribute('aria-expanded'),'false');
- assert.deepEqual(errors,[]);console.log('Browser checks passed: 10x sizing, direction switch, wallet empty state, deposit gate, invalid-mint rejection, four ecosystem funds, mobile routes, mobile navigation, no page errors.');
+ // Explicit UI fixture, not an assertion of a live mainnet market.
+ const mockMarket={address:key(50),baseMint:key(12),listing:key(51),lister:key(1),enabled:true,approved:true,closed:false,priceFresh:true,price:'1000000000000',twap:'1000000000000',priceSlot:'100',liquidity:'5000000000',reservedProfit:'100000000',openInterest:'200000000',accruedFees:'3000',risk:{maxLeverage:10,maxProfitBps:30000,spreadBps:10,minOracles:3,emergencyDelaySeconds:'3600'}};
+ const mockRuntime={configured:true,network:'solana:mainnet',programAddress:key(2),protocolAddress:key(3),admin:key(1),quoteMint:key(11),leverMint:key(10),quoteDecimals:6,leverDecimals:6,protocol:{paused:false,policy:{feeBps:30,burnAmount:'100'}},custodyEnabled:true,tradingEnabled:true,markets:[mockMarket],positions:[],listings:[],blockers:[]};
+ await page.route('**/api/runtime*',route=>route.fulfill({json:mockRuntime}));
+ await page.setViewportSize({width:1440,height:1000});await page.goto(origin);await page.getByRole('heading',{name:'Memes. Both ways.'}).waitFor();
+ assert.match(await page.locator('.order-pane').textContent(),/Profit is capped/);
+ await page.locator('#margin').fill('1.25');assert.equal(await page.locator('#position-size').textContent(),'12.5 xSOL');
+ await page.getByRole('button',{name:'Review trade',exact:true}).click();await page.locator('#wallet-dialog[open]').waitFor();await page.locator('#wallet-dialog [data-close]').click();
+ await page.screenshot({path:new URL('levermeme-live-fixture.png',output).pathname,fullPage:true});
+ for(const route of ['/','/portfolio/','/ecosystem/','/admin/']){
+  await page.setViewportSize({width:390,height:844});await page.goto(origin+route);await page.waitForFunction(()=>document.querySelector('#main')?.textContent.includes('verified')||document.querySelector('#main')?.textContent.includes('Memes. Both ways.')||document.querySelector('#main')?.textContent.includes('configured'));
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`live fixture overflow on ${route}`);
+ }
+ assert.deepEqual(errors,[]);console.log('Browser checks passed: 6 responsive routes, prelaunch gates, listing drafts, ecosystem, admin console, explicitly mocked active-market rendering, trade wallet gate, no page errors.');
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve));}

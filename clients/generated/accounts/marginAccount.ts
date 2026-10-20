@@ -59,6 +59,8 @@ export type MarginAccount = {
   owner: Address;
   vault: Address;
   balance: bigint;
+  locked: bigint;
+  nextPositionId: bigint;
   bump: number;
 };
 
@@ -67,6 +69,8 @@ export type MarginAccountArgs = {
   owner: Address | HasAddress;
   vault: Address | HasAddress;
   balance: number | bigint;
+  locked: number | bigint;
+  nextPositionId: number | bigint;
   bump: number;
 };
 
@@ -79,6 +83,8 @@ export function getMarginAccountEncoder(): FixedSizeEncoder<MarginAccountArgs> {
       ["owner", getAddressEncoder()],
       ["vault", getAddressEncoder()],
       ["balance", getU64Encoder()],
+      ["locked", getU64Encoder()],
+      ["nextPositionId", getU64Encoder()],
       ["bump", getU8Encoder()],
     ]),
     (value) => ({ ...value, discriminator: MARGIN_ACCOUNT_DISCRIMINATOR }),
@@ -93,6 +99,8 @@ export function getMarginAccountDecoder(): FixedSizeDecoder<MarginAccount> {
     ["owner", getAddressDecoder()],
     ["vault", getAddressDecoder()],
     ["balance", getU64Decoder()],
+    ["locked", getU64Decoder()],
+    ["nextPositionId", getU64Decoder()],
     ["bump", getU8Decoder()],
   ]);
 }
@@ -179,5 +187,5 @@ export async function fetchAllMaybeMarginAccount(
 }
 
 export function getMarginAccountSize(): number {
-  return 113;
+  return 129;
 }

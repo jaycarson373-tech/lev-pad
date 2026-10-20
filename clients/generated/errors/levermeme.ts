@@ -45,20 +45,65 @@ export const LEVERMEME_ERROR__INVALID_CAMPAIGN = 0x177c; // 6012
 export const LEVERMEME_ERROR__CAMPAIGN_CLOSED = 0x177d; // 6013
 /** InvalidProof: Airdrop proof does not match this campaign, wallet, index and amount */
 export const LEVERMEME_ERROR__INVALID_PROOF = 0x177e; // 6014
+/** Risk: Invalid immutable market risk policy */
+export const LEVERMEME_ERROR__RISK = 0x177f; // 6015
+/** Math: Checked arithmetic failed */
+export const LEVERMEME_ERROR__MATH = 0x1780; // 6016
+/** Funds: Insufficient backing or vault invariant failed */
+export const LEVERMEME_ERROR__FUNDS = 0x1781; // 6017
+/** Reserved: Liquidity is reserved for open positions */
+export const LEVERMEME_ERROR__RESERVED = 0x1782; // 6018
+/** Admission: Listing admission or review missing */
+export const LEVERMEME_ERROR__ADMISSION = 0x1783; // 6019
+/** Amount: Invalid amount or leverage */
+export const LEVERMEME_ERROR__AMOUNT = 0x1784; // 6020
+/** Closed: Market or position is closed */
+export const LEVERMEME_ERROR__CLOSED = 0x1785; // 6021
+/** Oracle: Oracle identity, quorum, feed or price rejected */
+export const LEVERMEME_ERROR__ORACLE = 0x1786; // 6022
+/** Deviation: Oracle price deviates too far from reviewed TWAP */
+export const LEVERMEME_ERROR__DEVIATION = 0x1787; // 6023
+/** Stale: Oracle is stale or emergency delay has not elapsed */
+export const LEVERMEME_ERROR__STALE = 0x1788; // 6024
+/** Replay: Position sequence is not current */
+export const LEVERMEME_ERROR__REPLAY = 0x1789; // 6025
+/** Exposure: Open interest limit exceeded */
+export const LEVERMEME_ERROR__EXPOSURE = 0x178a; // 6026
+/** Slippage: Execution exceeds signed slippage limit */
+export const LEVERMEME_ERROR__SLIPPAGE = 0x178b; // 6027
+/** Owner: Only position owner can voluntarily close */
+export const LEVERMEME_ERROR__OWNER = 0x178c; // 6028
+/** Healthy: Position is not liquidatable or at its profit cap */
+export const LEVERMEME_ERROR__HEALTHY = 0x178d; // 6029
 
 export type LevermemeError =
+  | typeof LEVERMEME_ERROR__ADMISSION
   | typeof LEVERMEME_ERROR__ALREADY_CANCELLED
+  | typeof LEVERMEME_ERROR__AMOUNT
   | typeof LEVERMEME_ERROR__CAMPAIGN_CLOSED
+  | typeof LEVERMEME_ERROR__CLOSED
+  | typeof LEVERMEME_ERROR__DEVIATION
+  | typeof LEVERMEME_ERROR__EXPOSURE
+  | typeof LEVERMEME_ERROR__FUNDS
+  | typeof LEVERMEME_ERROR__HEALTHY
   | typeof LEVERMEME_ERROR__INSUFFICIENT_FUNDS
   | typeof LEVERMEME_ERROR__INVALID_AMOUNT
   | typeof LEVERMEME_ERROR__INVALID_CAMPAIGN
   | typeof LEVERMEME_ERROR__INVALID_POLICY
   | typeof LEVERMEME_ERROR__INVALID_PROOF
+  | typeof LEVERMEME_ERROR__MATH
   | typeof LEVERMEME_ERROR__NOT_APPROVED
   | typeof LEVERMEME_ERROR__NOT_PUMP
+  | typeof LEVERMEME_ERROR__ORACLE
   | typeof LEVERMEME_ERROR__OVERFLOW
+  | typeof LEVERMEME_ERROR__OWNER
   | typeof LEVERMEME_ERROR__PAUSED
+  | typeof LEVERMEME_ERROR__REPLAY
+  | typeof LEVERMEME_ERROR__RESERVED
+  | typeof LEVERMEME_ERROR__RISK
   | typeof LEVERMEME_ERROR__SAME_MINT
+  | typeof LEVERMEME_ERROR__SLIPPAGE
+  | typeof LEVERMEME_ERROR__STALE
   | typeof LEVERMEME_ERROR__TRANSFER_DELTA
   | typeof LEVERMEME_ERROR__UNSAFE_EXTENSION
   | typeof LEVERMEME_ERROR__UNSAFE_MINT;
@@ -66,18 +111,33 @@ export type LevermemeError =
 let levermemeErrorMessages: Record<LevermemeError, string> | undefined;
 if (process.env["NODE_ENV"] !== "production") {
   levermemeErrorMessages = {
+    [LEVERMEME_ERROR__ADMISSION]: `Listing admission or review missing`,
     [LEVERMEME_ERROR__ALREADY_CANCELLED]: `Listing was already cancelled`,
+    [LEVERMEME_ERROR__AMOUNT]: `Invalid amount or leverage`,
     [LEVERMEME_ERROR__CAMPAIGN_CLOSED]: `Airdrop has not started, has expired, or was reclaimed`,
+    [LEVERMEME_ERROR__CLOSED]: `Market or position is closed`,
+    [LEVERMEME_ERROR__DEVIATION]: `Oracle price deviates too far from reviewed TWAP`,
+    [LEVERMEME_ERROR__EXPOSURE]: `Open interest limit exceeded`,
+    [LEVERMEME_ERROR__FUNDS]: `Insufficient backing or vault invariant failed`,
+    [LEVERMEME_ERROR__HEALTHY]: `Position is not liquidatable or at its profit cap`,
     [LEVERMEME_ERROR__INSUFFICIENT_FUNDS]: `Insufficient available balance`,
     [LEVERMEME_ERROR__INVALID_AMOUNT]: `The amount is zero or below the configured minimum`,
     [LEVERMEME_ERROR__INVALID_CAMPAIGN]: `Invalid campaign timing, root or proof length`,
     [LEVERMEME_ERROR__INVALID_POLICY]: `Invalid listing or fee policy`,
     [LEVERMEME_ERROR__INVALID_PROOF]: `Airdrop proof does not match this campaign, wallet, index and amount`,
+    [LEVERMEME_ERROR__MATH]: `Checked arithmetic failed`,
     [LEVERMEME_ERROR__NOT_APPROVED]: `Market listing has not been approved, or was cancelled`,
     [LEVERMEME_ERROR__NOT_PUMP]: `The coin is not a verified pump.fun mint`,
+    [LEVERMEME_ERROR__ORACLE]: `Oracle identity, quorum, feed or price rejected`,
     [LEVERMEME_ERROR__OVERFLOW]: `Arithmetic overflow`,
+    [LEVERMEME_ERROR__OWNER]: `Only position owner can voluntarily close`,
     [LEVERMEME_ERROR__PAUSED]: `New listings and deposits are paused`,
+    [LEVERMEME_ERROR__REPLAY]: `Position sequence is not current`,
+    [LEVERMEME_ERROR__RESERVED]: `Liquidity is reserved for open positions`,
+    [LEVERMEME_ERROR__RISK]: `Invalid immutable market risk policy`,
     [LEVERMEME_ERROR__SAME_MINT]: `Base, quote and burn mints must be distinct`,
+    [LEVERMEME_ERROR__SLIPPAGE]: `Execution exceeds signed slippage limit`,
+    [LEVERMEME_ERROR__STALE]: `Oracle is stale or emergency delay has not elapsed`,
     [LEVERMEME_ERROR__TRANSFER_DELTA]: `Token transfer amount does not match the received balance`,
     [LEVERMEME_ERROR__UNSAFE_EXTENSION]: `Token-2022 extension is not supported for custody`,
     [LEVERMEME_ERROR__UNSAFE_MINT]: `Token mint is uninitialized, mintable or freezable`,

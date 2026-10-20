@@ -1,5 +1,4 @@
-//! Listing admission and segregated collateral custody.
-//! This version deliberately has no position execution or liquidation instruction.
+//! Admission, segregated collateral, and fully-reserved capped leverage.
 use anchor_lang::prelude::*;
 use anchor_lang::system_program;
 use anchor_spl::token_interface::spl_token_2022::{
@@ -10,7 +9,17 @@ use anchor_spl::token_interface::{
     self, BurnChecked, Mint, TokenAccount, TokenInterface, TransferChecked,
 };
 
+pub mod engine;
 pub mod math;
+pub use engine::*;
+
+// Fail closed if a transitive helper ever requests randomness on chain.
+#[cfg(target_os = "solana")]
+fn no_onchain_randomness(_: &mut [u8]) -> core::result::Result<(), getrandom::Error> {
+    Err(getrandom::Error::UNSUPPORTED)
+}
+#[cfg(target_os = "solana")]
+getrandom::register_custom_getrandom!(no_onchain_randomness);
 
 // Public Anchor template address. Release tooling rejects it for deployment.
 declare_id!("Fg6PaFpoGXkYsidMpWxTWqkZ7FEfcYkgMQhgS1h5A9t");
@@ -21,6 +30,97 @@ pub const CURVE_DISC: [u8; 8] = [23, 183, 248, 55, 96, 216, 172, 96];
 pub mod levermeme {
     use super::*;
 
+    pub fn approve_listing_permit(
+        ctx: Context<ApproveListingPermit>,
+        expires_at: i64,
+    ) -> Result<()> {
+        let now = Clock::get()?.unix_timestamp;
+        require!(
+            expires_at > now && expires_at <= now.checked_add(604800).ok_or(ErrorCode::Overflow)?,
+            ErrorCode::InvalidPolicy
+        );
+        require_keys_neq!(
+            ctx.accounts.lister.key(),
+            Pubkey::default(),
+            ErrorCode::InvalidPolicy
+        );
+        validate_mint(&ctx.accounts.base_mint)?;
+        let permit = &mut ctx.accounts.permit;
+        permit.protocol = ctx.accounts.protocol.key();
+        permit.base_mint = ctx.accounts.base_mint.key();
+        permit.lister = ctx.accounts.lister.key();
+        permit.expires_at = expires_at;
+        permit.consumed = false;
+        permit.bump = ctx.bumps.permit;
+        Ok(())
+    }
+    pub fn set_listing_permit_expiry(
+        ctx: Context<ManageListingPermit>,
+        expires_at: i64,
+    ) -> Result<()> {
+        require!(!ctx.accounts.permit.consumed, ErrorCode::InvalidPolicy);
+        let now = Clock::get()?.unix_timestamp;
+        require!(
+            expires_at == 0
+                || (expires_at > now
+                    && expires_at <= now.checked_add(604800).ok_or(ErrorCode::Overflow)?),
+            ErrorCode::InvalidPolicy
+        );
+        ctx.accounts.permit.expires_at = expires_at;
+        Ok(())
+    }
+
+    pub fn create_market(ctx: Context<CreateMarket>, risk: MarketRisk) -> Result<()> {
+        engine::create(ctx, risk)
+    }
+    pub fn fund_market(ctx: Context<MarketLiquidity>, amount: u64) -> Result<()> {
+        engine::fund(ctx, amount)
+    }
+    pub fn withdraw_market_liquidity(ctx: Context<MarketLiquidity>, amount: u64) -> Result<()> {
+        engine::withdraw_liquidity(ctx, amount)
+    }
+    pub fn set_market_enabled(ctx: Context<ManageMarket>, enabled: bool) -> Result<()> {
+        engine::set_enabled(ctx, enabled)
+    }
+    pub fn retire_market(ctx: Context<ManageMarket>) -> Result<()> {
+        engine::retire(ctx)
+    }
+    pub fn refresh_market_price<'info>(
+        ctx: Context<'info, RefreshMarketPrice<'info>>,
+    ) -> Result<()> {
+        engine::refresh(ctx)
+    }
+    pub fn open_position(
+        ctx: Context<OpenPosition>,
+        id: u64,
+        collateral: u64,
+        leverage: u8,
+        long: bool,
+        expected_price: u64,
+        slippage_bps: u16,
+    ) -> Result<()> {
+        engine::open(
+            ctx,
+            id,
+            collateral,
+            leverage,
+            long,
+            expected_price,
+            slippage_bps,
+        )
+    }
+    pub fn settle_position(
+        ctx: Context<SettlePosition>,
+        reason: u8,
+        expected_price: u64,
+        slippage_bps: u16,
+    ) -> Result<()> {
+        engine::settle(ctx, reason, expected_price, slippage_bps)
+    }
+    pub fn collect_market_fees(ctx: Context<CollectMarketFees>) -> Result<()> {
+        engine::collect(ctx)
+    }
+
     /// Each administrator gets its own namespace. Clients pin the intended config
     /// PDA; an attacker cannot initialize or replace someone else's namespace.
     pub fn initialize_protocol(
@@ -30,13 +130,15 @@ pub mod levermeme {
         policy.validate()?;
         validate_mint(&ctx.accounts.lever_mint)?;
         validate_mint(&ctx.accounts.quote_mint)?;
+        validate_curve(&ctx.accounts.lever_curve.to_account_info())?;
+        validate_curve(&ctx.accounts.quote_curve.to_account_info())?;
         require_keys_neq!(
             ctx.accounts.lever_mint.key(),
             ctx.accounts.quote_mint.key(),
             ErrorCode::SameMint
         );
         let protocol = &mut ctx.accounts.protocol;
-        protocol.version = 1;
+        protocol.version = 2;
         protocol.admin = ctx.accounts.admin.key();
         protocol.lever_mint = ctx.accounts.lever_mint.key();
         protocol.quote_mint = ctx.accounts.quote_mint.key();
@@ -162,6 +264,11 @@ pub mod levermeme {
     ) -> Result<()> {
         require!(!ctx.accounts.protocol.paused, ErrorCode::Paused);
         require!(
+            !ctx.accounts.permit.consumed
+                && ctx.accounts.permit.expires_at > Clock::get()?.unix_timestamp,
+            ErrorCode::InvalidPolicy
+        );
+        require!(
             sol_lamports >= ctx.accounts.protocol.policy.min_sol_lamports && token_amount > 0,
             ErrorCode::InvalidAmount
         );
@@ -230,8 +337,10 @@ pub mod levermeme {
         listing.burned = burn_amount;
         listing.cancelled = false;
         listing.approved = false;
+        listing.market_initialized = false;
         listing.bump = ctx.bumps.listing;
         listing.requested_at = Clock::get()?.unix_timestamp;
+        ctx.accounts.permit.consumed = true;
         let protocol = &mut ctx.accounts.protocol;
         protocol.total_burned = protocol
             .total_burned
@@ -256,6 +365,10 @@ pub mod levermeme {
     /// The admission burn is irreversible. The tombstone prevents replay/relisting.
     pub fn cancel_listing(ctx: Context<CancelListing>) -> Result<()> {
         require!(!ctx.accounts.listing.cancelled, ErrorCode::AlreadyCancelled);
+        require!(
+            !ctx.accounts.listing.market_initialized,
+            EngineError::Reserved
+        );
         let protocol_key = ctx.accounts.listing.protocol;
         let mint_key = ctx.accounts.listing.base_mint;
         let bump = [ctx.accounts.listing.bump];
@@ -309,6 +422,8 @@ pub mod levermeme {
         margin.owner = ctx.accounts.owner.key();
         margin.vault = ctx.accounts.quote_vault.key();
         margin.balance = 0;
+        margin.locked = 0;
+        margin.next_position_id = 0;
         margin.bump = ctx.bumps.margin;
         Ok(())
     }
@@ -686,6 +801,7 @@ pub struct Listing {
     pub requested_at: i64,
     pub cancelled: bool,
     pub approved: bool,
+    pub market_initialized: bool,
     pub bump: u8,
 }
 #[account]
@@ -695,7 +811,42 @@ pub struct MarginAccount {
     pub owner: Pubkey,
     pub vault: Pubkey,
     pub balance: u64,
+    pub locked: u64,
+    pub next_position_id: u64,
     pub bump: u8,
+}
+
+#[account]
+#[derive(InitSpace)]
+pub struct ListingPermit {
+    pub protocol: Pubkey,
+    pub base_mint: Pubkey,
+    pub lister: Pubkey,
+    pub expires_at: i64,
+    pub consumed: bool,
+    pub bump: u8,
+}
+
+#[derive(Accounts)]
+pub struct ApproveListingPermit<'info> {
+    #[account(mut)]
+    pub admin: Signer<'info>,
+    #[account(seeds=[b"protocol",admin.key().as_ref()],bump=protocol.bump,has_one=admin)]
+    pub protocol: Box<Account<'info, Protocol>>,
+    pub base_mint: Box<InterfaceAccount<'info, Mint>>,
+    /// CHECK: Public recipient identity recorded in the permit. No funds are sent to it.
+    pub lister: UncheckedAccount<'info>,
+    #[account(init,payer=admin,space=8+ListingPermit::INIT_SPACE,seeds=[b"listing-permit",protocol.key().as_ref(),base_mint.key().as_ref(),lister.key().as_ref()],bump)]
+    pub permit: Box<Account<'info, ListingPermit>>,
+    pub system_program: Program<'info, System>,
+}
+#[derive(Accounts)]
+pub struct ManageListingPermit<'info> {
+    pub admin: Signer<'info>,
+    #[account(seeds=[b"protocol",admin.key().as_ref()],bump=protocol.bump,has_one=admin)]
+    pub protocol: Box<Account<'info, Protocol>>,
+    #[account(mut,seeds=[b"listing-permit",protocol.key().as_ref(),permit.base_mint.as_ref(),permit.lister.as_ref()],bump=permit.bump,has_one=protocol)]
+    pub permit: Box<Account<'info, ListingPermit>>,
 }
 
 #[account]
@@ -763,13 +914,13 @@ pub struct RoutePlatformRevenue<'info> {
     pub quote_mint: Box<InterfaceAccount<'info, Mint>>,
     #[account(mut,token::mint=quote_mint,token::authority=admin,token::token_program=quote_program)]
     pub source: Box<InterfaceAccount<'info, TokenAccount>>,
-    #[account(mut,token::mint=quote_mint,token::authority=protocol.policy.fee_destinations[0],token::token_program=quote_program)]
+    #[account(mut,dup,token::mint=quote_mint,token::authority=protocol.policy.fee_destinations[0],token::token_program=quote_program)]
     pub treasury: Box<InterfaceAccount<'info, TokenAccount>>,
-    #[account(mut,token::mint=quote_mint,token::authority=protocol.policy.fee_destinations[1],token::token_program=quote_program)]
+    #[account(mut,dup,token::mint=quote_mint,token::authority=protocol.policy.fee_destinations[1],token::token_program=quote_program)]
     pub campaign_fund: Box<InterfaceAccount<'info, TokenAccount>>,
-    #[account(mut,token::mint=quote_mint,token::authority=listing.lister,token::token_program=quote_program)]
+    #[account(mut,dup,token::mint=quote_mint,token::authority=listing.lister,token::token_program=quote_program)]
     pub creator: Box<InterfaceAccount<'info, TokenAccount>>,
-    #[account(mut,token::mint=quote_mint,token::authority=protocol.policy.fee_destinations[2],token::token_program=quote_program)]
+    #[account(mut,dup,token::mint=quote_mint,token::authority=protocol.policy.fee_destinations[2],token::token_program=quote_program)]
     pub buyback_fund: Box<InterfaceAccount<'info, TokenAccount>>,
     pub quote_program: Interface<'info, TokenInterface>,
 }
@@ -782,9 +933,9 @@ pub struct RouteTokenCreatorRevenue<'info> {
     pub quote_mint: Box<InterfaceAccount<'info, Mint>>,
     #[account(mut,token::mint=quote_mint,token::authority=admin,token::token_program=quote_program)]
     pub source: Box<InterfaceAccount<'info, TokenAccount>>,
-    #[account(mut,token::mint=quote_mint,token::authority=protocol.policy.fee_destinations[0],token::token_program=quote_program)]
+    #[account(mut,dup,token::mint=quote_mint,token::authority=protocol.policy.fee_destinations[0],token::token_program=quote_program)]
     pub treasury: Box<InterfaceAccount<'info, TokenAccount>>,
-    #[account(mut,token::mint=quote_mint,token::authority=protocol.policy.fee_destinations[2],token::token_program=quote_program)]
+    #[account(mut,dup,token::mint=quote_mint,token::authority=protocol.policy.fee_destinations[2],token::token_program=quote_program)]
     pub buyback_fund: Box<InterfaceAccount<'info, TokenAccount>>,
     pub quote_program: Interface<'info, TokenInterface>,
 }
@@ -852,6 +1003,12 @@ pub struct InitializeProtocol<'info> {
     pub protocol: Box<Account<'info, Protocol>>,
     pub lever_mint: Box<InterfaceAccount<'info, Mint>>,
     pub quote_mint: Box<InterfaceAccount<'info, Mint>>,
+    /// CHECK: Canonical pump.fun origin for the admission token, verified in handler.
+    #[account(seeds=[b"bonding-curve",lever_mint.key().as_ref()],bump,seeds::program=PUMP_ID,owner=PUMP_ID)]
+    pub lever_curve: UncheckedAccount<'info>,
+    /// CHECK: Canonical pump.fun origin for xSOL, verified in handler.
+    #[account(seeds=[b"bonding-curve",quote_mint.key().as_ref()],bump,seeds::program=PUMP_ID,owner=PUMP_ID)]
+    pub quote_curve: UncheckedAccount<'info>,
     pub system_program: Program<'info, System>,
 }
 #[derive(Accounts)]
@@ -866,11 +1023,8 @@ pub struct RequestListing<'info> {
     pub lister: Signer<'info>,
     #[account(mut, seeds = [b"protocol", protocol.admin.as_ref()], bump = protocol.bump, has_one = lever_mint)]
     pub protocol: Box<Account<'info, Protocol>>,
-    // Operator admission permit prevents an arbitrary first caller squatting
-    // the permanent per-mint listing address. Both parties sign the exact burn
-    // and funding transaction; the operator cannot move the lister's assets alone.
-    #[account(address = protocol.admin)]
-    pub reviewer: Signer<'info>,
+    #[account(mut,seeds=[b"listing-permit",protocol.key().as_ref(),base_mint.key().as_ref(),lister.key().as_ref()],bump=permit.bump,has_one=protocol,has_one=base_mint,has_one=lister)]
+    pub permit: Box<Account<'info, ListingPermit>>,
     #[account(init, payer = lister, space = 8 + Listing::INIT_SPACE,
         seeds = [b"listing", protocol.key().as_ref(), base_mint.key().as_ref()], bump)]
     pub listing: Box<Account<'info, Listing>>,
@@ -1052,6 +1206,36 @@ pub enum ErrorCode {
     CampaignClosed,
     #[msg("Airdrop proof does not match this campaign, wallet, index and amount")]
     InvalidProof,
+    #[msg("Invalid immutable market risk policy")]
+    Risk,
+    #[msg("Checked arithmetic failed")]
+    Math,
+    #[msg("Insufficient backing or vault invariant failed")]
+    Funds,
+    #[msg("Liquidity is reserved for open positions")]
+    Reserved,
+    #[msg("Listing admission or review missing")]
+    Admission,
+    #[msg("Invalid amount or leverage")]
+    Amount,
+    #[msg("Market or position is closed")]
+    Closed,
+    #[msg("Oracle identity, quorum, feed or price rejected")]
+    Oracle,
+    #[msg("Oracle price deviates too far from reviewed TWAP")]
+    Deviation,
+    #[msg("Oracle is stale or emergency delay has not elapsed")]
+    Stale,
+    #[msg("Position sequence is not current")]
+    Replay,
+    #[msg("Open interest limit exceeded")]
+    Exposure,
+    #[msg("Execution exceeds signed slippage limit")]
+    Slippage,
+    #[msg("Only position owner can voluntarily close")]
+    Owner,
+    #[msg("Position is not liquidatable or at its profit cap")]
+    Healthy,
 }
 
 #[cfg(test)]

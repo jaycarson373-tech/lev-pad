@@ -1,25 +1,26 @@
-# LeverMeme admission and custody v1 — NOT DEPLOYED
+# LeverMeme v2 — undeployed
 
-This program is a tested foundation, not an operational perpetuals exchange. It has no instructions to open/close positions, settle PnL or liquidate. Never deposit production funds into it as though it supplied those functions. The public frontend does not construct or send transactions to it.
+Anchor implementation of admission, segregated custody and fully-reserved capped leverage. The committed identity is a public template for local tests only. It must be replaced and the IDL/client/artifact rebuilt under the secure deployment's real program identity.
 
 ## Implemented rules
 
-- Administrator-namespaced protocol PDA; clients must pin the intended administrator and protocol address. Initialization starts paused. A separate namespace is not an authorized LeverMeme deployment.
-- One listing request per protocol/mint. Canonical pump.fun curve PDA, owner and discriminator are verified. Unsafe mint/freeze authorities and Token-2022 extensions other than metadata are rejected.
-- The administrator must co-sign the exact admission transaction before the lister burns/funds it. This prevents arbitrary first-caller namespace squatting and unreviewed burns. It needs a co-signing workflow; the frontend does not currently supply one. A separate administrator-only approval records acceptance after escrow is confirmed.
-- Admission burn, supplied meme tokens and SOL escrow execute atomically. Burn amount and SOL minimum must be positive. Meme-token funding must be positive; a meaningful per-market minimum/value assessment is still part of manual review.
-- Only the administrator can approve a funded request. Approval does not enable leverage. Cancellation returns the recorded SOL and meme-token escrow only to its lister, even while paused; the irreversible burn and cancelled-listing tombstone remain.
-- Per-wallet collateral vaults; owner signer and owner-controlled token recipient required. Pausing blocks new burns/deposits, never owner withdrawals. No administrator collateral withdrawal instruction exists.
-- Operator-owned xSOL revenue routing: 75% treasury/liquidity/insurance, 10% campaigns, 5% approved market lister, 10% buyback allocation. LeverMeme's own creator revenue routes 50/50 treasury/buyback. Transfers are actual tokens, not accounting-only entries. Dust goes to the largest share (treasury for ties).
-- Fee destination owners are fixed at initialization. Market royalties use the listing's recorded lister. Treasury/campaign/buyback recipients control their received tokens; this version does not restrict their later spending. Use reviewed multisig recipients, not an unreviewed hot wallet.
-- One funded airdrop campaign per protocol, exactly floor(initial supply checkpoint / 10). Wallet-bound, domain-separated Merkle leaves; per-wallet claim PDA prevents repeat claims. A fixed claim window and budget cap apply. Expired unclaimed tokens may be reclaimed by the original administrator; disclose this in campaign terms.
+- Administrator-namespaced protocol; initialization starts paused. Both LeverMeme/xSOL and listing mints require canonical pump.fun origin and safe token authority/extension checks.
+- Wallet/mint-bound expiring administrator permit before any irreversible admission burn. Request atomically burns LeverMeme and escrows SOL plus meme tokens. Separate approval is required; one lifetime listing per mint prevents takeover/replay.
+- Registered market escrow cannot be cancelled. Empty, disabled markets may be retired; only then can the original lister reclaim admission escrow. Burns never reverse.
+- Per-wallet available collateral and separate locked accounting. Only owner-signed withdrawals can move available collateral. Pausing blocks new funding/positions but preserves exits and settlement.
+- Immutable market risk/oracle settings. Max 10×, bounded OI/notional, minimum margin/liquidity, spread, maintenance, liquidation bounty and maximum profit. Every position reserves its entire possible profit from real xSOL market capital.
+- Long entry ask / exit bid; shorts reversed. Profit caps at the lesser of configured margin multiple and notional, before fees. Loss cannot exceed isolated collateral (opening fee is additional). No perpetual funding payments. No debt/socialized loss accounting.
+- Close by owner, permissionless unhealthy liquidation, permissionless profit-cap settlement, or permissionless last-verified-mark settlement after an immutable 1–24h oracle-outage delay. The last-mark outage rule is an explicit economic risk, not a guarantee of fair current value.
+- Pinned Switchboard queue and separate spot/TWAP feed hashes, quote-program ownership, SDK quote verifier, fresh slot hashes, oracle quorum/unique indices, positive prices, bounded deviation and monotonic cached slot. HTTP prices alone are never trusted.
+- Reserved profit is unavailable for lister withdrawal. Vault balances must cover market capital, locked user collateral and accrued fees.
+- Actual platform trading fees route 75/10/5/10. Own creator revenue routes 50/50 only after external collection/conversion. Fixed owner recipients; creator is the recorded market lister. Received fund spending is NOT constrained by this program.
+- Exactly floor(initial supply checkpoint / 10) funded airdrop, domain-separated wallet/index/amount Merkle proofs, per-wallet replay protection, claim window and administrator reclaim of unclaimed funds after expiry.
 
-## Build and verify without keys
+## Build without keys
 
-Requires Node 22+, Rust, Anchor 1.1.2, Solana platform-tools. Commands run from the repository root:
+From repository root:
 
 ```sh
-npm ci
 npm run build:onchain
 npm run test:onchain
 cd onchain
@@ -29,20 +30,18 @@ npm run codegen
 npm test
 ```
 
-`SBF_RUST_HOME` can select an existing platform-tools `rust` directory. The build helper does not generate/read keypair files and rejects SBF stack-overflow diagnostics even if Cargo reports success. The ignored SBF artifact is `onchain/target/sbf-solana-solana/release/levermeme.so`. Codama output and the Anchor-generated IDL are committed; regenerate after program changes. `clients/program.mjs` is an ESM build of the generated Kit client.
+SBF_RUST_HOME may select an installed platform-tools rust directory. Build helper rejects stack violations even if Cargo exits successfully and never creates keypair files. Artifact: onchain/target/sbf-solana-solana/release/levermeme.so (ignored). Provider wallet is intentionally NO_SIGNER_CONFIGURED.
 
-LiteSVM uses public test addresses, fixture mints/curve accounts, and disabled cryptographic signature verification. Anchor signer flags and all runtime account/CPI checks still run. These tests do not prove real-wallet signing or mainnet acceptance. Test thresholds and public addresses are not launch configuration.
+Codama generates clients/generated/ from the Anchor IDL, then clients/program.mjs. Regenerate after every ABI/program identity change. No hand-maintained instruction serialization.
 
-`lib/airdrop.mjs` produces a manifest with claims and proofs matching the Rust hash fixture. It rejects duplicate wallets, floating-point amounts and allocations that do not sum to the funded 10% reserve. Amounts must be base-unit decimal strings/BigInt. Publish the exact manifest and review eligibility before signing campaign creation; this implementation does not decide eligibility or fetch user activity.
+## Test limitations
 
-## Required before production funds
+LiteSVM uses public fixture addresses and disabled cryptographic transaction-signature verification. Signer flags, account/CPI constraints and runtime checks still run. Engine tests inject explicitly local cached prices: they do NOT demonstrate acceptance of real signed mainnet oracle quotes. JavaScript oracle tests cover public cryptographic vectors and rejection paths, not provider integration success.
 
-1. Confirm the actual LeverMeme and xSOL mints, decimals, supply checkpoint, burn requirement, minimum SOL and per-market meme liquidity, trading fee, recipient owners and administrator/upgrade-authority policy. Symbols are not identities.
-2. Replace the public Anchor template program address with the secure deployment authority's chosen program identity; regenerate IDL/client and rebuild. Do not deploy the template ID. The configured provider wallet is deliberately `NO_SIGNER_CONFIGURED`.
-3. Implement the derivatives engine: collateral locking, long/short exposure limits, entry/exit pricing, oracle freshness/confidence/manipulation checks, funding/fees, settlement, liquidation, bad-debt handling and a durable keeper. SOL+token escrow is not an AMM or xSOL conversion route.
-4. Rework cancellation/withdrawal rules together with that engine so liquidity backing open positions cannot be removed. Current unconditional owner exits are safe only because this version never opens positions.
-5. Integrate reviewed wallet transaction previews, simulation, signature rejection/expiry handling, confirmation and actual state refresh. Add an authenticated registry/indexer for public listing discovery and administrator review.
-6. Integrate pump.fun creator-fee collection/conversion and buyback execution with slippage, allowlisted routes, custody and accounting controls. These routing instructions do not collect pump fees, execute swaps, burn acquired tokens or pay winners. Buyback allocations must not be represented as completed burns.
-7. Independent program/economic/security review, then local/forked integration and user-controlled funded acceptance. Verify deployed bytecode, configuration, upgrade authority, monitoring and incident procedures before enabling the UI.
+Passing tests/static checks are not independent audit, economic validation, production liquidity, live keeper operation or mainnet wallet acceptance.
 
-No deployment or initialization transaction has been sent. Never paste a private key or seed phrase into chat, this repository, environment files or Vercel. Deployment must use a user-controlled secure signer with the concrete transactions reviewed first.
+## Unimplemented integrations / release blockers
+
+No pump.fun creator-fee collection, SOL/base-to-xSOL conversion, AMM, buyback swaps or acquired-token burn executor. Admission escrow is distinct from xSOL position capital. No deployed remote signer or durable keeper service; no production indexer beyond bounded account scans (2,000 accounts per query). No live provider acceptance: default public Crossbar hostname failed DNS during this release.
+
+See ../RELEASE.md. No mainnet deployment/initialization/write has been sent. Do not send funds to the template.

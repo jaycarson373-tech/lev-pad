@@ -20,6 +20,9 @@ anchor-debug = []
 [dependencies]
 anchor-lang = "=1.1.2"
 solana-sha256-hasher = "3.1.0"
+switchboard-on-demand = { version = "=0.13.0", default-features = false, features = ["solana-v3"] }
+# Switchboard includes optional crypto helpers; random generation is forbidden on SBF.
+getrandom = { version = "0.2", features = ["custom"] }
 anchor-spl = { version = "=1.1.2", default-features = false, features = ["token", "token_2022", "associated_token"] }
 
 [dev-dependencies]

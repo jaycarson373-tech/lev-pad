@@ -67,6 +67,7 @@ export type Listing = {
   requestedAt: bigint;
   cancelled: boolean;
   approved: boolean;
+  marketInitialized: boolean;
   bump: number;
 };
 
@@ -81,6 +82,7 @@ export type ListingArgs = {
   requestedAt: number | bigint;
   cancelled: boolean;
   approved: boolean;
+  marketInitialized: boolean;
   bump: number;
 };
 
@@ -99,6 +101,7 @@ export function getListingEncoder(): FixedSizeEncoder<ListingArgs> {
       ["requestedAt", getI64Encoder()],
       ["cancelled", getBooleanEncoder()],
       ["approved", getBooleanEncoder()],
+      ["marketInitialized", getBooleanEncoder()],
       ["bump", getU8Encoder()],
     ]),
     (value) => ({ ...value, discriminator: LISTING_DISCRIMINATOR }),
@@ -119,6 +122,7 @@ export function getListingDecoder(): FixedSizeDecoder<Listing> {
     ["requestedAt", getI64Decoder()],
     ["cancelled", getBooleanDecoder()],
     ["approved", getBooleanDecoder()],
+    ["marketInitialized", getBooleanDecoder()],
     ["bump", getU8Decoder()],
   ]);
 }
@@ -198,5 +202,5 @@ export async function fetchAllMaybeListing(
 }
 
 export function getListingSize(): number {
-  return 171;
+  return 172;
 }

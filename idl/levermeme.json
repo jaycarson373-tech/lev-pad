@@ -8,6 +8,108 @@
   },
   "instructions": [
     {
+      "name": "approve_listing_permit",
+      "discriminator": [
+        155,
+        67,
+        86,
+        117,
+        115,
+        161,
+        112,
+        127
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "admin"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint"
+        },
+        {
+          "name": "lister"
+        },
+        {
+          "name": "permit",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  105,
+                  115,
+                  116,
+                  105,
+                  110,
+                  103,
+                  45,
+                  112,
+                  101,
+                  114,
+                  109,
+                  105,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              },
+              {
+                "kind": "account",
+                "path": "base_mint"
+              },
+              {
+                "kind": "account",
+                "path": "lister"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "expires_at",
+          "type": "i64"
+        }
+      ]
+    },
+    {
       "name": "cancel_listing",
       "docs": [
         "The lister can reclaim both liquidity assets, even while paused.",
@@ -301,6 +403,161 @@
       ]
     },
     {
+      "name": "collect_market_fees",
+      "discriminator": [
+        91,
+        210,
+        175,
+        55,
+        51,
+        117,
+        137,
+        238
+      ],
+      "accounts": [
+        {
+          "name": "protocol",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          },
+          "relations": [
+            "listing",
+            "market"
+          ]
+        },
+        {
+          "name": "listing",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  105,
+                  115,
+                  116,
+                  105,
+                  110,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              },
+              {
+                "kind": "account",
+                "path": "listing.base_mint",
+                "account": "Listing"
+              }
+            ]
+          },
+          "relations": [
+            "market"
+          ]
+        },
+        {
+          "name": "market",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "listing"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "protocol",
+            "market"
+          ]
+        },
+        {
+          "name": "market_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "market"
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "campaign_fund",
+          "writable": true
+        },
+        {
+          "name": "creator",
+          "writable": true
+        },
+        {
+          "name": "buyback_fund",
+          "writable": true
+        },
+        {
+          "name": "quote_program"
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "create_airdrop",
       "docs": [
         "One funded supply-airdrop campaign per protocol, exactly 10% of the",
@@ -443,6 +700,160 @@
       ]
     },
     {
+      "name": "create_market",
+      "discriminator": [
+        103,
+        226,
+        97,
+        235,
+        200,
+        188,
+        251,
+        254
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "admin"
+              }
+            ]
+          },
+          "relations": [
+            "listing"
+          ]
+        },
+        {
+          "name": "listing",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  105,
+                  115,
+                  116,
+                  105,
+                  110,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              },
+              {
+                "kind": "account",
+                "path": "listing.base_mint",
+                "account": "Listing"
+              }
+            ]
+          }
+        },
+        {
+          "name": "market",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "listing"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "market_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "market"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_program"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "risk",
+          "type": {
+            "defined": {
+              "name": "MarketRisk"
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "deposit",
       "discriminator": [
         242,
@@ -567,6 +978,129 @@
       ]
     },
     {
+      "name": "fund_market",
+      "discriminator": [
+        173,
+        177,
+        32,
+        57,
+        20,
+        248,
+        119,
+        160
+      ],
+      "accounts": [
+        {
+          "name": "lister",
+          "signer": true,
+          "relations": [
+            "market"
+          ]
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          },
+          "relations": [
+            "market"
+          ]
+        },
+        {
+          "name": "market",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "market.listing",
+                "account": "Market"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "protocol",
+            "market"
+          ]
+        },
+        {
+          "name": "market_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "market"
+              }
+            ]
+          }
+        },
+        {
+          "name": "lister_tokens",
+          "writable": true
+        },
+        {
+          "name": "quote_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
       "name": "initialize_protocol",
       "docs": [
         "Each administrator gets its own namespace. Clients pin the intended config",
@@ -618,6 +1152,138 @@
         },
         {
           "name": "quote_mint"
+        },
+        {
+          "name": "lever_curve",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  45,
+                  99,
+                  117,
+                  114,
+                  118,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "lever_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                1,
+                86,
+                224,
+                246,
+                147,
+                102,
+                90,
+                207,
+                68,
+                219,
+                21,
+                104,
+                191,
+                23,
+                91,
+                170,
+                81,
+                137,
+                203,
+                151,
+                245,
+                210,
+                255,
+                59,
+                101,
+                93,
+                43,
+                182,
+                253,
+                109,
+                24,
+                176
+              ]
+            }
+          }
+        },
+        {
+          "name": "quote_curve",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  45,
+                  99,
+                  117,
+                  114,
+                  118,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "quote_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                1,
+                86,
+                224,
+                246,
+                147,
+                102,
+                90,
+                207,
+                68,
+                219,
+                21,
+                104,
+                191,
+                23,
+                91,
+                170,
+                81,
+                137,
+                203,
+                151,
+                245,
+                210,
+                255,
+                59,
+                101,
+                93,
+                43,
+                182,
+                253,
+                109,
+                24,
+                176
+              ]
+            }
+          }
         },
         {
           "name": "system_program",
@@ -750,6 +1416,266 @@
       "args": []
     },
     {
+      "name": "open_position",
+      "discriminator": [
+        135,
+        128,
+        47,
+        77,
+        15,
+        152,
+        240,
+        49
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "margin"
+          ]
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          },
+          "relations": [
+            "listing",
+            "market",
+            "margin"
+          ]
+        },
+        {
+          "name": "listing",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  105,
+                  115,
+                  116,
+                  105,
+                  110,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              },
+              {
+                "kind": "account",
+                "path": "listing.base_mint",
+                "account": "Listing"
+              }
+            ]
+          },
+          "relations": [
+            "market"
+          ]
+        },
+        {
+          "name": "market",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "listing"
+              }
+            ]
+          }
+        },
+        {
+          "name": "margin",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  103,
+                  105,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "position",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  115,
+                  105,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "margin"
+              },
+              {
+                "kind": "arg",
+                "path": "id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "protocol",
+            "market"
+          ]
+        },
+        {
+          "name": "user_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  113,
+                  117,
+                  111,
+                  116,
+                  101,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "margin"
+              }
+            ]
+          }
+        },
+        {
+          "name": "market_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "market"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_program"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "id",
+          "type": "u64"
+        },
+        {
+          "name": "collateral",
+          "type": "u64"
+        },
+        {
+          "name": "leverage",
+          "type": "u8"
+        },
+        {
+          "name": "long",
+          "type": "bool"
+        },
+        {
+          "name": "expected_price",
+          "type": "u64"
+        },
+        {
+          "name": "slippage_bps",
+          "type": "u16"
+        }
+      ]
+    },
+    {
       "name": "reclaim_airdrop",
       "docs": [
         "Expired leftovers go only to the original administrator's token account."
@@ -871,6 +1797,86 @@
       "args": []
     },
     {
+      "name": "refresh_market_price",
+      "discriminator": [
+        66,
+        92,
+        186,
+        127,
+        188,
+        0,
+        23,
+        207
+      ],
+      "accounts": [
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          },
+          "relations": [
+            "market"
+          ]
+        },
+        {
+          "name": "market",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "market.listing",
+                "account": "Market"
+              }
+            ]
+          }
+        },
+        {
+          "name": "queue"
+        },
+        {
+          "name": "oracle"
+        },
+        {
+          "name": "slot_hashes"
+        },
+        {
+          "name": "instructions"
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "request_listing",
       "docs": [
         "All three effects are atomic: burn, meme-token escrow and SOL escrow.",
@@ -890,7 +1896,10 @@
         {
           "name": "lister",
           "writable": true,
-          "signer": true
+          "signer": true,
+          "relations": [
+            "permit"
+          ]
         },
         {
           "name": "protocol",
@@ -916,11 +1925,49 @@
                 "account": "Protocol"
               }
             ]
-          }
+          },
+          "relations": [
+            "permit"
+          ]
         },
         {
-          "name": "reviewer",
-          "signer": true
+          "name": "permit",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  105,
+                  115,
+                  116,
+                  105,
+                  110,
+                  103,
+                  45,
+                  112,
+                  101,
+                  114,
+                  109,
+                  105,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              },
+              {
+                "kind": "account",
+                "path": "base_mint"
+              },
+              {
+                "kind": "account",
+                "path": "lister"
+              }
+            ]
+          }
         },
         {
           "name": "listing",
@@ -951,7 +1998,10 @@
           }
         },
         {
-          "name": "base_mint"
+          "name": "base_mint",
+          "relations": [
+            "permit"
+          ]
         },
         {
           "name": "pump_curve",
@@ -1082,6 +2132,112 @@
           "type": "u64"
         }
       ]
+    },
+    {
+      "name": "retire_market",
+      "discriminator": [
+        68,
+        198,
+        103,
+        192,
+        149,
+        141,
+        34,
+        156
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "admin"
+              }
+            ]
+          },
+          "relations": [
+            "listing",
+            "market"
+          ]
+        },
+        {
+          "name": "listing",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  105,
+                  115,
+                  116,
+                  105,
+                  110,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              },
+              {
+                "kind": "account",
+                "path": "listing.base_mint",
+                "account": "Listing"
+              }
+            ]
+          },
+          "relations": [
+            "market"
+          ]
+        },
+        {
+          "name": "market",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "listing"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
     },
     {
       "name": "route_platform_revenue",
@@ -1369,6 +2525,213 @@
       ]
     },
     {
+      "name": "set_listing_permit_expiry",
+      "discriminator": [
+        211,
+        65,
+        230,
+        231,
+        156,
+        48,
+        13,
+        25
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "admin"
+              }
+            ]
+          },
+          "relations": [
+            "permit"
+          ]
+        },
+        {
+          "name": "permit",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  105,
+                  115,
+                  116,
+                  105,
+                  110,
+                  103,
+                  45,
+                  112,
+                  101,
+                  114,
+                  109,
+                  105,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              },
+              {
+                "kind": "account",
+                "path": "permit.base_mint",
+                "account": "ListingPermit"
+              },
+              {
+                "kind": "account",
+                "path": "permit.lister",
+                "account": "ListingPermit"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "expires_at",
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "set_market_enabled",
+      "discriminator": [
+        206,
+        60,
+        159,
+        159,
+        62,
+        242,
+        4,
+        82
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "protocol"
+          ]
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "admin"
+              }
+            ]
+          },
+          "relations": [
+            "listing",
+            "market"
+          ]
+        },
+        {
+          "name": "listing",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  105,
+                  115,
+                  116,
+                  105,
+                  110,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              },
+              {
+                "kind": "account",
+                "path": "listing.base_mint",
+                "account": "Listing"
+              }
+            ]
+          },
+          "relations": [
+            "market"
+          ]
+        },
+        {
+          "name": "market",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "listing"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "enabled",
+          "type": "bool"
+        }
+      ]
+    },
+    {
       "name": "set_paused",
       "docs": [
         "Pausing stops new burns and deposits. Exits remain permissionless to owners."
@@ -1422,6 +2785,224 @@
         {
           "name": "paused",
           "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "settle_position",
+      "discriminator": [
+        33,
+        156,
+        74,
+        218,
+        215,
+        42,
+        112,
+        175
+      ],
+      "accounts": [
+        {
+          "name": "actor",
+          "signer": true
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          },
+          "relations": [
+            "market",
+            "margin"
+          ]
+        },
+        {
+          "name": "market",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "market.listing",
+                "account": "Market"
+              }
+            ]
+          },
+          "relations": [
+            "position"
+          ]
+        },
+        {
+          "name": "margin",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  103,
+                  105,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol"
+              },
+              {
+                "kind": "account",
+                "path": "margin.owner",
+                "account": "MarginAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "position",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  115,
+                  105,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "margin"
+              },
+              {
+                "kind": "account",
+                "path": "position.id",
+                "account": "Position"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "protocol",
+            "market"
+          ]
+        },
+        {
+          "name": "user_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  113,
+                  117,
+                  111,
+                  116,
+                  101,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "margin"
+              }
+            ]
+          }
+        },
+        {
+          "name": "market_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "market"
+              }
+            ]
+          }
+        },
+        {
+          "name": "actor_tokens",
+          "writable": true
+        },
+        {
+          "name": "quote_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "reason",
+          "type": "u8"
+        },
+        {
+          "name": "expected_price",
+          "type": "u64"
+        },
+        {
+          "name": "slippage_bps",
+          "type": "u16"
         }
       ]
     },
@@ -1552,6 +3133,129 @@
           "type": "u64"
         }
       ]
+    },
+    {
+      "name": "withdraw_market_liquidity",
+      "discriminator": [
+        151,
+        228,
+        127,
+        80,
+        156,
+        209,
+        76,
+        82
+      ],
+      "accounts": [
+        {
+          "name": "lister",
+          "signer": true,
+          "relations": [
+            "market"
+          ]
+        },
+        {
+          "name": "protocol",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  116,
+                  111,
+                  99,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "protocol.admin",
+                "account": "Protocol"
+              }
+            ]
+          },
+          "relations": [
+            "market"
+          ]
+        },
+        {
+          "name": "market",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "market.listing",
+                "account": "Market"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "protocol",
+            "market"
+          ]
+        },
+        {
+          "name": "market_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  114,
+                  107,
+                  101,
+                  116,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "market"
+              }
+            ]
+          }
+        },
+        {
+          "name": "lister_tokens",
+          "writable": true
+        },
+        {
+          "name": "quote_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -1595,6 +3299,19 @@
       ]
     },
     {
+      "name": "ListingPermit",
+      "discriminator": [
+        117,
+        63,
+        230,
+        146,
+        238,
+        62,
+        186,
+        162
+      ]
+    },
+    {
       "name": "MarginAccount",
       "discriminator": [
         133,
@@ -1605,6 +3322,32 @@
         211,
         43,
         238
+      ]
+    },
+    {
+      "name": "Market",
+      "discriminator": [
+        219,
+        190,
+        213,
+        55,
+        0,
+        227,
+        198,
+        154
+      ]
+    },
+    {
+      "name": "Position",
+      "discriminator": [
+        170,
+        188,
+        143,
+        228,
+        122,
+        64,
+        247,
+        208
       ]
     },
     {
@@ -1714,6 +3457,45 @@
       ]
     },
     {
+      "name": "PositionOpened",
+      "discriminator": [
+        237,
+        175,
+        243,
+        230,
+        147,
+        117,
+        101,
+        121
+      ]
+    },
+    {
+      "name": "PositionSettled",
+      "discriminator": [
+        75,
+        100,
+        92,
+        189,
+        245,
+        116,
+        252,
+        221
+      ]
+    },
+    {
+      "name": "PriceRefreshed",
+      "discriminator": [
+        64,
+        39,
+        28,
+        72,
+        53,
+        221,
+        84,
+        139
+      ]
+    },
+    {
       "name": "ProtocolCreated",
       "discriminator": [
         15,
@@ -1815,6 +3597,81 @@
       "code": 6014,
       "name": "InvalidProof",
       "msg": "Airdrop proof does not match this campaign, wallet, index and amount"
+    },
+    {
+      "code": 6015,
+      "name": "Risk",
+      "msg": "Invalid immutable market risk policy"
+    },
+    {
+      "code": 6016,
+      "name": "Math",
+      "msg": "Checked arithmetic failed"
+    },
+    {
+      "code": 6017,
+      "name": "Funds",
+      "msg": "Insufficient backing or vault invariant failed"
+    },
+    {
+      "code": 6018,
+      "name": "Reserved",
+      "msg": "Liquidity is reserved for open positions"
+    },
+    {
+      "code": 6019,
+      "name": "Admission",
+      "msg": "Listing admission or review missing"
+    },
+    {
+      "code": 6020,
+      "name": "Amount",
+      "msg": "Invalid amount or leverage"
+    },
+    {
+      "code": 6021,
+      "name": "Closed",
+      "msg": "Market or position is closed"
+    },
+    {
+      "code": 6022,
+      "name": "Oracle",
+      "msg": "Oracle identity, quorum, feed or price rejected"
+    },
+    {
+      "code": 6023,
+      "name": "Deviation",
+      "msg": "Oracle price deviates too far from reviewed TWAP"
+    },
+    {
+      "code": 6024,
+      "name": "Stale",
+      "msg": "Oracle is stale or emergency delay has not elapsed"
+    },
+    {
+      "code": 6025,
+      "name": "Replay",
+      "msg": "Position sequence is not current"
+    },
+    {
+      "code": 6026,
+      "name": "Exposure",
+      "msg": "Open interest limit exceeded"
+    },
+    {
+      "code": 6027,
+      "name": "Slippage",
+      "msg": "Execution exceeds signed slippage limit"
+    },
+    {
+      "code": 6028,
+      "name": "Owner",
+      "msg": "Only position owner can voluntarily close"
+    },
+    {
+      "code": 6029,
+      "name": "Healthy",
+      "msg": "Position is not liquidatable or at its profit cap"
     }
   ],
   "types": [
@@ -2005,6 +3862,10 @@
             "type": "bool"
           },
           {
+            "name": "market_initialized",
+            "type": "bool"
+          },
+          {
             "name": "bump",
             "type": "u8"
           }
@@ -2023,6 +3884,38 @@
           {
             "name": "lister",
             "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ListingPermit",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "protocol",
+            "type": "pubkey"
+          },
+          {
+            "name": "base_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "lister",
+            "type": "pubkey"
+          },
+          {
+            "name": "expires_at",
+            "type": "i64"
+          },
+          {
+            "name": "consumed",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
           }
         ]
       }
@@ -2142,8 +4035,182 @@
             "type": "u64"
           },
           {
+            "name": "locked",
+            "type": "u64"
+          },
+          {
+            "name": "next_position_id",
+            "type": "u64"
+          },
+          {
             "name": "bump",
             "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Market",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "protocol",
+            "type": "pubkey"
+          },
+          {
+            "name": "listing",
+            "type": "pubkey"
+          },
+          {
+            "name": "lister",
+            "type": "pubkey"
+          },
+          {
+            "name": "quote_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "quote_vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "risk",
+            "type": {
+              "defined": {
+                "name": "MarketRisk"
+              }
+            }
+          },
+          {
+            "name": "enabled",
+            "type": "bool"
+          },
+          {
+            "name": "closed",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "liquidity",
+            "type": "u64"
+          },
+          {
+            "name": "reserved_profit",
+            "type": "u64"
+          },
+          {
+            "name": "total_margin",
+            "type": "u64"
+          },
+          {
+            "name": "open_interest",
+            "type": "u64"
+          },
+          {
+            "name": "accrued_fees",
+            "type": "u64"
+          },
+          {
+            "name": "price",
+            "type": "u64"
+          },
+          {
+            "name": "twap",
+            "type": "u64"
+          },
+          {
+            "name": "price_slot",
+            "type": "u64"
+          },
+          {
+            "name": "price_timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MarketRisk",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "feed_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "twap_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "queue",
+            "type": "pubkey"
+          },
+          {
+            "name": "max_price_age_slots",
+            "type": "u64"
+          },
+          {
+            "name": "max_twap_deviation_bps",
+            "type": "u16"
+          },
+          {
+            "name": "min_oracles",
+            "type": "u8"
+          },
+          {
+            "name": "max_leverage",
+            "type": "u8"
+          },
+          {
+            "name": "maintenance_bps",
+            "type": "u16"
+          },
+          {
+            "name": "liquidation_bps",
+            "type": "u16"
+          },
+          {
+            "name": "spread_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_profit_bps",
+            "type": "u32"
+          },
+          {
+            "name": "max_open_interest",
+            "type": "u64"
+          },
+          {
+            "name": "max_position_notional",
+            "type": "u64"
+          },
+          {
+            "name": "minimum_margin",
+            "type": "u64"
+          },
+          {
+            "name": "minimum_liquidity",
+            "type": "u64"
+          },
+          {
+            "name": "emergency_delay_seconds",
+            "type": "i64"
           }
         ]
       }
@@ -2160,6 +4227,170 @@
           {
             "name": "paused",
             "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Position",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "market",
+            "type": "pubkey"
+          },
+          {
+            "name": "margin_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "id",
+            "type": "u64"
+          },
+          {
+            "name": "long",
+            "type": "bool"
+          },
+          {
+            "name": "collateral",
+            "type": "u64"
+          },
+          {
+            "name": "notional",
+            "type": "u64"
+          },
+          {
+            "name": "entry_price",
+            "type": "u64"
+          },
+          {
+            "name": "reserved_profit",
+            "type": "u64"
+          },
+          {
+            "name": "opened_slot",
+            "type": "u64"
+          },
+          {
+            "name": "closed",
+            "type": "bool"
+          },
+          {
+            "name": "exit_price",
+            "type": "u64"
+          },
+          {
+            "name": "payout",
+            "type": "u64"
+          },
+          {
+            "name": "reason",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PositionOpened",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "position",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "market",
+            "type": "pubkey"
+          },
+          {
+            "name": "notional",
+            "type": "u64"
+          },
+          {
+            "name": "collateral",
+            "type": "u64"
+          },
+          {
+            "name": "entry_price",
+            "type": "u64"
+          },
+          {
+            "name": "max_profit",
+            "type": "u64"
+          },
+          {
+            "name": "long",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PositionSettled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "position",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "market",
+            "type": "pubkey"
+          },
+          {
+            "name": "payout",
+            "type": "u64"
+          },
+          {
+            "name": "fee",
+            "type": "u64"
+          },
+          {
+            "name": "bounty",
+            "type": "u64"
+          },
+          {
+            "name": "exit_price",
+            "type": "u64"
+          },
+          {
+            "name": "reason",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PriceRefreshed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "market",
+            "type": "pubkey"
+          },
+          {
+            "name": "price",
+            "type": "u64"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
           }
         ]
       }

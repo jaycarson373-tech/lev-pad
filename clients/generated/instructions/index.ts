@@ -6,16 +6,27 @@
  * @see https://github.com/codama-idl/codama
  */
 
+export * from "./approveListingPermit";
 export * from "./cancelListing";
 export * from "./claimAirdrop";
+export * from "./collectMarketFees";
 export * from "./createAirdrop";
+export * from "./createMarket";
 export * from "./deposit";
+export * from "./fundMarket";
 export * from "./initializeProtocol";
 export * from "./openMarginAccount";
+export * from "./openPosition";
 export * from "./reclaimAirdrop";
+export * from "./refreshMarketPrice";
 export * from "./requestListing";
+export * from "./retireMarket";
 export * from "./routePlatformRevenue";
 export * from "./routeTokenCreatorRevenue";
 export * from "./setListingApproved";
+export * from "./setListingPermitExpiry";
+export * from "./setMarketEnabled";
 export * from "./setPaused";
+export * from "./settlePosition";
 export * from "./withdraw";
+export * from "./withdrawMarketLiquidity";

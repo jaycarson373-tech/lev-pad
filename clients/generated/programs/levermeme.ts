@@ -38,7 +38,10 @@ import {
   getAirdropCampaignCodec,
   getAirdropClaimCodec,
   getListingCodec,
+  getListingPermitCodec,
   getMarginAccountCodec,
+  getMarketCodec,
+  getPositionCodec,
   getProtocolCodec,
   type AirdropCampaign,
   type AirdropCampaignArgs,
@@ -46,64 +49,114 @@ import {
   type AirdropClaimArgs,
   type Listing,
   type ListingArgs,
+  type ListingPermit,
+  type ListingPermitArgs,
   type MarginAccount,
   type MarginAccountArgs,
+  type Market,
+  type MarketArgs,
+  type Position,
+  type PositionArgs,
   type Protocol,
   type ProtocolArgs,
 } from "../accounts";
 import {
+  getApproveListingPermitInstructionAsync,
   getCancelListingInstructionAsync,
   getClaimAirdropInstructionAsync,
+  getCollectMarketFeesInstructionAsync,
   getCreateAirdropInstructionAsync,
+  getCreateMarketInstructionAsync,
   getDepositInstructionAsync,
+  getFundMarketInstructionAsync,
   getInitializeProtocolInstructionAsync,
   getOpenMarginAccountInstructionAsync,
+  getOpenPositionInstructionAsync,
   getReclaimAirdropInstructionAsync,
+  getRefreshMarketPriceInstruction,
   getRequestListingInstructionAsync,
+  getRetireMarketInstructionAsync,
   getRoutePlatformRevenueInstruction,
   getRouteTokenCreatorRevenueInstruction,
   getSetListingApprovedInstruction,
+  getSetListingPermitExpiryInstructionAsync,
+  getSetMarketEnabledInstructionAsync,
   getSetPausedInstruction,
+  getSettlePositionInstructionAsync,
   getWithdrawInstructionAsync,
+  getWithdrawMarketLiquidityInstructionAsync,
+  parseApproveListingPermitInstruction,
   parseCancelListingInstruction,
   parseClaimAirdropInstruction,
+  parseCollectMarketFeesInstruction,
   parseCreateAirdropInstruction,
+  parseCreateMarketInstruction,
   parseDepositInstruction,
+  parseFundMarketInstruction,
   parseInitializeProtocolInstruction,
   parseOpenMarginAccountInstruction,
+  parseOpenPositionInstruction,
   parseReclaimAirdropInstruction,
+  parseRefreshMarketPriceInstruction,
   parseRequestListingInstruction,
+  parseRetireMarketInstruction,
   parseRoutePlatformRevenueInstruction,
   parseRouteTokenCreatorRevenueInstruction,
   parseSetListingApprovedInstruction,
+  parseSetListingPermitExpiryInstruction,
+  parseSetMarketEnabledInstruction,
   parseSetPausedInstruction,
+  parseSettlePositionInstruction,
   parseWithdrawInstruction,
+  parseWithdrawMarketLiquidityInstruction,
+  type ApproveListingPermitAsyncInput,
   type CancelListingAsyncInput,
   type ClaimAirdropAsyncInput,
+  type CollectMarketFeesAsyncInput,
   type CreateAirdropAsyncInput,
+  type CreateMarketAsyncInput,
   type DepositAsyncInput,
+  type FundMarketAsyncInput,
   type InitializeProtocolAsyncInput,
   type OpenMarginAccountAsyncInput,
+  type OpenPositionAsyncInput,
+  type ParsedApproveListingPermitInstruction,
   type ParsedCancelListingInstruction,
   type ParsedClaimAirdropInstruction,
+  type ParsedCollectMarketFeesInstruction,
   type ParsedCreateAirdropInstruction,
+  type ParsedCreateMarketInstruction,
   type ParsedDepositInstruction,
+  type ParsedFundMarketInstruction,
   type ParsedInitializeProtocolInstruction,
   type ParsedOpenMarginAccountInstruction,
+  type ParsedOpenPositionInstruction,
   type ParsedReclaimAirdropInstruction,
+  type ParsedRefreshMarketPriceInstruction,
   type ParsedRequestListingInstruction,
+  type ParsedRetireMarketInstruction,
   type ParsedRoutePlatformRevenueInstruction,
   type ParsedRouteTokenCreatorRevenueInstruction,
   type ParsedSetListingApprovedInstruction,
+  type ParsedSetListingPermitExpiryInstruction,
+  type ParsedSetMarketEnabledInstruction,
   type ParsedSetPausedInstruction,
+  type ParsedSettlePositionInstruction,
   type ParsedWithdrawInstruction,
+  type ParsedWithdrawMarketLiquidityInstruction,
   type ReclaimAirdropAsyncInput,
+  type RefreshMarketPriceInput,
   type RequestListingAsyncInput,
+  type RetireMarketAsyncInput,
   type RoutePlatformRevenueInput,
   type RouteTokenCreatorRevenueInput,
   type SetListingApprovedInput,
+  type SetListingPermitExpiryAsyncInput,
+  type SetMarketEnabledAsyncInput,
   type SetPausedInput,
+  type SettlePositionAsyncInput,
   type WithdrawAsyncInput,
+  type WithdrawMarketLiquidityAsyncInput,
 } from "../instructions";
 import {
   findAirdropVaultPda,
@@ -112,6 +165,10 @@ import {
   findClaimPda,
   findListingPda,
   findMarginPda,
+  findMarketPda,
+  findMarketVaultPda,
+  findPermitPda,
+  findPositionPda,
   findProtocolPda,
   findQuoteVaultPda,
 } from "../pdas";
@@ -123,7 +180,10 @@ export enum LevermemeAccount {
   AirdropCampaign,
   AirdropClaim,
   Listing,
+  ListingPermit,
   MarginAccount,
+  Market,
+  Position,
   Protocol,
 }
 
@@ -168,12 +228,45 @@ export function identifyLevermemeAccount(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([117, 63, 230, 146, 238, 62, 186, 162]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeAccount.ListingPermit;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
         new Uint8Array([133, 220, 173, 213, 179, 211, 43, 238]),
       ),
       0,
     )
   ) {
     return LevermemeAccount.MarginAccount;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([219, 190, 213, 55, 0, 227, 198, 154]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeAccount.Market;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([170, 188, 143, 228, 122, 64, 247, 208]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeAccount.Position;
   }
   if (
     containsBytes(
@@ -200,6 +293,9 @@ export enum LevermemeEvent {
   ListingRequested,
   ListingReviewed,
   PauseChanged,
+  PositionOpened,
+  PositionSettled,
+  PriceRefreshed,
   ProtocolCreated,
   RevenueRouted,
 }
@@ -289,6 +385,39 @@ export function identifyLevermemeEvent(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([237, 175, 243, 230, 147, 117, 101, 121]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeEvent.PositionOpened;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([75, 100, 92, 189, 245, 116, 252, 221]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeEvent.PositionSettled;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([64, 39, 28, 72, 53, 221, 84, 139]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeEvent.PriceRefreshed;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
         new Uint8Array([15, 251, 247, 158, 97, 201, 1, 226]),
       ),
       0,
@@ -313,25 +442,47 @@ export function identifyLevermemeEvent(
 }
 
 export enum LevermemeInstruction {
+  ApproveListingPermit,
   CancelListing,
   ClaimAirdrop,
+  CollectMarketFees,
   CreateAirdrop,
+  CreateMarket,
   Deposit,
+  FundMarket,
   InitializeProtocol,
   OpenMarginAccount,
+  OpenPosition,
   ReclaimAirdrop,
+  RefreshMarketPrice,
   RequestListing,
+  RetireMarket,
   RoutePlatformRevenue,
   RouteTokenCreatorRevenue,
   SetListingApproved,
+  SetListingPermitExpiry,
+  SetMarketEnabled,
   SetPaused,
+  SettlePosition,
   Withdraw,
+  WithdrawMarketLiquidity,
 }
 
 export function identifyLevermemeInstruction(
   instruction: { data: ReadonlyUint8Array } | ReadonlyUint8Array,
 ): LevermemeInstruction {
   const data = "data" in instruction ? instruction.data : instruction;
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([155, 67, 86, 117, 115, 161, 112, 127]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeInstruction.ApproveListingPermit;
+  }
   if (
     containsBytes(
       data,
@@ -358,6 +509,17 @@ export function identifyLevermemeInstruction(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([91, 210, 175, 55, 51, 117, 137, 238]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeInstruction.CollectMarketFees;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
         new Uint8Array([227, 135, 208, 66, 137, 177, 80, 94]),
       ),
       0,
@@ -369,12 +531,34 @@ export function identifyLevermemeInstruction(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([103, 226, 97, 235, 200, 188, 251, 254]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeInstruction.CreateMarket;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
         new Uint8Array([242, 35, 198, 137, 82, 225, 242, 182]),
       ),
       0,
     )
   ) {
     return LevermemeInstruction.Deposit;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([173, 177, 32, 57, 20, 248, 119, 160]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeInstruction.FundMarket;
   }
   if (
     containsBytes(
@@ -402,6 +586,17 @@ export function identifyLevermemeInstruction(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([135, 128, 47, 77, 15, 152, 240, 49]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeInstruction.OpenPosition;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
         new Uint8Array([91, 136, 224, 68, 150, 221, 18, 207]),
       ),
       0,
@@ -413,12 +608,34 @@ export function identifyLevermemeInstruction(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([66, 92, 186, 127, 188, 0, 23, 207]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeInstruction.RefreshMarketPrice;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
         new Uint8Array([2, 167, 98, 66, 122, 255, 254, 216]),
       ),
       0,
     )
   ) {
     return LevermemeInstruction.RequestListing;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([68, 198, 103, 192, 149, 141, 34, 156]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeInstruction.RetireMarket;
   }
   if (
     containsBytes(
@@ -457,12 +674,45 @@ export function identifyLevermemeInstruction(
     containsBytes(
       data,
       fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([211, 65, 230, 231, 156, 48, 13, 25]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeInstruction.SetListingPermitExpiry;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([206, 60, 159, 159, 62, 242, 4, 82]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeInstruction.SetMarketEnabled;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
         new Uint8Array([91, 60, 125, 192, 176, 225, 166, 218]),
       ),
       0,
     )
   ) {
     return LevermemeInstruction.SetPaused;
+  }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([33, 156, 74, 218, 215, 42, 112, 175]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeInstruction.SettlePosition;
   }
   if (
     containsBytes(
@@ -475,6 +725,17 @@ export function identifyLevermemeInstruction(
   ) {
     return LevermemeInstruction.Withdraw;
   }
+  if (
+    containsBytes(
+      data,
+      fixEncoderSize(getBytesEncoder(), 8).encode(
+        new Uint8Array([151, 228, 127, 80, 156, 209, 76, 82]),
+      ),
+      0,
+    )
+  ) {
+    return LevermemeInstruction.WithdrawMarketLiquidity;
+  }
   throw new SolanaError(
     SOLANA_ERROR__PROGRAM_CLIENTS__FAILED_TO_IDENTIFY_INSTRUCTION,
     { instructionData: data, programName: "levermeme" },
@@ -485,17 +746,29 @@ export type ParsedLevermemeInstruction<
   TProgram extends string = "Fg6PaFpoGXkYsidMpWxTWqkZ7FEfcYkgMQhgS1h5A9t",
 > =
   | ({
+      instructionType: LevermemeInstruction.ApproveListingPermit;
+    } & ParsedApproveListingPermitInstruction<TProgram>)
+  | ({
       instructionType: LevermemeInstruction.CancelListing;
     } & ParsedCancelListingInstruction<TProgram>)
   | ({
       instructionType: LevermemeInstruction.ClaimAirdrop;
     } & ParsedClaimAirdropInstruction<TProgram>)
   | ({
+      instructionType: LevermemeInstruction.CollectMarketFees;
+    } & ParsedCollectMarketFeesInstruction<TProgram>)
+  | ({
       instructionType: LevermemeInstruction.CreateAirdrop;
     } & ParsedCreateAirdropInstruction<TProgram>)
   | ({
+      instructionType: LevermemeInstruction.CreateMarket;
+    } & ParsedCreateMarketInstruction<TProgram>)
+  | ({
       instructionType: LevermemeInstruction.Deposit;
     } & ParsedDepositInstruction<TProgram>)
+  | ({
+      instructionType: LevermemeInstruction.FundMarket;
+    } & ParsedFundMarketInstruction<TProgram>)
   | ({
       instructionType: LevermemeInstruction.InitializeProtocol;
     } & ParsedInitializeProtocolInstruction<TProgram>)
@@ -503,11 +776,20 @@ export type ParsedLevermemeInstruction<
       instructionType: LevermemeInstruction.OpenMarginAccount;
     } & ParsedOpenMarginAccountInstruction<TProgram>)
   | ({
+      instructionType: LevermemeInstruction.OpenPosition;
+    } & ParsedOpenPositionInstruction<TProgram>)
+  | ({
       instructionType: LevermemeInstruction.ReclaimAirdrop;
     } & ParsedReclaimAirdropInstruction<TProgram>)
   | ({
+      instructionType: LevermemeInstruction.RefreshMarketPrice;
+    } & ParsedRefreshMarketPriceInstruction<TProgram>)
+  | ({
       instructionType: LevermemeInstruction.RequestListing;
     } & ParsedRequestListingInstruction<TProgram>)
+  | ({
+      instructionType: LevermemeInstruction.RetireMarket;
+    } & ParsedRetireMarketInstruction<TProgram>)
   | ({
       instructionType: LevermemeInstruction.RoutePlatformRevenue;
     } & ParsedRoutePlatformRevenueInstruction<TProgram>)
@@ -518,17 +800,36 @@ export type ParsedLevermemeInstruction<
       instructionType: LevermemeInstruction.SetListingApproved;
     } & ParsedSetListingApprovedInstruction<TProgram>)
   | ({
+      instructionType: LevermemeInstruction.SetListingPermitExpiry;
+    } & ParsedSetListingPermitExpiryInstruction<TProgram>)
+  | ({
+      instructionType: LevermemeInstruction.SetMarketEnabled;
+    } & ParsedSetMarketEnabledInstruction<TProgram>)
+  | ({
       instructionType: LevermemeInstruction.SetPaused;
     } & ParsedSetPausedInstruction<TProgram>)
   | ({
+      instructionType: LevermemeInstruction.SettlePosition;
+    } & ParsedSettlePositionInstruction<TProgram>)
+  | ({
       instructionType: LevermemeInstruction.Withdraw;
-    } & ParsedWithdrawInstruction<TProgram>);
+    } & ParsedWithdrawInstruction<TProgram>)
+  | ({
+      instructionType: LevermemeInstruction.WithdrawMarketLiquidity;
+    } & ParsedWithdrawMarketLiquidityInstruction<TProgram>);
 
 export function parseLevermemeInstruction<TProgram extends string>(
   instruction: Instruction<TProgram> & InstructionWithData<ReadonlyUint8Array>,
 ): ParsedLevermemeInstruction<TProgram> {
   const instructionType = identifyLevermemeInstruction(instruction);
   switch (instructionType) {
+    case LevermemeInstruction.ApproveListingPermit: {
+      assertIsInstructionWithAccounts(instruction);
+      return {
+        instructionType: LevermemeInstruction.ApproveListingPermit,
+        ...parseApproveListingPermitInstruction(instruction),
+      };
+    }
     case LevermemeInstruction.CancelListing: {
       assertIsInstructionWithAccounts(instruction);
       return {
@@ -543,6 +844,13 @@ export function parseLevermemeInstruction<TProgram extends string>(
         ...parseClaimAirdropInstruction(instruction),
       };
     }
+    case LevermemeInstruction.CollectMarketFees: {
+      assertIsInstructionWithAccounts(instruction);
+      return {
+        instructionType: LevermemeInstruction.CollectMarketFees,
+        ...parseCollectMarketFeesInstruction(instruction),
+      };
+    }
     case LevermemeInstruction.CreateAirdrop: {
       assertIsInstructionWithAccounts(instruction);
       return {
@@ -550,11 +858,25 @@ export function parseLevermemeInstruction<TProgram extends string>(
         ...parseCreateAirdropInstruction(instruction),
       };
     }
+    case LevermemeInstruction.CreateMarket: {
+      assertIsInstructionWithAccounts(instruction);
+      return {
+        instructionType: LevermemeInstruction.CreateMarket,
+        ...parseCreateMarketInstruction(instruction),
+      };
+    }
     case LevermemeInstruction.Deposit: {
       assertIsInstructionWithAccounts(instruction);
       return {
         instructionType: LevermemeInstruction.Deposit,
         ...parseDepositInstruction(instruction),
+      };
+    }
+    case LevermemeInstruction.FundMarket: {
+      assertIsInstructionWithAccounts(instruction);
+      return {
+        instructionType: LevermemeInstruction.FundMarket,
+        ...parseFundMarketInstruction(instruction),
       };
     }
     case LevermemeInstruction.InitializeProtocol: {
@@ -571,6 +893,13 @@ export function parseLevermemeInstruction<TProgram extends string>(
         ...parseOpenMarginAccountInstruction(instruction),
       };
     }
+    case LevermemeInstruction.OpenPosition: {
+      assertIsInstructionWithAccounts(instruction);
+      return {
+        instructionType: LevermemeInstruction.OpenPosition,
+        ...parseOpenPositionInstruction(instruction),
+      };
+    }
     case LevermemeInstruction.ReclaimAirdrop: {
       assertIsInstructionWithAccounts(instruction);
       return {
@@ -578,11 +907,25 @@ export function parseLevermemeInstruction<TProgram extends string>(
         ...parseReclaimAirdropInstruction(instruction),
       };
     }
+    case LevermemeInstruction.RefreshMarketPrice: {
+      assertIsInstructionWithAccounts(instruction);
+      return {
+        instructionType: LevermemeInstruction.RefreshMarketPrice,
+        ...parseRefreshMarketPriceInstruction(instruction),
+      };
+    }
     case LevermemeInstruction.RequestListing: {
       assertIsInstructionWithAccounts(instruction);
       return {
         instructionType: LevermemeInstruction.RequestListing,
         ...parseRequestListingInstruction(instruction),
+      };
+    }
+    case LevermemeInstruction.RetireMarket: {
+      assertIsInstructionWithAccounts(instruction);
+      return {
+        instructionType: LevermemeInstruction.RetireMarket,
+        ...parseRetireMarketInstruction(instruction),
       };
     }
     case LevermemeInstruction.RoutePlatformRevenue: {
@@ -606,6 +949,20 @@ export function parseLevermemeInstruction<TProgram extends string>(
         ...parseSetListingApprovedInstruction(instruction),
       };
     }
+    case LevermemeInstruction.SetListingPermitExpiry: {
+      assertIsInstructionWithAccounts(instruction);
+      return {
+        instructionType: LevermemeInstruction.SetListingPermitExpiry,
+        ...parseSetListingPermitExpiryInstruction(instruction),
+      };
+    }
+    case LevermemeInstruction.SetMarketEnabled: {
+      assertIsInstructionWithAccounts(instruction);
+      return {
+        instructionType: LevermemeInstruction.SetMarketEnabled,
+        ...parseSetMarketEnabledInstruction(instruction),
+      };
+    }
     case LevermemeInstruction.SetPaused: {
       assertIsInstructionWithAccounts(instruction);
       return {
@@ -613,11 +970,25 @@ export function parseLevermemeInstruction<TProgram extends string>(
         ...parseSetPausedInstruction(instruction),
       };
     }
+    case LevermemeInstruction.SettlePosition: {
+      assertIsInstructionWithAccounts(instruction);
+      return {
+        instructionType: LevermemeInstruction.SettlePosition,
+        ...parseSettlePositionInstruction(instruction),
+      };
+    }
     case LevermemeInstruction.Withdraw: {
       assertIsInstructionWithAccounts(instruction);
       return {
         instructionType: LevermemeInstruction.Withdraw,
         ...parseWithdrawInstruction(instruction),
+      };
+    }
+    case LevermemeInstruction.WithdrawMarketLiquidity: {
+      assertIsInstructionWithAccounts(instruction);
+      return {
+        instructionType: LevermemeInstruction.WithdrawMarketLiquidity,
+        ...parseWithdrawMarketLiquidityInstruction(instruction),
       };
     }
     default:
@@ -647,13 +1018,24 @@ export type LevermemePluginAccounts = {
     SelfFetchFunctions<AirdropClaimArgs, AirdropClaim>;
   listing: ReturnType<typeof getListingCodec> &
     SelfFetchFunctions<ListingArgs, Listing>;
+  listingPermit: ReturnType<typeof getListingPermitCodec> &
+    SelfFetchFunctions<ListingPermitArgs, ListingPermit>;
   marginAccount: ReturnType<typeof getMarginAccountCodec> &
     SelfFetchFunctions<MarginAccountArgs, MarginAccount>;
+  market: ReturnType<typeof getMarketCodec> &
+    SelfFetchFunctions<MarketArgs, Market>;
+  position: ReturnType<typeof getPositionCodec> &
+    SelfFetchFunctions<PositionArgs, Position>;
   protocol: ReturnType<typeof getProtocolCodec> &
     SelfFetchFunctions<ProtocolArgs, Protocol>;
 };
 
 export type LevermemePluginInstructions = {
+  approveListingPermit: (
+    input: ApproveListingPermitAsyncInput,
+    config?: { programAddress?: Address | HasAddress },
+  ) => ReturnType<typeof getApproveListingPermitInstructionAsync> &
+    SelfPlanAndSendFunctions;
   cancelListing: (
     input: CancelListingAsyncInput,
     config?: { programAddress?: Address | HasAddress },
@@ -664,15 +1046,30 @@ export type LevermemePluginInstructions = {
     config?: { programAddress?: Address | HasAddress },
   ) => ReturnType<typeof getClaimAirdropInstructionAsync> &
     SelfPlanAndSendFunctions;
+  collectMarketFees: (
+    input: CollectMarketFeesAsyncInput,
+    config?: { programAddress?: Address | HasAddress },
+  ) => ReturnType<typeof getCollectMarketFeesInstructionAsync> &
+    SelfPlanAndSendFunctions;
   createAirdrop: (
     input: CreateAirdropAsyncInput,
     config?: { programAddress?: Address | HasAddress },
   ) => ReturnType<typeof getCreateAirdropInstructionAsync> &
     SelfPlanAndSendFunctions;
+  createMarket: (
+    input: CreateMarketAsyncInput,
+    config?: { programAddress?: Address | HasAddress },
+  ) => ReturnType<typeof getCreateMarketInstructionAsync> &
+    SelfPlanAndSendFunctions;
   deposit: (
     input: DepositAsyncInput,
     config?: { programAddress?: Address | HasAddress },
   ) => ReturnType<typeof getDepositInstructionAsync> & SelfPlanAndSendFunctions;
+  fundMarket: (
+    input: FundMarketAsyncInput,
+    config?: { programAddress?: Address | HasAddress },
+  ) => ReturnType<typeof getFundMarketInstructionAsync> &
+    SelfPlanAndSendFunctions;
   initializeProtocol: (
     input: InitializeProtocolAsyncInput,
     config?: { programAddress?: Address | HasAddress },
@@ -683,15 +1080,30 @@ export type LevermemePluginInstructions = {
     config?: { programAddress?: Address | HasAddress },
   ) => ReturnType<typeof getOpenMarginAccountInstructionAsync> &
     SelfPlanAndSendFunctions;
+  openPosition: (
+    input: OpenPositionAsyncInput,
+    config?: { programAddress?: Address | HasAddress },
+  ) => ReturnType<typeof getOpenPositionInstructionAsync> &
+    SelfPlanAndSendFunctions;
   reclaimAirdrop: (
     input: ReclaimAirdropAsyncInput,
     config?: { programAddress?: Address | HasAddress },
   ) => ReturnType<typeof getReclaimAirdropInstructionAsync> &
     SelfPlanAndSendFunctions;
+  refreshMarketPrice: (
+    input: RefreshMarketPriceInput,
+    config?: { programAddress?: Address | HasAddress },
+  ) => ReturnType<typeof getRefreshMarketPriceInstruction> &
+    SelfPlanAndSendFunctions;
   requestListing: (
     input: RequestListingAsyncInput,
     config?: { programAddress?: Address | HasAddress },
   ) => ReturnType<typeof getRequestListingInstructionAsync> &
+    SelfPlanAndSendFunctions;
+  retireMarket: (
+    input: RetireMarketAsyncInput,
+    config?: { programAddress?: Address | HasAddress },
+  ) => ReturnType<typeof getRetireMarketInstructionAsync> &
     SelfPlanAndSendFunctions;
   routePlatformRevenue: (
     input: RoutePlatformRevenueInput,
@@ -708,26 +1120,50 @@ export type LevermemePluginInstructions = {
     config?: { programAddress?: Address | HasAddress },
   ) => ReturnType<typeof getSetListingApprovedInstruction> &
     SelfPlanAndSendFunctions;
+  setListingPermitExpiry: (
+    input: SetListingPermitExpiryAsyncInput,
+    config?: { programAddress?: Address | HasAddress },
+  ) => ReturnType<typeof getSetListingPermitExpiryInstructionAsync> &
+    SelfPlanAndSendFunctions;
+  setMarketEnabled: (
+    input: SetMarketEnabledAsyncInput,
+    config?: { programAddress?: Address | HasAddress },
+  ) => ReturnType<typeof getSetMarketEnabledInstructionAsync> &
+    SelfPlanAndSendFunctions;
   setPaused: (
     input: SetPausedInput,
     config?: { programAddress?: Address | HasAddress },
   ) => ReturnType<typeof getSetPausedInstruction> & SelfPlanAndSendFunctions;
+  settlePosition: (
+    input: SettlePositionAsyncInput,
+    config?: { programAddress?: Address | HasAddress },
+  ) => ReturnType<typeof getSettlePositionInstructionAsync> &
+    SelfPlanAndSendFunctions;
   withdraw: (
     input: WithdrawAsyncInput,
     config?: { programAddress?: Address | HasAddress },
   ) => ReturnType<typeof getWithdrawInstructionAsync> &
     SelfPlanAndSendFunctions;
+  withdrawMarketLiquidity: (
+    input: WithdrawMarketLiquidityAsyncInput,
+    config?: { programAddress?: Address | HasAddress },
+  ) => ReturnType<typeof getWithdrawMarketLiquidityInstructionAsync> &
+    SelfPlanAndSendFunctions;
 };
 
 export type LevermemePluginPdas = {
+  protocol: typeof findProtocolPda;
+  permit: typeof findPermitPda;
   listing: typeof findListingPda;
   baseVault: typeof findBaseVaultPda;
   campaign: typeof findCampaignPda;
   claim: typeof findClaimPda;
   airdropVault: typeof findAirdropVaultPda;
+  market: typeof findMarketPda;
+  marketVault: typeof findMarketVaultPda;
   margin: typeof findMarginPda;
   quoteVault: typeof findQuoteVaultPda;
-  protocol: typeof findProtocolPda;
+  position: typeof findPositionPda;
 };
 
 export type LevermemePluginRequirements = ClientWithRpc<
@@ -751,10 +1187,21 @@ export function levermemeProgram(
           ),
           airdropClaim: addSelfFetchFunctions(client, getAirdropClaimCodec()),
           listing: addSelfFetchFunctions(client, getListingCodec()),
+          listingPermit: addSelfFetchFunctions(client, getListingPermitCodec()),
           marginAccount: addSelfFetchFunctions(client, getMarginAccountCodec()),
+          market: addSelfFetchFunctions(client, getMarketCodec()),
+          position: addSelfFetchFunctions(client, getPositionCodec()),
           protocol: addSelfFetchFunctions(client, getProtocolCodec()),
         },
         instructions: {
+          approveListingPermit: (input, instructionConfig) =>
+            addSelfPlanAndSendFunctions(
+              client,
+              getApproveListingPermitInstructionAsync(input, {
+                programAddress:
+                  instructionConfig?.programAddress ?? config.programAddress,
+              }),
+            ),
           cancelListing: (input, instructionConfig) =>
             addSelfPlanAndSendFunctions(
               client,
@@ -771,6 +1218,14 @@ export function levermemeProgram(
                   instructionConfig?.programAddress ?? config.programAddress,
               }),
             ),
+          collectMarketFees: (input, instructionConfig) =>
+            addSelfPlanAndSendFunctions(
+              client,
+              getCollectMarketFeesInstructionAsync(input, {
+                programAddress:
+                  instructionConfig?.programAddress ?? config.programAddress,
+              }),
+            ),
           createAirdrop: (input, instructionConfig) =>
             addSelfPlanAndSendFunctions(
               client,
@@ -779,10 +1234,26 @@ export function levermemeProgram(
                   instructionConfig?.programAddress ?? config.programAddress,
               }),
             ),
+          createMarket: (input, instructionConfig) =>
+            addSelfPlanAndSendFunctions(
+              client,
+              getCreateMarketInstructionAsync(input, {
+                programAddress:
+                  instructionConfig?.programAddress ?? config.programAddress,
+              }),
+            ),
           deposit: (input, instructionConfig) =>
             addSelfPlanAndSendFunctions(
               client,
               getDepositInstructionAsync(input, {
+                programAddress:
+                  instructionConfig?.programAddress ?? config.programAddress,
+              }),
+            ),
+          fundMarket: (input, instructionConfig) =>
+            addSelfPlanAndSendFunctions(
+              client,
+              getFundMarketInstructionAsync(input, {
                 programAddress:
                   instructionConfig?.programAddress ?? config.programAddress,
               }),
@@ -803,6 +1274,14 @@ export function levermemeProgram(
                   instructionConfig?.programAddress ?? config.programAddress,
               }),
             ),
+          openPosition: (input, instructionConfig) =>
+            addSelfPlanAndSendFunctions(
+              client,
+              getOpenPositionInstructionAsync(input, {
+                programAddress:
+                  instructionConfig?.programAddress ?? config.programAddress,
+              }),
+            ),
           reclaimAirdrop: (input, instructionConfig) =>
             addSelfPlanAndSendFunctions(
               client,
@@ -811,10 +1290,26 @@ export function levermemeProgram(
                   instructionConfig?.programAddress ?? config.programAddress,
               }),
             ),
+          refreshMarketPrice: (input, instructionConfig) =>
+            addSelfPlanAndSendFunctions(
+              client,
+              getRefreshMarketPriceInstruction(input, {
+                programAddress:
+                  instructionConfig?.programAddress ?? config.programAddress,
+              }),
+            ),
           requestListing: (input, instructionConfig) =>
             addSelfPlanAndSendFunctions(
               client,
               getRequestListingInstructionAsync(input, {
+                programAddress:
+                  instructionConfig?.programAddress ?? config.programAddress,
+              }),
+            ),
+          retireMarket: (input, instructionConfig) =>
+            addSelfPlanAndSendFunctions(
+              client,
+              getRetireMarketInstructionAsync(input, {
                 programAddress:
                   instructionConfig?.programAddress ?? config.programAddress,
               }),
@@ -843,10 +1338,34 @@ export function levermemeProgram(
                   instructionConfig?.programAddress ?? config.programAddress,
               }),
             ),
+          setListingPermitExpiry: (input, instructionConfig) =>
+            addSelfPlanAndSendFunctions(
+              client,
+              getSetListingPermitExpiryInstructionAsync(input, {
+                programAddress:
+                  instructionConfig?.programAddress ?? config.programAddress,
+              }),
+            ),
+          setMarketEnabled: (input, instructionConfig) =>
+            addSelfPlanAndSendFunctions(
+              client,
+              getSetMarketEnabledInstructionAsync(input, {
+                programAddress:
+                  instructionConfig?.programAddress ?? config.programAddress,
+              }),
+            ),
           setPaused: (input, instructionConfig) =>
             addSelfPlanAndSendFunctions(
               client,
               getSetPausedInstruction(input, {
+                programAddress:
+                  instructionConfig?.programAddress ?? config.programAddress,
+              }),
+            ),
+          settlePosition: (input, instructionConfig) =>
+            addSelfPlanAndSendFunctions(
+              client,
+              getSettlePositionInstructionAsync(input, {
                 programAddress:
                   instructionConfig?.programAddress ?? config.programAddress,
               }),
@@ -859,8 +1378,26 @@ export function levermemeProgram(
                   instructionConfig?.programAddress ?? config.programAddress,
               }),
             ),
+          withdrawMarketLiquidity: (input, instructionConfig) =>
+            addSelfPlanAndSendFunctions(
+              client,
+              getWithdrawMarketLiquidityInstructionAsync(input, {
+                programAddress:
+                  instructionConfig?.programAddress ?? config.programAddress,
+              }),
+            ),
         },
         pdas: {
+          protocol: (seeds, pdaConfig) =>
+            findProtocolPda(seeds, {
+              programAddress:
+                pdaConfig?.programAddress ?? config.programAddress,
+            }),
+          permit: (seeds, pdaConfig) =>
+            findPermitPda(seeds, {
+              programAddress:
+                pdaConfig?.programAddress ?? config.programAddress,
+            }),
           listing: (seeds, pdaConfig) =>
             findListingPda(seeds, {
               programAddress:
@@ -886,6 +1423,16 @@ export function levermemeProgram(
               programAddress:
                 pdaConfig?.programAddress ?? config.programAddress,
             }),
+          market: (seeds, pdaConfig) =>
+            findMarketPda(seeds, {
+              programAddress:
+                pdaConfig?.programAddress ?? config.programAddress,
+            }),
+          marketVault: (seeds, pdaConfig) =>
+            findMarketVaultPda(seeds, {
+              programAddress:
+                pdaConfig?.programAddress ?? config.programAddress,
+            }),
           margin: (seeds, pdaConfig) =>
             findMarginPda(seeds, {
               programAddress:
@@ -896,8 +1443,8 @@ export function levermemeProgram(
               programAddress:
                 pdaConfig?.programAddress ?? config.programAddress,
             }),
-          protocol: (seeds, pdaConfig) =>
-            findProtocolPda(seeds, {
+          position: (seeds, pdaConfig) =>
+            findPositionPda(seeds, {
               programAddress:
                 pdaConfig?.programAddress ?? config.programAddress,
             }),

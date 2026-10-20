@@ -1,0 +1,14 @@
+{
+  "network": "solana:mainnet",
+  "programAddress": null,
+  "admin": null,
+  "leverMint": null,
+  "quoteMint": null,
+  "programSha256": null,
+  "programSize": null,
+  "upgradeAuthority": null,
+  "custodyEnabled": false,
+  "tradingEnabled": false,
+  "securityReviewUrl": null,
+  "acceptanceReportUrl": null
+}
