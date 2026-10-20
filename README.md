@@ -17,6 +17,8 @@ python3 -m http.server 8080 --directory dist
 Open http://localhost:8080. Routes: `/`, `/trade/`, `/list-token/`, `/portfolio/`.
 No compilation, dependencies, or secrets are required. Deploy `dist/` on a static host with directory index support.
 
+For Vercel, import the repository root. The committed `vercel.json` serves `dist/` directly with installation and build steps disabled. The existing interface routes remain available; this hosting configuration does not enable real-money trading.
+
 ## Current functionality
 
 Market search, direction and multiplier controls, illustrative position calculations, and listing preview controls run in the browser.
