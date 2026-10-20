@@ -2,9 +2,11 @@
 
 LeverMeme targets pump.fun-only markets up to 10× long/short, paired against xSOL. Rebranded from Lev Pad. The launch registry starts empty: no seeded tokens, positions, charts, volume or rewards.
 
-Vercel production: https://lev-pad.vercel.app
+Vercel production: https://levermeme.vercel.app (also https://lev-pad.vercel.app).
 
-`vercel.json` runs `npm ci` and `npm run build`, serves `dist/`, and deploys read-only functions from `api/`. The production project is `lev-pad` under `jaycarson373-7760s-projects`.
+Vercel's project is named `levermeme`, so production releases use its branded production domain.
+
+`vercel.json` runs `npm ci` and `npm run build`, serves `dist/`, and deploys read-only functions from `api/`. The production project is `levermeme` under `jaycarson373-7760s-projects`.
 
 ## Run locally
 
