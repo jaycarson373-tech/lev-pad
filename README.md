@@ -1,33 +1,37 @@
-# Lev Pad
+# LeverMeme
 
-Lev Pad targets leveraged pump.fun markets on Solana mainnet, paired against xSOL. The current public interface is still a demo: landing page, trading terminal, listing preview, and portfolio.
+LeverMeme targets pump.fun-only markets up to 10× long/short, paired against xSOL. Rebranded from Lev Pad. The launch registry starts empty: no seeded tokens, positions, charts, volume or rewards.
 
 Vercel production: https://lev-pad.vercel.app
 
-`vercel.json` serves the static `dist/` output with no install or build step. The production project is `lev-pad` under `jaycarson373-7760s-projects`. Deploy from this repository using `vercel deploy --prod` after linking to that project.
+`vercel.json` runs `npm ci` and `npm run build`, serves `dist/`, and deploys read-only functions from `api/`. The production project is `lev-pad` under `jaycarson373-7760s-projects`.
 
 ## Run locally
 
-Requires Python 3. From this directory:
+Requires Node 22+ and npm. From this directory:
 
 ```sh
-python3 -m http.server 8080 --directory dist
+npm ci
+npm run build
+npm test
+node scripts/browser-check.mjs
 ```
 
-Open http://localhost:8080. Routes: `/`, `/trade/`, `/list-token/`, `/portfolio/`.
-No compilation, dependencies, or secrets are required. Deploy `dist/` on a static host with directory index support.
+Routes: `/`, `/trade/`, `/list-token/`, `/portfolio/`, `/ecosystem/`. Source is in `web/`; generated output is in `dist/`. A plain static server does not serve the Vercel API functions. Browser tests use Playwright; install Chromium using `npx playwright install chromium` if needed. Screenshots are written to the workspace `outputs/` directory, outside this checkout.
 
-For Vercel, import the repository root. The committed `vercel.json` serves `dist/` directly with installation and build steps disabled. The existing interface routes remain available; this hosting configuration does not enable real-money trading.
+For Vercel, import the repository root. Set `SOLANA_RPC_URL` as a server-only environment variable for production-grade mainnet reads. The fallback public RPC is rate-limited and may reject shared hosting requests. API failures appear as errors, never invented verification or balances. No paid RPC credential is bundled in the client.
 
 ## Current functionality
 
-Market search, direction and multiplier controls, illustrative position calculations, and listing preview controls run in the browser.
+Empty market terminal, long/short selection, exact integer-based 1–10× sizing, and three-step listing drafts. Listing verifies the mint, mainnet genesis, pump.fun curve PDA, owner and discriminator. Wallet connection uses real Wallet Standard discovery on `solana:mainnet`; the portfolio can read finalized wallet SOL balances. Drafts are saved on the current device and are not submitted listings.
+
+The ecosystem view separates insurance, user rewards, Meme Bank reserves and buybacks/burns. Fee splits, eligibility, treasury permissions and activation are pending configuration. No financial returns are promised.
 
 ## Production trading status
 
-This release is a public interface demo. Market data, balances, positions, wallet connection, deposits, withdrawals, and listing lookup are simulated. The chart is illustrative. No signatures are requested, transactions submitted, or funds moved. Listing previews are not persisted. Options and watchlist views are not implemented.
+This is a public pre-launch interface. Trading, collateral deposits/withdrawals, burns, market funding and reward claims are unavailable. No transaction instructions are constructed or sent. No market charts, collateral balances, positions, or trade histories are fabricated. Account reads and passing tests do not constitute a security audit or full mainnet acceptance.
 
-Real trading requires a specified Solana program or trading provider, the verified xSOL mint and market addresses, wallet integration, live pricing, persistent positions, collateral and settlement handling, and tested liquidation rules. None of those services or contract addresses have been supplied for this project.
+Real trading still requires verified LeverMeme and xSOL mints, a deployed derivatives program and authenticated market registry, funded vaults, burn requirements, minimum liquidity, fee policies/recipients, live pricing, collateral/settlement handling and tested liquidation rules. Supplying SOL plus meme tokens while quoting in xSOL requires defined conversion/vault rules. Pump.fun origin alone does not establish eligibility for 10× exposure.
 
 ## Mainnet release checks
 
@@ -42,11 +46,10 @@ Preflight rejects missing configuration, wrong networks, invalid mint/vault acco
 
 ## Files
 
-- `dist/index.html`: landing page
-- `dist/trade/index.html`: demo terminal
-- `dist/list-token/index.html`: listing preview
-- `dist/portfolio/index.html`: sample portfolio
-- `dist/assets/`: shared styles, interaction code, original generated hero artwork
+- `web/`: LeverMeme page, style, icon and wallet client source
+- `api/` and `lib/`: read-only mainnet API handlers and verification
+- `dist/`: generated multi-route website and bundled assets
+- `tests/` and `scripts/`: build, browser and account validation checks
 - `.openai/hosting.json`: existing Sites deployment identity
 
-The original generated artwork is included; this repository does not include the reference site's source or assets.
+Legacy artwork is retained but unused. The new design uses original UI styling and a simple vector mark; it does not copy the reference site's source or assets.
