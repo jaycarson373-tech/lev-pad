@@ -1,0 +1,32 @@
+# One role per stack/state volume. Use separate project names, env files and
+# host ports for the market/creator/buyback roles. No wallet keys are mounted.
+name: levermeme-signer
+services:
+  signer:
+    build:
+      context: ..
+      dockerfile: services/signer.Dockerfile
+    env_file: ../.env.signer
+    environment:
+      SIGNER_BIND_ADDRESS: 0.0.0.0
+      SIGNER_CONTAINER_NETWORK: private
+      SIGNER_PORT: 8787
+    # Only a HOST-LOCAL HTTPS reverse proxy may reach this port. Never change
+    # this mapping to 0.0.0.0 or publish the signing service directly.
+    ports: ['127.0.0.1:${SIGNER_HOST_PORT:-8787}:8787']
+    volumes: [signer-state:/app/.runtime]
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 90s
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD, node, scripts/signer-health.mjs]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+volumes:
+  signer-state:

@@ -1,12 +1,13 @@
 // Dry-run by default. Real execution requires explicit CLI mode, bounded policy
 // and an independently secured signer that NEVER broadcasts by itself.
-import { mkdir,readFile,rename,open,unlink } from 'node:fs/promises';
+import { mkdir,rename,open } from 'node:fs/promises';
 import { address,getTransactionDecoder,getBase64EncodedWireTransaction,getSignatureFromTransaction } from '@solana/kit';
 import { findAssociatedTokenPda } from '@solana-program/token';
-import { launchConfig,verifiedProtocol,runtimeSnapshot,programAccounts,fetchAccount } from '../lib/deployment.mjs';
+import { launchConfig,validateLaunch,verifiedProtocol,runtimeSnapshot,programAccounts,fetchAccount } from '../lib/deployment.mjs';
 import { prepareAction,submitTransaction } from '../lib/transactions.mjs';
 import { settlementCandidate } from '../lib/keeper.mjs';
 import { keeperState,reserveKeeperBudget } from '../lib/keeper-state.mjs';
+import { durableState } from '../lib/durable-state.mjs';
 import { boundedProviderJson,WSOL,CLASSIC_TOKEN } from '../lib/revenue.mjs';
 import { rpc } from '../lib/mainnet-read.mjs';
 const execute=process.argv.includes('--execute'),once=process.argv.includes('--once');
@@ -21,14 +22,18 @@ const maxInput=BigInt(process.env.KEEPER_BUYBACK_MAX_INPUT_BASE_UNITS||'0'),dail
 if(!Number.isInteger(interval)||interval<1000||interval>30000)throw new Error('KEEPER_INTERVAL_MS must be 1000–30000.');
 if(tasks.has('buybacks')&&(!['SOL','WSOL','xSOL'].includes(asset)||maxInput<minInput||minInput<=0n||execute&&dailyInput<maxInput))throw new Error('Buybacks require explicit positive per-action and daily token/SOL input limits.');
 if(execute&&(!signerUrl||new URL(signerUrl).protocol!=='https:'||new URL(signerUrl).username||new URL(signerUrl).password||maxTx<=0n||daily<maxTx))throw new Error('Execution requires an HTTPS managed signer and explicit SOL budgets.');
-const root=new URL('../.runtime/',import.meta.url),statePath=new URL('keeper-state.json',root),lockPath=new URL('keeper.lock',root),healthPath=new URL('keeper-health.json',root);
-await mkdir(root,{recursive:true});const stop=new AbortController();let stopping=false,lock;
+const root=new URL('../.runtime/',import.meta.url),healthPath=new URL('keeper-health.json',root);
+await mkdir(root,{recursive:true});const stop=new AbortController();let stopping=false,stateStore;
 for(const event of ['SIGTERM','SIGINT'])process.once(event,()=>{stopping=true;stop.abort();});
 const read=(method,params)=>rpc(method,params,{signal:stop.signal});
-if(execute){try{lock=await open(lockPath,'wx',0o600);}catch{throw new Error('Keeper lock exists. Reconcile the process and stored signature before removing a stale lock.');}await lock.writeFile(String(process.pid));}
+if(execute){
+ const config=launchConfig();if(validateLaunch(config).length)throw new Error('Executing keeper requires final public deployment configuration.');
+ const context={wallet,programAddress:config.programAddress,asset};
+ stateStore=await durableState({directory:root,name:'keeper',initialize:()=>keeperState(null,context),validate:state=>keeperState(state,context)});
+}
 async function atomicFile(path,value){const temp=new URL(path.pathname+'.tmp','file:');const file=await open(temp,'w',0o600);try{await file.writeFile(JSON.stringify(value));await file.sync();}finally{await file.close();}await rename(temp,path);}
-async function loadState(config){let value;try{value=JSON.parse(await readFile(statePath,'utf8'));}catch(error){if(error.code!=='ENOENT')throw new Error('Keeper state is unreadable/corrupt. Execution stopped; reconcile manually.');}return keeperState(value,{wallet,programAddress:config.programAddress,asset});}
-const saveState=state=>atomicFile(statePath,state);
+async function loadState(config){return keeperState(await stateStore.load(),{wallet,programAddress:config.programAddress,asset});}
+const saveState=state=>stateStore.save(state);
 const displayUnits=(n,decimals)=>{const scale=10n**BigInt(decimals);return String(n/scale)+'.'+String(n%scale).padStart(decimals,'0');};
 async function tick(){
  const config=launchConfig(),live=await verifiedProtocol(config,read);
@@ -87,4 +92,4 @@ try{
   if(once&&health.phase==='degraded')process.exitCode=1;
   if(!once&&!stopping)await new Promise(resolve=>{const done=()=>{clearTimeout(timer);stop.signal.removeEventListener('abort',done);resolve();};const timer=setTimeout(done,interval);stop.signal.addEventListener('abort',done,{once:true});});
  }while(!once&&!stopping);
-}finally{if(lock){await lock.close();await unlink(lockPath).catch(()=>{});}}
+}finally{await stateStore?.close();}

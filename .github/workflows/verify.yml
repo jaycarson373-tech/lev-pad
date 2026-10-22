@@ -26,3 +26,57 @@ jobs:
           node-version: 22
       - run: npm --prefix services/signer ci --ignore-scripts
       - run: npm --prefix services/signer audit --omit=dev --audit-level=moderate
+  operations-containers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate service definitions without credentials
+        run: |
+          cp .env.example .env.keeper
+          cp services/signer/signer.env.example .env.signer
+          docker compose -f services/compose.yaml config --quiet
+          docker compose -f services/signing.compose.yaml config --quiet
+      - name: Build actual worker and signing-service images
+        run: |
+          docker build -f services/keeper.Dockerfile -t levermeme-worker:ci .
+          docker build -f services/signer.Dockerfile -t levermeme-signer:ci .
+      - name: Unconfigured containers must fail closed without requesting keys
+        run: |
+          if docker run --rm levermeme-signer:ci; then
+            echo 'ERROR: unconfigured signing service started'
+            exit 1
+          fi
+          if docker run --rm levermeme-worker:ci; then
+            echo 'ERROR: unconfigured keeper started'
+            exit 1
+          fi
+  onchain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NO_DNA: '1'
+      SBF_RUST_HOME: /tmp/levermeme-platform-tools/rust
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install checksum-pinned official SBF toolchain
+        run: |
+          curl --fail --location --retry 3 https://github.com/anza-xyz/platform-tools/releases/download/v1.52/platform-tools-linux-x86_64.tar.bz2 -o /tmp/platform-tools.tar.bz2
+          echo '8b3861e93daf085ec12b65c4fac374d9bec4587a3de16871da6b08ab0c1d907e  /tmp/platform-tools.tar.bz2' | sha256sum --check
+          mkdir -p /tmp/levermeme-platform-tools
+          tar -xjf /tmp/platform-tools.tar.bz2 -C /tmp/levermeme-platform-tools
+      - name: Prepare current host Rust for locked SVM test dependencies
+        run: rustup update stable --no-self-update
+      - name: Compile real program and local CPI test counterpart
+        run: npm run build:onchain
+      - name: Run Rust arithmetic and actual SVM instruction tests
+        run: npm run test:onchain
+      - name: Retain program artifact separately from test-only counterpart
+        uses: actions/upload-artifact@v4
+        with:
+          name: levermeme-sbf-candidate
+          path: onchain/target/sbf-solana-solana/release/levermeme.so
+          if-no-files-found: error
+          retention-days: 7
