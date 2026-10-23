@@ -8,7 +8,7 @@ test('10x sizing uses exact integer units and rejects invalid margin',()=>{
   assert.equal(positionSize('1',11),null);assert.equal(positiveDecimal('1.001',2),false);
 });
 test('routes preserve trading, listing, portfolio and ecosystem',()=>{
-  assert.equal(routeFor('/trade/'),'trade');assert.equal(routeFor('/list-token/'),'launch');assert.equal(routeFor('/portfolio/'),'account');assert.equal(routeFor('/ecosystem/'),'ecosystem');
+  assert.equal(routeFor('/trade/'),'trade');assert.equal(routeFor('/list-token/'),'launch');assert.equal(routeFor('/portfolio/'),'account');assert.equal(routeFor('/ecosystem/'),'ecosystem');assert.equal(routeFor('/lending/'),'lending');
 });
 test('untrusted text is HTML escaped',()=>{assert.equal(escapeHtml('<img onerror="x">'), '&lt;img onerror=&quot;x&quot;&gt;');});
 test('pump origin rejects account owner and discriminator substitutions',()=>{

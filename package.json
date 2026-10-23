@@ -13,7 +13,8 @@
     "keeper": "node scripts/keeper.mjs",
     "setup": "node scripts/setup.mjs",
     "signer": "node services/signer/index.mjs",
-    "check:release": "node scripts/release-check.mjs"
+    "check:release": "node scripts/release-check.mjs",
+    "estimate:deployment": "node scripts/deployment-cost.mjs"
   },
   "dependencies": {
     "@solana-program/address-lookup-table": "0.16.0",

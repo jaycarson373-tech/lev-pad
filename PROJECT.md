@@ -1,7 +1,11 @@
-# LeverMeme checkpoint — October 22, 2026
+# LeverMeme checkpoint — October 23, 2026
 
 Source: https://github.com/jaycarson373-tech/lev-pad
 Public interface: https://levermeme.vercel.app (alias https://lev-pad.vercel.app). Vercel project: levermeme in jaycarson373-7760s-projects.
+
+October 23 update: professional product copy now leads with “Leveraged trading. For pump.fun coins.” No conventional-perpetual claim: capped profits/no funding remain unchanged. Added `/lending/` as a clearly labeled, disabled design preview only, with exact-unit illustrative 25% LTV calculation. Interest, term and liquidation/default economics are NOT approved; no lending program, pools, transactions or funded balances have been implemented. Await the user's confirmation before defining money-handling loan terms. No lending capital is taken from trading reserves.
+
+Low-cost work: SBF release post-processing strips non-runtime symbols using official llvm-objcopy. Candidate shrank from 1,126,936 to 973,776 bytes; 30 Rust/SVM tests passed against stripped artifacts. Live RPC rent estimate is about 4.9485 SOL for program storage plus initialization/transaction fees, with conservative buffer-plus-program headroom about 9.8961 SOL (not extra permanent spend). See LOW_COST_LAUNCH.md; never quote this as the complete funded-launch cost. `npm run estimate:deployment` re-quotes current mainnet rent for the current artifact. Existing mainnet launch config and pauses are unchanged. New checks bring JS tests to 75 (105 combined with Rust/SVM), plus responsive browser checks across 7 routes.
 
 Product: pump.fun-origin Solana meme markets against verified xSOL; isolated long/short up to 10× with fully-reserved capped profit, not uncapped perpetuals. Empty initial registry. Listing permit, LeverMeme burn, SOL/meme escrow, manual approval, additional xSOL capital, oracle and explicit activation. Not Robinhood Chain.
 

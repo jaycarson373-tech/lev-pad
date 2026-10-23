@@ -1,0 +1,9 @@
+{
+  "status": "design-preview",
+  "enabled": false,
+  "proposedMaxLtvBps": 2500,
+  "termDays": null,
+  "interestBps": null,
+  "programAddress": null,
+  "termsApproved": false
+}

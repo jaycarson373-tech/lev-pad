@@ -2,6 +2,8 @@
 
 ## Public setup — no keys
 
+For the current measured storage estimate, recurring-cost assumptions and phased low-cost release path, see LOW_COST_LAUNCH.md. Run `npm run estimate:deployment` after final setup to re-quote rent for the exact stripped artifact. Do not deploy diagnostic `.unstripped` copies or the execution test fixture. Lending is currently a disabled design preview, not an on-chain module.
+
 Open /admin/. Save a draft now and enter final public LeverMeme/xSOL mints, operator and secure deployment program address when available. The artifact selector accepts only .so files and computes their hash locally; it does not upload binaries or wallet files. Downloads/copies always leave public funding disabled.
 
 After those public identities are final:

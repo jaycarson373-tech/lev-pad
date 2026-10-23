@@ -15,6 +15,7 @@ export function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 }
 export function routeFor(path) {
+  if (path.startsWith('/lending')) return 'lending';
   if (path.startsWith('/admin')) return 'admin';
   if (path.startsWith('/list-token')) return 'launch';
   if (path.startsWith('/ecosystem')) return 'ecosystem';

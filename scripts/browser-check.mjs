@@ -49,7 +49,7 @@ try{
  assert.match(await page.locator('.launch-callout').first().textContent(),/10% of supply/);
  await page.screenshot({path:new URL('levermeme-ecosystem.png',output).pathname,fullPage:true});
  await page.setViewportSize({width:390,height:844});await page.goto(origin);await page.locator('.desk').waitFor();
- for(const route of ['/','/trade/','/list-token/','/portfolio/','/ecosystem/','/admin/']){
+ for(const route of ['/','/trade/','/list-token/','/portfolio/','/ecosystem/','/admin/','/lending/']){
    await page.goto(origin+route);await page.locator('#main>*').waitFor();assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`horizontal overflow on ${route}`);
  }
  await page.goto(origin+'/admin/');await page.getByRole('heading',{name:'Launch with receipts.'}).waitFor();
@@ -71,14 +71,26 @@ try{
  const mockMarket={address:key(50),baseMint:key(12),listing:key(51),lister:key(1),enabled:true,approved:true,closed:false,priceFresh:true,price:'1000000000000',twap:'1000000000000',priceSlot:'100',liquidity:'5000000000',reservedProfit:'100000000',openInterest:'200000000',accruedFees:'3000',risk:{maxLeverage:10,maxProfitBps:30000,spreadBps:10,minOracles:3,emergencyDelaySeconds:'3600'}};
  const mockRuntime={configured:true,network:'solana:mainnet',programAddress:key(2),protocolAddress:key(3),admin:key(1),quoteMint:key(11),leverMint:key(10),quoteDecimals:6,leverDecimals:6,protocol:{paused:false,policy:{feeBps:30,burnAmount:'100'}},custodyEnabled:true,tradingEnabled:true,markets:[mockMarket],positions:[],listings:[],blockers:[]};
  await page.route('**/api/runtime*',route=>route.fulfill({json:mockRuntime}));
- await page.setViewportSize({width:1440,height:1000});await page.goto(origin);await page.getByRole('heading',{name:'Memes. Both ways.'}).waitFor();
+ await page.setViewportSize({width:1440,height:1000});await page.goto(origin);await page.getByRole('heading',{name:'Leveraged trading. For pump.fun coins.'}).waitFor();
  assert.match(await page.locator('.order-pane').textContent(),/Profit is capped/);
  await page.locator('#margin').fill('1.25');assert.equal(await page.locator('#position-size').textContent(),'12.5 xSOL');
  await page.getByRole('button',{name:'Review trade',exact:true}).click();await page.locator('#wallet-dialog[open]').waitFor();await page.locator('#wallet-dialog [data-close]').click();
  await page.screenshot({path:new URL('levermeme-live-fixture.png',output).pathname,fullPage:true});
  for(const route of ['/','/portfolio/','/ecosystem/','/admin/']){
-  await page.setViewportSize({width:390,height:844});await page.goto(origin+route);await page.waitForFunction(()=>document.querySelector('#main')?.textContent.includes('verified')||document.querySelector('#main')?.textContent.includes('Memes. Both ways.')||document.querySelector('#main')?.textContent.includes('configured'));
+  await page.setViewportSize({width:390,height:844});await page.goto(origin+route);await page.waitForFunction(()=>document.querySelector('#main')?.textContent.includes('verified')||document.querySelector('#main')?.textContent.includes('Leveraged trading.')||document.querySelector('#main')?.textContent.includes('configured'));
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`live fixture overflow on ${route}`);
  }
- assert.deepEqual(errors,[]);console.log('Browser checks passed: 6 responsive routes, prelaunch gates, listing drafts, ecosystem, admin console, explicitly mocked active-market rendering, trade wallet gate, no page errors.');
+ await page.goto(origin+'/lending/');await page.getByRole('heading',{name:'Borrow SOL. Keep your token exposure.'}).waitFor();
+ await page.locator('#collateral-value').fill('10');assert.equal(await page.locator('[data-loan-limit]').textContent(),'2.5 SOL');
+ assert.equal(await page.getByRole('button',{name:'Borrowing not available',exact:true}).isDisabled(),true);assert.equal(await page.getByRole('button',{name:'Lending not available',exact:true}).isDisabled(),true);
+ await page.locator('#collateral-value').fill('-1');assert.match(await page.locator('[data-loan-message]').textContent(),/positive SOL/);assert.equal(await page.locator('[data-loan-limit]').textContent(),'— SOL');
+ await page.locator('#collateral-value').fill('10');
+ await page.screenshot({path:new URL('levermeme-lending-mobile.png',output).pathname,fullPage:true});
+ await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:new URL('levermeme-lending-desktop.png',output).pathname,fullPage:true});
+ for(const width of [768,1024]){
+  await page.setViewportSize({width,height:1000});
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`lending overflow at ${width}px`);
+ }
+ await page.screenshot({path:new URL('levermeme-lending-tablet.png',output).pathname,fullPage:true});
+ assert.deepEqual(errors,[]);console.log('Browser checks passed: 7 responsive routes, professional copy, inactive lending illustration, prelaunch gates, listing drafts, ecosystem, admin console, explicitly mocked active-market rendering, trade wallet gate, no page errors.');
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve));}
