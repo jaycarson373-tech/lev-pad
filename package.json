@@ -14,7 +14,8 @@
     "setup": "node scripts/setup.mjs",
     "signer": "node services/signer/index.mjs",
     "check:release": "node scripts/release-check.mjs",
-    "estimate:deployment": "node scripts/deployment-cost.mjs"
+    "estimate:deployment": "node scripts/deployment-cost.mjs",
+    "check:env": "node scripts/check-env.mjs"
   },
   "dependencies": {
     "@solana-program/address-lookup-table": "0.16.0",

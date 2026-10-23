@@ -9,5 +9,6 @@ COPY lib ./lib
 COPY config ./config
 COPY services/signer/index.mjs ./services/signer/index.mjs
 COPY scripts/signer-health.mjs ./scripts/signer-health.mjs
+COPY scripts/check-env.mjs ./scripts/check-env.mjs
 USER node
 CMD ["node", "services/signer/index.mjs"]

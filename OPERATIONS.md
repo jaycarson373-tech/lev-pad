@@ -1,5 +1,7 @@
 # Final setup and operations
 
+For the short operator/funding/environment/test sequence, start with [START_HERE.md](START_HERE.md). The root `.env.example`, `.env.keeper.example` and `.env.signer.example` are the canonical per-service templates. `npm run check:env -- web|keeper|signer` validates injected settings without printing values (see the guide for Node's `--env-file` commands).
+
 ## Public setup — no keys
 
 For the current measured storage estimate, recurring-cost assumptions and phased low-cost release path, see LOW_COST_LAUNCH.md. Run `npm run estimate:deployment` after final setup to re-quote rent for the exact stripped artifact. Do not deploy diagnostic `.unstripped` copies or the execution test fixture. Lending is currently a disabled design preview, not an on-chain module.
@@ -55,13 +57,13 @@ npm --prefix services/signer ci --ignore-scripts
 npm run signer
 ```
 
-Configure the separate signing service using services/signer/signer.env.example. It requires SIGNER_ENABLE=I_ACCEPT_POLICY_BOUND_SIGNING, a strong secret access token, one explicit role/wallet and independent SOL/token budgets. Bind its IAM role to kms:GetPublicKey and kms:Sign on only the intended existing key. It listens on loopback port 8787; put it behind your authenticated HTTPS reverse proxy, never an open raw port. Keeper URL ends in /sign. Do not put this service or its secret token in public browser assets.
+Configure the separate signing service using `.env.signer.example` at the repository root. It requires SIGNER_ENABLE=I_ACCEPT_POLICY_BOUND_SIGNING, a strong secret access token, one explicit role/wallet and independent SOL/token budgets. Bind its IAM role to kms:GetPublicKey and kms:Sign on only the intended existing key. It listens on loopback port 8787; put it behind your authenticated HTTPS reverse proxy, never an open raw port. Keeper URL ends in /sign. Do not put this service or its secret token in public browser assets.
 
 Before signing it independently checks mainnet bytecode/authority, namespace, generated instruction discriminators and account positions, the allowed role, wallet/payer, blockhash, native simulation costs and buyback limits. A market keeper cannot voluntarily close a user's position. Durable counters/replay cache serialize requests and survive restarts. The service holds an exclusive state lock. Public-vector, policy and HTTP lifecycle tests do not constitute live IAM/KMS or funded acceptance. Cloud account permissions, a TLS endpoint and release approval remain operator-controlled setup, not something a wallet CA supplies.
 
 ### Packaged signing service
 
-`services/signing.compose.yaml` and `services/signer.Dockerfile` package one signer role per durable volume. Supply `.env.signer` from the host secret manager (see `services/signer/signer.env.example`), attach the host's scoped IAM workload identity, and run:
+`services/signing.compose.yaml` and `services/signer.Dockerfile` package one signer role per durable volume. Supply `.env.signer` from the host secret manager (see `.env.signer.example`), attach the host's scoped IAM workload identity, and run:
 
 ```sh
 docker compose --env-file .env.signer -f services/signing.compose.yaml up -d --build

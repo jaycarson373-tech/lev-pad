@@ -5,6 +5,6 @@ RUN npm ci --omit=dev --ignore-scripts && mkdir -p /app/.runtime && chown node:n
 COPY clients/program.mjs ./clients/program.mjs
 COPY lib ./lib
 COPY config ./config
-COPY scripts/keeper.mjs scripts/keeper-health.mjs ./scripts/
+COPY scripts/keeper.mjs scripts/keeper-health.mjs scripts/check-env.mjs ./scripts/
 USER node
 CMD ["node", "scripts/keeper.mjs"]
