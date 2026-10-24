@@ -23,3 +23,7 @@ The review handoff beside this repository records exact commands, test/build res
 ## Final acceptance plan
 
 Recheck the exact production configuration and network, then use a separately reviewed funding cap and a wallet-controlled signature for the smallest representative lifecycle described above. Reject a stale quote/account change, preserve the original signed wire during an uncertain response, reconcile the original signature after a restart and verify exact recipient and mint effects. Compare reserved budgets and liabilities before/after. Publish only finalized genuine receipts. A UI callback alone is not settlement evidence.
+
+## Mainnet follow-through — October 24
+
+Both wallet preparation and relay broadcast now require an explicit successful simulation result; a missing `err`, null response, false/zero value or malformed envelope is not success. The independent managed-signer check applies the same rule. New runtime tests verify malformed responses cannot reach the broadcast call. Program identities, deployment, signed-price acceptance, liquidity and existing execution pauses remain unchanged.
