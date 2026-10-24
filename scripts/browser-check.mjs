@@ -29,12 +29,12 @@ try{
  await page.goto(origin);await page.locator('.desk').waitFor();await page.evaluate(()=>document.fonts.ready);
  assert.match(await page.title(),/LeverMeme/);assert.equal(await page.locator('#leverage').getAttribute('max'),'10');
  await page.locator('#margin').fill('1.25');assert.equal(await page.locator('#position-size').textContent(),'12.5 xSOL');
- await page.getByRole('button',{name:'↘ Short',exact:true}).click();assert.equal(await page.getByRole('button',{name:'↘ Short',exact:true}).getAttribute('aria-pressed'),'true');
+ await page.getByRole('button',{name:'Short',exact:true}).click();assert.equal(await page.getByRole('button',{name:'Short',exact:true}).getAttribute('aria-pressed'),'true');
  await page.locator('#margin').fill('-1');assert.equal(await page.locator('#position-size').textContent(),'— xSOL');
  await page.locator('#margin').fill('');
  const output=new URL('../../outputs/',import.meta.url);await mkdir(output,{recursive:true});
  await page.screenshot({path:new URL('levermeme-desktop.png',output).pathname,fullPage:true});
- await page.getByRole('button',{name:'Connect wallet ↗',exact:true}).first().click();await page.locator('#wallet-dialog[open]').waitFor();assert.match(await page.locator('#wallet-list').textContent(),/No compatible wallet detected/);await page.locator('#wallet-dialog [data-close]').click();
+ await page.getByRole('button',{name:'Connect wallet',exact:true}).first().click();await page.locator('#wallet-dialog[open]').waitFor();assert.match(await page.locator('#wallet-list').textContent(),/No compatible wallet detected/);await page.locator('#wallet-dialog [data-close]').click();
  await page.getByRole('button',{name:'Deposit',exact:true}).click();await page.locator('#action-dialog[open]').waitFor();assert.match(await page.locator('#action-content').textContent(),/No markets have been listed/);await page.locator('#action-dialog [data-close]').click();
  await page.locator('nav a[data-nav="launch"]').click();await page.locator('#mint').fill('invalid');await page.locator('#verify-mint').click();await page.waitForFunction(()=>document.querySelector('#verify-message')?.classList.contains('error'));assert.equal(await page.locator('[data-next="2"]').isDisabled(),true);
  await page.screenshot({path:new URL('levermeme-listing.png',output).pathname,fullPage:true});
@@ -58,7 +58,7 @@ try{
  assert.equal((await page.request.get(origin+'/api/transaction')).status(),405);
  await page.getByRole('heading',{name:'Save now. Add your addresses last.'}).waitFor();
  await page.locator('[data-setup-form] input[name="admin"]').fill(key(4));
- await page.getByRole('button',{name:'Check public setup →',exact:true}).click();await page.locator('.setup-checks').waitFor();
+ await page.getByRole('button',{name:'Check public setup',exact:true}).click();await page.locator('.setup-checks').waitFor();
  assert.match(await page.locator('[data-setup-message]').textContent(),/final public addresses/);
  const downloadPromise=page.waitForEvent('download');await page.getByRole('button',{name:'Download setup draft',exact:true}).click();const download=await downloadPromise;
  const exported=JSON.parse(await readFile(await download.path(),'utf8'));assert.equal(exported.admin,key(4));assert.equal(exported.leverMint,null);assert.equal(exported.custodyEnabled,false);assert.equal(exported.tradingEnabled,false);
@@ -92,5 +92,32 @@ try{
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`lending overflow at ${width}px`);
  }
  await page.screenshot({path:new URL('levermeme-lending-tablet.png',output).pathname,fullPage:true});
+ // Explicit public-address-only wallet fixture. It cannot sign or broadcast.
+ // Proves the listing UX requires an unused wallet/mint permit AND burn acknowledgement.
+ await page.addInitScript(({address})=>{
+  const account={address,publicKey:new Uint8Array(32).fill(1),chains:['solana:mainnet'],features:['solana:signTransaction']};
+  const wallet={version:'1.0.0',name:'Listing test wallet',icon:'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg"/%3E',chains:['solana:mainnet'],accounts:[],features:{
+   'standard:connect':{version:'1.0.0',connect:async()=>{wallet.accounts=[account];return {accounts:[account]};}},
+   'standard:disconnect':{version:'1.0.0',disconnect:async()=>{wallet.accounts=[];}},
+   'standard:events':{version:'1.0.0',on:()=>()=>{}},
+   'solana:signTransaction':{version:'1.0.0',supportedTransactionVersions:[0],signTransaction:async()=>{window.fixtureSigningAttempts=(window.fixtureSigningAttempts||0)+1;throw new Error('Fixture signing is disabled');}}
+  }};
+  const register=api=>api.register(wallet);window.addEventListener('wallet-standard:app-ready',event=>register(event.detail));window.dispatchEvent(new CustomEvent('wallet-standard:register-wallet',{detail:register}));
+ },{address:key(1)});
+ const listingMint='BM2k8mJUbMthHoioykyUm2NjMrXvLBYhoXruwYLpump';
+ const listingRuntime={...mockRuntime,protocol:{paused:false,policy:{feeBps:30,burnAmount:'1000000',minSolLamports:'1000000'}},permits:[{protocol:key(3),lister:key(1),baseMint:listingMint,consumed:false,expiresAt:String(Math.floor(Date.now()/1000)+3600)}]};
+ await page.route('**/api/runtime*',route=>route.fulfill({json:listingRuntime}));
+ await page.route('**/api/wallet*',route=>route.fulfill({json:{lamports:'100000000'}}));
+ await page.route('**/api/transaction*',route=>route.fulfill({status:503,json:{error:'Controlled test: signer is not requested.'}}));
+ await page.setViewportSize({width:1440,height:1000});await page.goto(origin+'/list-token/');
+ await page.getByRole('button',{name:'Connect wallet',exact:true}).first().click();await page.getByRole('button',{name:'Listing test wallet',exact:true}).click();await page.locator('#wallet-dialog').waitFor({state:'hidden'});
+ await page.locator('#mint').fill(listingMint);await page.locator('#verify-mint').click();await page.locator('[data-next="2"]:enabled').waitFor();await page.locator('[data-next="2"]').click();
+ await page.locator('#sol-liquidity').fill('0.001');await page.locator('#token-liquidity').fill('1');await page.locator('#review-listing').click();
+ await page.waitForFunction(()=>document.querySelectorAll('.admission-checks .passed').length===6);
+ assert.equal(await page.locator('#execute-listing').isDisabled(),true);await page.locator('#burn-ack').check();assert.equal(await page.locator('#execute-listing').isEnabled(),true);
+ await page.locator('#toast.show').waitFor({state:'hidden'});
+ await page.screenshot({path:new URL('levermeme-listing-review-fixture-desktop.png',output).pathname,fullPage:true});
+ await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);await page.screenshot({path:new URL('levermeme-listing-review-fixture-mobile.png',output).pathname,fullPage:true});
+ await page.locator('#execute-listing').click();await page.getByText('Controlled test: signer is not requested.',{exact:true}).waitFor();assert.equal(await page.evaluate(()=>window.fixtureSigningAttempts||0),0);
  assert.deepEqual(errors,[]);console.log('Browser checks passed: 7 responsive routes, professional copy, inactive lending illustration, prelaunch gates, listing drafts, ecosystem, admin console, explicitly mocked active-market rendering, trade wallet gate, no page errors.');
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve));}

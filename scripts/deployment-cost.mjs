@@ -1,5 +1,10 @@
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import { resolve } from 'node:path';
 import { deploymentCost } from '../lib/deployment-cost.mjs';
-const artifact=await readFile(new URL('../onchain/target/sbf-solana-solana/release/levermeme.so',import.meta.url));
+const args=process.argv.slice(2);
+if(args.length&&!(args.length===2&&args[0]==='--artifact'&&args[1].endsWith('.so')))throw new Error('Usage: npm run estimate:deployment -- [--artifact /path/to/reviewed-program.so]. No wallet files accepted.');
+const path=args.length?resolve(args[1]):new URL('../onchain/target/sbf-solana-solana/release/levermeme.so',import.meta.url);
+const artifact=await readFile(path);
+if(!artifact.subarray(0,4).equals(Buffer.from([127,69,76,70])))throw new Error('Only a compiled ELF program can be quoted. No signing material is accepted.');
 console.log(JSON.stringify({...await deploymentCost({programSize:artifact.length}),artifactSha256:createHash('sha256').update(artifact).digest('hex')},null,2));
