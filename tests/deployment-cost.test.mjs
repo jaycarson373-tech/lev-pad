@@ -7,6 +7,9 @@ test('deployment estimate queries actual mainnet rent for exact capacity without
  const read=async(method,params)=>{calls.push([method,params]);if(method==='getGenesisHash')return MAINNET_GENESIS;assert.equal(method,'getMinimumBalanceForRentExemption');return params[0]*10;};
  const result=await deploymentCost({programSize:1000000,read});
  assert.equal(result.accounts.programData.bytes,1000045);assert.equal(result.accounts.temporaryBuffer.bytes,1000037);assert.equal(result.retainedProgramRentSol,'0.010000810');
+ assert.equal(result.standardLoaderV3ReusedBufferStorageFundingSol,result.retainedProgramRentSol);
+ assert(BigInt(result.conservativeBufferPlusProgramHeadroomSol.replace('.',''))>BigInt(result.standardLoaderV3ReusedBufferStorageFundingSol.replace('.','')));
+ assert.equal(result.storageIncludingInitializationSol,'0.010004380');
  assert.equal(calls.length,6);assert(result.notes.some(x=>x.includes('NOT included')));
 });
 test('cost estimate refuses the wrong chain, unsafe sizes and invalid RPC rent',async()=>{

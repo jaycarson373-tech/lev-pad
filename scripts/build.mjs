@@ -4,6 +4,7 @@ const root = new URL('../', import.meta.url);
 await mkdir(new URL('dist/assets/', root), { recursive: true });
 await copyFile(new URL('web/styles.css', root), new URL('dist/assets/levermeme.css', root));
 await copyFile(new URL('web/lending.css', root), new URL('dist/assets/lending.css', root));
+await copyFile(new URL('web/identity.css', root), new URL('dist/assets/identity.css', root));
 await copyFile(new URL('web/favicon.svg', root), new URL('dist/assets/favicon.svg', root));
 for (const route of ['', 'trade/', 'list-token/', 'portfolio/', 'ecosystem/', 'admin/', 'lending/']) {
   await mkdir(new URL(`dist/${route}`, root), { recursive: true });

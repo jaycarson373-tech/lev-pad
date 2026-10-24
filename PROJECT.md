@@ -1,4 +1,8 @@
-# LeverMeme checkpoint — October 23, 2026
+# LeverMeme checkpoint — October 24, 2026
+
+October 24: applied Project Optimizer to a custom SVG icon/graphic system and a rebuilt three-step listing journey. Verified wallet/mint permit, unused/expiry/namespace, pause/release, existing mint and exact-unit funding UX checks precede the burn review. Financial policies, paused configuration, wallet-scoped records and on-chain authorization are unchanged. See DESIGN.md for inspected references, original adaptations and fixture labels. Local verification: 90 JS tests, build and seven-route responsive browser checks including a non-signing wallet listing fixture.
+
+Cheaper release: `opt-level = "z"` with overflow checks/fat LTO intact reduces the candidate to 782,880 bytes. Size-build CI 40108418249 passes all 30 Rust/SVM tests. October 24 mainnet storage quote is 3.978742360 SOL for the program, plus 0.003114040 initialization. Standard loader-v3 reuses buffer funding before creating ProgramData; about 4.2 SOL is a suggested initial fresh-deployment allowance, not a guaranteed ceiling or authority to spend. This supersedes the previous 10.1 SOL conservative funding suggestion. Final identities still require rebuild/re-quote and wallet-reviewed deployment. See LOW_COST_LAUNCH.md and START_HERE.md.
 
 Source: https://github.com/jaycarson373-tech/lev-pad
 Public interface: https://levermeme.vercel.app (alias https://lev-pad.vercel.app). Vercel project: levermeme in jaycarson373-7760s-projects.

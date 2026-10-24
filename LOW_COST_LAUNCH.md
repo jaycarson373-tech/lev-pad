@@ -1,4 +1,25 @@
-# Low-cost launch plan — October 23, 2026
+# Low-cost launch plan — October 24, 2026
+
+## Cheaper measured release
+
+The size-optimized build is **782,880 bytes** (previously 973,776), saving **190,896 bytes / 19.6%** and **0.969751680 SOL** in observed program storage. It preserves checked arithmetic, fat LTO, all financial rules and all 30 Rust/SVM tests. Candidate SHA-256: `d414a9328acf579ad4eaa23b6146557462152fc2138bf41340e7d32e13a536e0`; [verified CI candidate](https://github.com/jaycarson373-tech/lev-pad/actions/runs/40108418249). This candidate still uses the local template identity: rebuild for final public identities, then re-quote before approving any mainnet deployment.
+
+Mainnet rent rechecked October 24 at 16:00 UTC:
+
+| Item | SOL |
+| --- | ---: |
+| Program + exact-size ProgramData storage | **3.978742360** |
+| Protocol + revenue ledger initialization storage | **0.003114040** |
+| Combined retained storage | **3.981856400** |
+| Temporary upload buffer | 3.977868600 |
+| Standard loader-v3 storage funding, reusing the buffer | **3.978742360** |
+| Optional conservative buffer-plus-program headroom | 7.956610960 |
+
+**Suggested initial deployer allowance: about 4.2 SOL**, subject to the actual reviewed signer plan, final binary and fees. Standard loader-v3 drains the buffer back to its payer **before** funding ProgramData, so the buffer does not require a second permanent storage payment. The old 10.1 SOL conservative funding suggestion is superseded for this standard fresh-deploy flow. Some deployment services reserve additional headroom; verify their real plan rather than promising a universal ceiling. Source: [Agave loader implementation, DeployWithMaxDataLen](https://github.com/anza-xyz/agave/blob/master/programs/bpf_loader/src/lib.rs).
+
+Transaction/priority fees, retries, new market/user accounts, independent review, oracle usage, mint creation, xSOL market reserves, listing burn/escrow and lending principal are extra. No spending is authorized by an estimate. A small keeper test can start with 0.1 SOL gas and measured caps; it is not a continuous-operations budget. Start with one market keeper; wallet-approved creator collection/buybacks avoid deploying extra automatic signer roles initially. Do not cut oracle/key/accounting protections to lower cost.
+
+`npm run estimate:deployment -- --artifact /path/to/reviewed-program.so` can quote a downloaded CI candidate separately from the canonical local build. It rejects non-ELF files and accepts no wallet files. Use your project's own mainnet RPC; the shared development helper must not be embedded into production.
 
 ## Current state, simply
 
@@ -13,7 +34,7 @@ The implemented trading product is isolated long/short leverage with fully reser
 3. **Operations:** deploy the market keeper and independent policy-bound signer using `services/compose.yaml` and `services/signing.compose.yaml`; attach scoped IAM/workload identity, TLS, monitoring and durable volumes. Start simulation-only. Do not enable execution or public deposits before independent review and approved funded acceptance.
 4. **Release checks:** verify deposit → long/short → close → withdraw, liquidation, caps, reserve accounting, pause/exits, real oracle operation, fee routes and recovery with confirmed receipts. Then deliberately approve public activation. Existing flags stay disabled until this happens.
 
-## Measured program storage
+## Previous build measurement — historical comparison
 
 `npm run estimate:deployment` is a read-only mainnet RPC quote for the locally built artifact. It checks mainnet genesis and queries `getMinimumBalanceForRentExemption`; no old rent-rate constant is assumed.
 
@@ -26,7 +47,7 @@ Measured October 23 at 17:38 UTC for a **973,776-byte** stripped build candidate
 | Temporary buffer storage | 4.947620280 |
 | Conservative buffer-plus-program wallet headroom | 9.896114320 |
 
-The headroom figure is **not** an additional permanent fee. Buffer funds may be reclaimed/reused by the reviewed deployment flow. Rent is locked account storage; safely recovering program storage is not a routine refund because closing a program affects availability. Transaction/priority fees, retries, user/market accounts and liquidity are extra. Final identity rebuilds can change size: re-quote the exact final binary immediately before signing.
+These October 23 values describe the larger previous candidate, not the current quote above. The headroom figure was **not** an additional permanent fee. Standard loader-v3 reuses buffer funding. Rent is locked account storage; safely recovering program storage is not a routine refund because closing a program affects availability. Transaction/priority fees, retries, user/market accounts and liquidity are extra. Final identity rebuilds can change size: re-quote the exact final binary immediately before signing.
 
 Release post-processing now uses the official SBF `llvm-objcopy --strip-all` approach. It reduced this candidate from 1,126,936 to 973,776 bytes (153,160 bytes / about 13.6%), lowering the observed program storage requirement by 0.778052800 SOL. All existing Rust/SVM cases were rerun against the stripped canonical artifacts. No trading rules were changed. References: [official SBF strip script](https://github.com/anza-xyz/cargo-build-sbf/blob/master/sbf/scripts/strip.sh), [Solana deployment](https://solana.com/docs/programs/deploying).
 
