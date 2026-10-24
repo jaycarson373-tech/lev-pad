@@ -27,3 +27,10 @@ Recheck the exact production configuration and network, then use a separately re
 ## Mainnet follow-through — October 24
 
 Both wallet preparation and relay broadcast now require an explicit successful simulation result; a missing `err`, null response, false/zero value or malformed envelope is not success. The independent managed-signer check applies the same rule. New runtime tests verify malformed responses cannot reach the broadcast call. Program identities, deployment, signed-price acceptance, liquidity and existing execution pauses remain unchanged.
+
+
+## Concurrent main integration — October 24 evening
+
+Integrated origin/main 68578fc, including permit-aware listing review, exact lister/royalty identities, original SVG graphics and the measured smaller deployment artifact. Resolved the two generated/source merge conflicts by retaining the newer listing/identity code while preserving unknown-versus-zero market metrics, correct xSOL liquidity units and the absence of decorative chart timeframe controls when no market exists.
+
+Validation: 91 application tests and production build passed. Desktop 1280px and phone 390px have no document overflow; the real listing form rejects an invalid mint without progressing or requesting a signature. Review implementation e32fa31 is deployed READY at https://levermeme-i6epwpjn0-jaycarson373-7760s-projects.vercel.app. Existing program tests are recorded separately in main's artifact evidence; they are not counted as rerun here. Program deployment, oracle, reserves and execution remain inactive.
