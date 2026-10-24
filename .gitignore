@@ -11,3 +11,6 @@ node_modules/
 onchain/target/
 **/*-keypair.json
 .runtime/
+
+# Also ignore dependency links in isolated development worktrees.
+node_modules
