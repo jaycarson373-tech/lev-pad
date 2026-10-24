@@ -11,6 +11,7 @@ debug = 0
 incremental = false
 
 [profile.release]
+opt-level = "z"
 overflow-checks = true
 lto = "fat"
 codegen-units = 1
