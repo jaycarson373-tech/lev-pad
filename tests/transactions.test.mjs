@@ -1,8 +1,8 @@
 // Transaction-construction fixtures only. Real token movement is tested in LiteSVM.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { getCompiledTransactionMessageDecoder,getTransactionDecoder } from '@solana/kit';
-import { baseUnits,buildAction,prepareAction,inspectWire } from '../lib/transactions.mjs';
+import { getCompiledTransactionMessageDecoder,getTransactionDecoder,getBase64EncodedWireTransaction } from '@solana/kit';
+import { baseUnits,buildAction,prepareAction,inspectWire,submitTransaction } from '../lib/transactions.mjs';
 import * as sdk from '../clients/program.mjs';
 import { fixture,key,account } from './helpers/protocol-fixture.mjs';
 async function setup(){
@@ -35,6 +35,20 @@ test('deposit and withdrawal build generated instructions for the pinned protoco
 });
 test('simulation failure prevents a prepared wallet request',async()=>{
  const f=await setup();await assert.rejects(()=>prepareAction({action:'deposit',wallet:f.wallet,amount:'1'},f.config,(method,params)=>method==='simulateTransaction'?{value:{err:{InstructionError:[0,1]}}}:f.read(method,params)),/Simulation rejected/);
+});
+test('missing simulation success cannot reach review or the relay broadcast',async()=>{
+ const f=await setup();
+ const plan=await prepareAction({action:'withdraw',wallet:f.wallet,amount:'1'},f.config,f.read);
+ const tx=getTransactionDecoder().decode(Buffer.from(plan.wire,'base64'));
+ // Synthetic nonzero signatures exercise rejection before any send; never submitted.
+ const wire=getBase64EncodedWireTransaction({...tx,signatures:Object.fromEntries(Object.keys(tx.signatures).map(k=>[k,new Uint8Array(64).fill(1)]))});
+ for(const result of [null,{}, {value:null},{value:{unitsConsumed:30000,accounts:[{lamports:999990000}]}},{value:{err:false}}]){
+  let sends=0;
+  const read=(m,p)=>{if(m==='simulateTransaction')return result;if(m==='sendTransaction'){sends++;throw Error('must not broadcast');}return f.read(m,p);};
+  await assert.rejects(prepareAction({action:'withdraw',wallet:f.wallet,amount:'1'},f.config,read),/Simulation rejected/);
+  await assert.rejects(submitTransaction(wire,f.config,read),/simulation failed/);
+  assert.equal(sends,0);
+ }
 });
 test('unreviewed funding is denied while owner exits remain constructible',async()=>{
  const f=await setup();const config={...f.config,custodyEnabled:false,tradingEnabled:false};
